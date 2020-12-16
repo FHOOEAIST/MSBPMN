@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>PlanDefinitionActorComponent.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">hapi-fhir</a> &gt; <a href="../index.html" class="el_bundle">transformation</a> &gt; <a href="index.source.html" class="el_package">org.hl7.fhir.r4.model</a> &gt; <span class="el_source">PlanDefinitionActorComponent.java</span></div><h1>PlanDefinitionActorComponent.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package org.hl7.fhir.r4.model;
+
+import ca.uhn.fhir.model.api.annotation.Block;
+import ca.uhn.fhir.model.api.annotation.Child;
+import ca.uhn.fhir.model.api.annotation.Description;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * &lt;p&gt;The Actor of a Plan Definition&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+@Block
+<span class="fc" id="L26">public class PlanDefinitionActorComponent extends BackboneElement {</span>
+
+    @Child(name = &quot;label&quot;, type = {StringType.class}, order = 1, min = 1, max = 1, modifier = false, summary = false)
+    @Description(shortDefinition = &quot;descriptive label for the actor&quot;, formalDefinition = &quot;descriptive label for the actor&quot;)
+    private StringType label;
+
+    @Child(name = &quot;description&quot;, type = {MarkdownType.class}, order = 2, min = 0, max = 1, modifier = false, summary = false)
+    @Description(shortDefinition = &quot;description of how the actor fits into the overall workflow of the plan definition&quot;,
+            formalDefinition = &quot;description of how the actor fits into the overall workflow of the plan definition&quot;)
+    private MarkdownType description;
+
+    @Child(name = &quot;options&quot;, type = {PlanDefinitionActorOptionsComponent.class}, order = 3, min = 1, max = Child.MAX_UNLIMITED, modifier = false, summary = false)
+    @Description(shortDefinition = &quot;The characteristics of the candidates that could serve as the actor&quot;,
+            formalDefinition = &quot;The characteristics of the candidates that could serve as the actor&quot;)
+    private List&lt;PlanDefinitionActorOptionsComponent&gt; options;
+
+    @Override
+    protected void listChildren(List&lt;Property&gt; children) {
+<span class="nc" id="L44">        super.listChildren(children);</span>
+<span class="nc" id="L45">        children.add(new Property(&quot;label&quot;, &quot;string&quot;, &quot;descriptive label for the actor&quot;, 1, 1, label));</span>
+<span class="nc" id="L46">        children.add(new Property(&quot;description&quot;, &quot;markdown&quot;, &quot;description of how the actor fits into the overall workflow of the plan definition&quot;, 0, 1, description));</span>
+<span class="nc" id="L47">        children.add(new Property(&quot;options&quot;, &quot;PlanDefinitionActorOptionsComponent&quot;, &quot;The characteristics of the candidates that could serve as the actor&quot;, 0, Child.MAX_UNLIMITED, options));</span>
+<span class="nc" id="L48">    }</span>
+
+
+    public StringType getLabelElement() {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (this.label == null) {</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            if (Configuration.errorOnAutoCreate())</span>
+<span class="nc" id="L54">                throw new Error(&quot;Attempt to auto-create PlanDefinitionActorComponent.label&quot;);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">            else if (Configuration.doAutoCreate())</span>
+<span class="nc" id="L56">                this.label = new StringType();</span>
+        }
+<span class="nc" id="L58">        return this.label;</span>
+    }
+
+    public boolean hasLabelElement() {
+<span class="nc bnc" id="L62" title="All 4 branches missed.">        return this.label != null &amp;&amp; !this.label.isEmpty();</span>
+    }
+
+    public boolean hasLabel() {
+<span class="nc" id="L66">        return hasLabelElement();</span>
+    }
+
+    public PlanDefinitionActorComponent setLabelElement(StringType label) {
+<span class="nc" id="L70">        this.label = label;</span>
+<span class="nc" id="L71">        return this;</span>
+    }
+
+    public String getLabel() {
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        return this.label == null ? null : this.label.getValue();</span>
+    }
+
+    public PlanDefinitionActorComponent setLabel(String label) {
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (this.label == null)</span>
+<span class="fc" id="L80">            this.label = new StringType();</span>
+<span class="fc" id="L81">        this.label.setValue(label);</span>
+<span class="fc" id="L82">        return this;</span>
+    }
+
+    public MarkdownType getDescriptionElement() {
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (this.description == null) {</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (Configuration.errorOnAutoCreate())</span>
+<span class="nc" id="L88">                throw new Error(&quot;Attempt to auto-create PlanDefinitionActorComponent.description&quot;);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            else if (Configuration.doAutoCreate())</span>
+<span class="nc" id="L90">                this.description = new MarkdownType();</span>
+        }
+<span class="nc" id="L92">        return this.description;</span>
+    }
+
+    public boolean hasDescriptionElement() {
+<span class="nc bnc" id="L96" title="All 4 branches missed.">        return this.description != null &amp;&amp; !this.description.isEmpty();</span>
+    }
+
+    public boolean hasDescription() {
+<span class="nc" id="L100">        return hasDescriptionElement();</span>
+    }
+
+    public PlanDefinitionActorComponent setDescriptionElement(MarkdownType description) {
+<span class="nc" id="L104">        this.description = description;</span>
+<span class="nc" id="L105">        return this;</span>
+    }
+
+    public String getDescription() {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        return this.description == null ? null : this.description.getValue();</span>
+    }
+
+    public PlanDefinitionActorComponent setDescription(String description) {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (this.description == null)</span>
+<span class="nc" id="L114">            this.description = new MarkdownType();</span>
+<span class="nc" id="L115">        this.description.setValue(description);</span>
+<span class="nc" id="L116">        return this;</span>
+    }
+
+    public List&lt;PlanDefinitionActorOptionsComponent&gt; getOptions() {
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (this.options == null)</span>
+<span class="nc" id="L121">            this.options = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L122">        return this.options;</span>
+    }
+
+    public PlanDefinitionActorComponent setOptions(List&lt;PlanDefinitionActorOptionsComponent&gt; options) {
+<span class="nc" id="L126">        this.options = options;</span>
+<span class="nc" id="L127">        return this;</span>
+    }
+
+    public boolean hasOptions() {
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (this.options == null)</span>
+<span class="nc" id="L132">            return false;</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        for (PlanDefinitionActorOptionsComponent option : this.options)</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (!option.isEmpty())</span>
+<span class="nc" id="L135">                return true;</span>
+<span class="nc" id="L136">        return false;</span>
+    }
+
+    public PlanDefinitionActorOptionsComponent addOptions() {
+<span class="nc" id="L140">        PlanDefinitionActorOptionsComponent planDefinitionActorOptionsComponent = new PlanDefinitionActorOptionsComponent();</span>
+<span class="nc" id="L141">        getOptions().add(planDefinitionActorOptionsComponent);</span>
+<span class="nc" id="L142">        return planDefinitionActorOptionsComponent;</span>
+    }
+
+    public PlanDefinitionActorComponent addOptions(PlanDefinitionActorOptionsComponent planDefinitionActorOptionsComponent) {
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        if (planDefinitionActorOptionsComponent != null)</span>
+<span class="nc" id="L147">            getOptions().add(planDefinitionActorOptionsComponent);</span>
+<span class="nc" id="L148">        return this;</span>
+    }
+
+    public PlanDefinitionActorOptionsComponent getOptionsFirstRep() {
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (!hasOptions()) {</span>
+<span class="nc" id="L153">            addOptions();</span>
+        }
+<span class="nc" id="L155">        return getOptions().get(0);</span>
+    }
+
+    @Override
+    public PlanDefinitionActorComponent copy() {
+<span class="nc" id="L160">        PlanDefinitionActorComponent dst = new PlanDefinitionActorComponent();</span>
+<span class="nc" id="L161">        copyValues(dst);</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        dst.label = this.label == null ? null : this.label.copy();</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        dst.description = this.description == null ? null : this.description.copy();</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        dst.options = this.options == null ? null : options.stream().map(PlanDefinitionActorOptionsComponent::copy).collect(Collectors.toList());</span>
+<span class="nc" id="L165">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

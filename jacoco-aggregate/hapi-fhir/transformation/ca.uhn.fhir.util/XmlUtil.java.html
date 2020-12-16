@@ -1,0 +1,1867 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>XmlUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">hapi-fhir</a> &gt; <a href="../index.html" class="el_bundle">transformation</a> &gt; <a href="index.source.html" class="el_package">ca.uhn.fhir.util</a> &gt; <span class="el_source">XmlUtil.java</span></div><h1>XmlUtil.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * HAPI FHIR - Core Library
+ * %%
+ * Copyright (C) 2014 - 2020 University Health Network
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+/* Note: This class was overwritten, because the default xml factory has to be used, in order to avoid conflicts with third party dependencies. */
+package ca.uhn.fhir.util;
+
+import ca.uhn.fhir.context.ConfigurationException;
+import ca.uhn.fhir.model.primitive.XhtmlDt;
+import ca.uhn.fhir.parser.DataFormatException;
+import ca.uhn.fhir.util.jar.DependencyLogFactory;
+import ca.uhn.fhir.util.jar.IDependencyLog;
+import com.ctc.wstx.api.WstxInputProperties;
+import com.ctc.wstx.stax.WstxOutputFactory;
+import org.apache.commons.text.StringEscapeUtils;
+import org.codehaus.stax2.XMLOutputFactory2;
+import org.codehaus.stax2.io.EscapingWriterFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.*;
+import javax.xml.stream.events.XMLEvent;
+import java.io.*;
+import java.util.*;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
+/**
+ * Utility methods for working with the StAX API.
+ * &lt;p&gt;
+ * This class contains code adapted from the Apache Axiom project.
+ * &lt;p&gt;
+ * Note: This class was overwritten, because the default xml factory has to be used, in order to avoid conflicts with third party dependencies.
+ */
+public class XmlUtil {
+<span class="fc" id="L56">    private static final org.slf4j.Logger ourLog = org.slf4j.LoggerFactory.getLogger(XmlUtil.class);</span>
+    private static final Map&lt;String, Integer&gt; VALID_ENTITY_NAMES;
+<span class="fc" id="L58">    private static final ExtendedEntityReplacingXmlResolver XML_RESOLVER = new ExtendedEntityReplacingXmlResolver();</span>
+    private static XMLOutputFactory ourFragmentOutputFactory;
+    private static volatile boolean ourHaveLoggedStaxImplementation;
+    private static volatile XMLInputFactory ourInputFactory;
+    private static Throwable ourNextException;
+    private static volatile XMLOutputFactory ourOutputFactory;
+
+    static {
+<span class="fc" id="L66">        HashMap&lt;String, Integer&gt; validEntityNames = new HashMap&lt;&gt;(1448);</span>
+<span class="fc" id="L67">        validEntityNames.put(&quot;AElig&quot;, 0x000C6);</span>
+<span class="fc" id="L68">        validEntityNames.put(&quot;Aacute&quot;, 0x000C1);</span>
+<span class="fc" id="L69">        validEntityNames.put(&quot;Abreve&quot;, 0x00102);</span>
+<span class="fc" id="L70">        validEntityNames.put(&quot;Acirc&quot;, 0x000C2);</span>
+<span class="fc" id="L71">        validEntityNames.put(&quot;Acy&quot;, 0x00410);</span>
+<span class="fc" id="L72">        validEntityNames.put(&quot;Afr&quot;, 0x1D504);</span>
+<span class="fc" id="L73">        validEntityNames.put(&quot;Agrave&quot;, 0x000C0);</span>
+<span class="fc" id="L74">        validEntityNames.put(&quot;Alpha&quot;, 0x00391);</span>
+<span class="fc" id="L75">        validEntityNames.put(&quot;Amacr&quot;, 0x00100);</span>
+<span class="fc" id="L76">        validEntityNames.put(&quot;And&quot;, 0x02A53);</span>
+<span class="fc" id="L77">        validEntityNames.put(&quot;Aogon&quot;, 0x00104);</span>
+<span class="fc" id="L78">        validEntityNames.put(&quot;Aopf&quot;, 0x1D538);</span>
+<span class="fc" id="L79">        validEntityNames.put(&quot;ApplyFunction&quot;, 0x02061);</span>
+<span class="fc" id="L80">        validEntityNames.put(&quot;Aring&quot;, 0x000C5);</span>
+<span class="fc" id="L81">        validEntityNames.put(&quot;Ascr&quot;, 0x1D49C);</span>
+<span class="fc" id="L82">        validEntityNames.put(&quot;Atilde&quot;, 0x000C3);</span>
+<span class="fc" id="L83">        validEntityNames.put(&quot;Auml&quot;, 0x000C4);</span>
+<span class="fc" id="L84">        validEntityNames.put(&quot;Barv&quot;, 0x02AE7);</span>
+<span class="fc" id="L85">        validEntityNames.put(&quot;Barwed&quot;, 0x02306);</span>
+<span class="fc" id="L86">        validEntityNames.put(&quot;Bcy&quot;, 0x00411);</span>
+<span class="fc" id="L87">        validEntityNames.put(&quot;Beta&quot;, 0x00392);</span>
+<span class="fc" id="L88">        validEntityNames.put(&quot;Bfr&quot;, 0x1D505);</span>
+<span class="fc" id="L89">        validEntityNames.put(&quot;Bopf&quot;, 0x1D539);</span>
+<span class="fc" id="L90">        validEntityNames.put(&quot;CHcy&quot;, 0x00427);</span>
+<span class="fc" id="L91">        validEntityNames.put(&quot;Cacute&quot;, 0x00106);</span>
+<span class="fc" id="L92">        validEntityNames.put(&quot;Cap&quot;, 0x022D2);</span>
+<span class="fc" id="L93">        validEntityNames.put(&quot;CapitalDifferentialD&quot;, 0x02145);</span>
+<span class="fc" id="L94">        validEntityNames.put(&quot;Ccaron&quot;, 0x0010C);</span>
+<span class="fc" id="L95">        validEntityNames.put(&quot;Ccedil&quot;, 0x000C7);</span>
+<span class="fc" id="L96">        validEntityNames.put(&quot;Ccirc&quot;, 0x00108);</span>
+<span class="fc" id="L97">        validEntityNames.put(&quot;Cconint&quot;, 0x02230);</span>
+<span class="fc" id="L98">        validEntityNames.put(&quot;Cdot&quot;, 0x0010A);</span>
+<span class="fc" id="L99">        validEntityNames.put(&quot;Cfr&quot;, 0x0212D);</span>
+<span class="fc" id="L100">        validEntityNames.put(&quot;Chi&quot;, 0x003A7);</span>
+<span class="fc" id="L101">        validEntityNames.put(&quot;Colon&quot;, 0x02237);</span>
+<span class="fc" id="L102">        validEntityNames.put(&quot;Colone&quot;, 0x02A74);</span>
+<span class="fc" id="L103">        validEntityNames.put(&quot;Conint&quot;, 0x0222F);</span>
+<span class="fc" id="L104">        validEntityNames.put(&quot;Copf&quot;, 0x02102);</span>
+<span class="fc" id="L105">        validEntityNames.put(&quot;Cross&quot;, 0x02A2F);</span>
+<span class="fc" id="L106">        validEntityNames.put(&quot;Cscr&quot;, 0x1D49E);</span>
+<span class="fc" id="L107">        validEntityNames.put(&quot;Cup&quot;, 0x022D3);</span>
+<span class="fc" id="L108">        validEntityNames.put(&quot;DDotrahd&quot;, 0x02911);</span>
+<span class="fc" id="L109">        validEntityNames.put(&quot;DJcy&quot;, 0x00402);</span>
+<span class="fc" id="L110">        validEntityNames.put(&quot;DScy&quot;, 0x00405);</span>
+<span class="fc" id="L111">        validEntityNames.put(&quot;DZcy&quot;, 0x0040F);</span>
+<span class="fc" id="L112">        validEntityNames.put(&quot;Dagger&quot;, 0x02021);</span>
+<span class="fc" id="L113">        validEntityNames.put(&quot;Darr&quot;, 0x021A1);</span>
+<span class="fc" id="L114">        validEntityNames.put(&quot;Dashv&quot;, 0x02AE4);</span>
+<span class="fc" id="L115">        validEntityNames.put(&quot;Dcaron&quot;, 0x0010E);</span>
+<span class="fc" id="L116">        validEntityNames.put(&quot;Dcy&quot;, 0x00414);</span>
+<span class="fc" id="L117">        validEntityNames.put(&quot;Delta&quot;, 0x00394);</span>
+<span class="fc" id="L118">        validEntityNames.put(&quot;Dfr&quot;, 0x1D507);</span>
+<span class="fc" id="L119">        validEntityNames.put(&quot;DifferentialD&quot;, 0x02146);</span>
+<span class="fc" id="L120">        validEntityNames.put(&quot;Dopf&quot;, 0x1D53B);</span>
+<span class="fc" id="L121">        validEntityNames.put(&quot;Dot&quot;, 0x000A8);</span>
+<span class="fc" id="L122">        validEntityNames.put(&quot;DotDot&quot;, 0x020DC);</span>
+<span class="fc" id="L123">        validEntityNames.put(&quot;DownArrowBar&quot;, 0x02913);</span>
+<span class="fc" id="L124">        validEntityNames.put(&quot;DownBreve&quot;, 0x00311);</span>
+<span class="fc" id="L125">        validEntityNames.put(&quot;DownLeftRightVector&quot;, 0x02950);</span>
+<span class="fc" id="L126">        validEntityNames.put(&quot;DownLeftTeeVector&quot;, 0x0295E);</span>
+<span class="fc" id="L127">        validEntityNames.put(&quot;DownLeftVectorBar&quot;, 0x02956);</span>
+<span class="fc" id="L128">        validEntityNames.put(&quot;DownRightTeeVector&quot;, 0x0295F);</span>
+<span class="fc" id="L129">        validEntityNames.put(&quot;DownRightVectorBar&quot;, 0x02957);</span>
+<span class="fc" id="L130">        validEntityNames.put(&quot;DownTeeArrow&quot;, 0x021A7);</span>
+<span class="fc" id="L131">        validEntityNames.put(&quot;Dscr&quot;, 0x1D49F);</span>
+<span class="fc" id="L132">        validEntityNames.put(&quot;Dstrok&quot;, 0x00110);</span>
+<span class="fc" id="L133">        validEntityNames.put(&quot;ENG&quot;, 0x0014A);</span>
+<span class="fc" id="L134">        validEntityNames.put(&quot;ETH&quot;, 0x000D0);</span>
+<span class="fc" id="L135">        validEntityNames.put(&quot;Eacute&quot;, 0x000C9);</span>
+<span class="fc" id="L136">        validEntityNames.put(&quot;Ecaron&quot;, 0x0011A);</span>
+<span class="fc" id="L137">        validEntityNames.put(&quot;Ecirc&quot;, 0x000CA);</span>
+<span class="fc" id="L138">        validEntityNames.put(&quot;Ecy&quot;, 0x0042D);</span>
+<span class="fc" id="L139">        validEntityNames.put(&quot;Edot&quot;, 0x00116);</span>
+<span class="fc" id="L140">        validEntityNames.put(&quot;Efr&quot;, 0x1D508);</span>
+<span class="fc" id="L141">        validEntityNames.put(&quot;Egrave&quot;, 0x000C8);</span>
+<span class="fc" id="L142">        validEntityNames.put(&quot;Emacr&quot;, 0x00112);</span>
+<span class="fc" id="L143">        validEntityNames.put(&quot;EmptySmallSquare&quot;, 0x025FB);</span>
+<span class="fc" id="L144">        validEntityNames.put(&quot;EmptyVerySmallSquare&quot;, 0x025AB);</span>
+<span class="fc" id="L145">        validEntityNames.put(&quot;Eogon&quot;, 0x00118);</span>
+<span class="fc" id="L146">        validEntityNames.put(&quot;Eopf&quot;, 0x1D53C);</span>
+<span class="fc" id="L147">        validEntityNames.put(&quot;Epsilon&quot;, 0x00395);</span>
+<span class="fc" id="L148">        validEntityNames.put(&quot;Equal&quot;, 0x02A75);</span>
+<span class="fc" id="L149">        validEntityNames.put(&quot;Escr&quot;, 0x02130);</span>
+<span class="fc" id="L150">        validEntityNames.put(&quot;Esim&quot;, 0x02A73);</span>
+<span class="fc" id="L151">        validEntityNames.put(&quot;Eta&quot;, 0x00397);</span>
+<span class="fc" id="L152">        validEntityNames.put(&quot;Euml&quot;, 0x000CB);</span>
+<span class="fc" id="L153">        validEntityNames.put(&quot;ExponentialE&quot;, 0x02147);</span>
+<span class="fc" id="L154">        validEntityNames.put(&quot;Fcy&quot;, 0x00424);</span>
+<span class="fc" id="L155">        validEntityNames.put(&quot;Ffr&quot;, 0x1D509);</span>
+<span class="fc" id="L156">        validEntityNames.put(&quot;FilledSmallSquare&quot;, 0x025FC);</span>
+<span class="fc" id="L157">        validEntityNames.put(&quot;Fopf&quot;, 0x1D53D);</span>
+<span class="fc" id="L158">        validEntityNames.put(&quot;Fscr&quot;, 0x02131);</span>
+<span class="fc" id="L159">        validEntityNames.put(&quot;GJcy&quot;, 0x00403);</span>
+<span class="fc" id="L160">        validEntityNames.put(&quot;Gamma&quot;, 0x00393);</span>
+<span class="fc" id="L161">        validEntityNames.put(&quot;Gammad&quot;, 0x003DC);</span>
+<span class="fc" id="L162">        validEntityNames.put(&quot;Gbreve&quot;, 0x0011E);</span>
+<span class="fc" id="L163">        validEntityNames.put(&quot;Gcedil&quot;, 0x00122);</span>
+<span class="fc" id="L164">        validEntityNames.put(&quot;Gcirc&quot;, 0x0011C);</span>
+<span class="fc" id="L165">        validEntityNames.put(&quot;Gcy&quot;, 0x00413);</span>
+<span class="fc" id="L166">        validEntityNames.put(&quot;Gdot&quot;, 0x00120);</span>
+<span class="fc" id="L167">        validEntityNames.put(&quot;Gfr&quot;, 0x1D50A);</span>
+<span class="fc" id="L168">        validEntityNames.put(&quot;Gg&quot;, 0x022D9);</span>
+<span class="fc" id="L169">        validEntityNames.put(&quot;Gopf&quot;, 0x1D53E);</span>
+<span class="fc" id="L170">        validEntityNames.put(&quot;GreaterGreater&quot;, 0x02AA2);</span>
+<span class="fc" id="L171">        validEntityNames.put(&quot;Gscr&quot;, 0x1D4A2);</span>
+<span class="fc" id="L172">        validEntityNames.put(&quot;Gt&quot;, 0x0226B);</span>
+<span class="fc" id="L173">        validEntityNames.put(&quot;HARDcy&quot;, 0x0042A);</span>
+<span class="fc" id="L174">        validEntityNames.put(&quot;Hat&quot;, 0x0005E);</span>
+<span class="fc" id="L175">        validEntityNames.put(&quot;Hcirc&quot;, 0x00124);</span>
+<span class="fc" id="L176">        validEntityNames.put(&quot;Hfr&quot;, 0x0210C);</span>
+<span class="fc" id="L177">        validEntityNames.put(&quot;Hstrok&quot;, 0x00126);</span>
+<span class="fc" id="L178">        validEntityNames.put(&quot;IEcy&quot;, 0x00415);</span>
+<span class="fc" id="L179">        validEntityNames.put(&quot;IJlig&quot;, 0x00132);</span>
+<span class="fc" id="L180">        validEntityNames.put(&quot;IOcy&quot;, 0x00401);</span>
+<span class="fc" id="L181">        validEntityNames.put(&quot;Iacute&quot;, 0x000CD);</span>
+<span class="fc" id="L182">        validEntityNames.put(&quot;Icirc&quot;, 0x000CE);</span>
+<span class="fc" id="L183">        validEntityNames.put(&quot;Icy&quot;, 0x00418);</span>
+<span class="fc" id="L184">        validEntityNames.put(&quot;Idot&quot;, 0x00130);</span>
+<span class="fc" id="L185">        validEntityNames.put(&quot;Igrave&quot;, 0x000CC);</span>
+<span class="fc" id="L186">        validEntityNames.put(&quot;Imacr&quot;, 0x0012A);</span>
+<span class="fc" id="L187">        validEntityNames.put(&quot;ImaginaryI&quot;, 0x02148);</span>
+<span class="fc" id="L188">        validEntityNames.put(&quot;Int&quot;, 0x0222C);</span>
+<span class="fc" id="L189">        validEntityNames.put(&quot;InvisibleComma&quot;, 0x02063);</span>
+<span class="fc" id="L190">        validEntityNames.put(&quot;InvisibleTimes&quot;, 0x02062);</span>
+<span class="fc" id="L191">        validEntityNames.put(&quot;Iogon&quot;, 0x0012E);</span>
+<span class="fc" id="L192">        validEntityNames.put(&quot;Iopf&quot;, 0x1D540);</span>
+<span class="fc" id="L193">        validEntityNames.put(&quot;Iota&quot;, 0x00399);</span>
+<span class="fc" id="L194">        validEntityNames.put(&quot;Iscr&quot;, 0x02110);</span>
+<span class="fc" id="L195">        validEntityNames.put(&quot;Itilde&quot;, 0x00128);</span>
+<span class="fc" id="L196">        validEntityNames.put(&quot;Iukcy&quot;, 0x00406);</span>
+<span class="fc" id="L197">        validEntityNames.put(&quot;Iuml&quot;, 0x000CF);</span>
+<span class="fc" id="L198">        validEntityNames.put(&quot;Jcirc&quot;, 0x00134);</span>
+<span class="fc" id="L199">        validEntityNames.put(&quot;Jcy&quot;, 0x00419);</span>
+<span class="fc" id="L200">        validEntityNames.put(&quot;Jfr&quot;, 0x1D50D);</span>
+<span class="fc" id="L201">        validEntityNames.put(&quot;Jopf&quot;, 0x1D541);</span>
+<span class="fc" id="L202">        validEntityNames.put(&quot;Jscr&quot;, 0x1D4A5);</span>
+<span class="fc" id="L203">        validEntityNames.put(&quot;Jsercy&quot;, 0x00408);</span>
+<span class="fc" id="L204">        validEntityNames.put(&quot;Jukcy&quot;, 0x00404);</span>
+<span class="fc" id="L205">        validEntityNames.put(&quot;KHcy&quot;, 0x00425);</span>
+<span class="fc" id="L206">        validEntityNames.put(&quot;KJcy&quot;, 0x0040C);</span>
+<span class="fc" id="L207">        validEntityNames.put(&quot;Kappa&quot;, 0x0039A);</span>
+<span class="fc" id="L208">        validEntityNames.put(&quot;Kcedil&quot;, 0x00136);</span>
+<span class="fc" id="L209">        validEntityNames.put(&quot;Kcy&quot;, 0x0041A);</span>
+<span class="fc" id="L210">        validEntityNames.put(&quot;Kfr&quot;, 0x1D50E);</span>
+<span class="fc" id="L211">        validEntityNames.put(&quot;Kopf&quot;, 0x1D542);</span>
+<span class="fc" id="L212">        validEntityNames.put(&quot;Kscr&quot;, 0x1D4A6);</span>
+<span class="fc" id="L213">        validEntityNames.put(&quot;LJcy&quot;, 0x00409);</span>
+<span class="fc" id="L214">        validEntityNames.put(&quot;Lacute&quot;, 0x00139);</span>
+<span class="fc" id="L215">        validEntityNames.put(&quot;Lambda&quot;, 0x0039B);</span>
+<span class="fc" id="L216">        validEntityNames.put(&quot;Lang&quot;, 0x027EA);</span>
+<span class="fc" id="L217">        validEntityNames.put(&quot;Larr&quot;, 0x0219E);</span>
+<span class="fc" id="L218">        validEntityNames.put(&quot;Lcaron&quot;, 0x0013D);</span>
+<span class="fc" id="L219">        validEntityNames.put(&quot;Lcedil&quot;, 0x0013B);</span>
+<span class="fc" id="L220">        validEntityNames.put(&quot;Lcy&quot;, 0x0041B);</span>
+<span class="fc" id="L221">        validEntityNames.put(&quot;LeftDownTeeVector&quot;, 0x02961);</span>
+<span class="fc" id="L222">        validEntityNames.put(&quot;LeftDownVectorBar&quot;, 0x02959);</span>
+<span class="fc" id="L223">        validEntityNames.put(&quot;LeftRightVector&quot;, 0x0294E);</span>
+<span class="fc" id="L224">        validEntityNames.put(&quot;LeftTeeArrow&quot;, 0x021A4);</span>
+<span class="fc" id="L225">        validEntityNames.put(&quot;LeftTeeVector&quot;, 0x0295A);</span>
+<span class="fc" id="L226">        validEntityNames.put(&quot;LeftTriangleBar&quot;, 0x029CF);</span>
+<span class="fc" id="L227">        validEntityNames.put(&quot;LeftUpDownVector&quot;, 0x02951);</span>
+<span class="fc" id="L228">        validEntityNames.put(&quot;LeftUpTeeVector&quot;, 0x02960);</span>
+<span class="fc" id="L229">        validEntityNames.put(&quot;LeftUpVectorBar&quot;, 0x02958);</span>
+<span class="fc" id="L230">        validEntityNames.put(&quot;LeftVectorBar&quot;, 0x02952);</span>
+<span class="fc" id="L231">        validEntityNames.put(&quot;LessLess&quot;, 0x02AA1);</span>
+<span class="fc" id="L232">        validEntityNames.put(&quot;Lfr&quot;, 0x1D50F);</span>
+<span class="fc" id="L233">        validEntityNames.put(&quot;Ll&quot;, 0x022D8);</span>
+<span class="fc" id="L234">        validEntityNames.put(&quot;Lmidot&quot;, 0x0013F);</span>
+<span class="fc" id="L235">        validEntityNames.put(&quot;Lopf&quot;, 0x1D543);</span>
+<span class="fc" id="L236">        validEntityNames.put(&quot;Lscr&quot;, 0x02112);</span>
+<span class="fc" id="L237">        validEntityNames.put(&quot;Lstrok&quot;, 0x00141);</span>
+<span class="fc" id="L238">        validEntityNames.put(&quot;Lt&quot;, 0x0226A);</span>
+<span class="fc" id="L239">        validEntityNames.put(&quot;Map&quot;, 0x02905);</span>
+<span class="fc" id="L240">        validEntityNames.put(&quot;Mcy&quot;, 0x0041C);</span>
+<span class="fc" id="L241">        validEntityNames.put(&quot;MediumSpace&quot;, 0x0205F);</span>
+<span class="fc" id="L242">        validEntityNames.put(&quot;Mfr&quot;, 0x1D510);</span>
+<span class="fc" id="L243">        validEntityNames.put(&quot;Mopf&quot;, 0x1D544);</span>
+<span class="fc" id="L244">        validEntityNames.put(&quot;Mu&quot;, 0x0039C);</span>
+<span class="fc" id="L245">        validEntityNames.put(&quot;NJcy&quot;, 0x0040A);</span>
+<span class="fc" id="L246">        validEntityNames.put(&quot;Nacute&quot;, 0x00143);</span>
+<span class="fc" id="L247">        validEntityNames.put(&quot;Ncaron&quot;, 0x00147);</span>
+<span class="fc" id="L248">        validEntityNames.put(&quot;Ncedil&quot;, 0x00145);</span>
+<span class="fc" id="L249">        validEntityNames.put(&quot;Ncy&quot;, 0x0041D);</span>
+<span class="fc" id="L250">        validEntityNames.put(&quot;NewLine&quot;, 0x0000A);</span>
+<span class="fc" id="L251">        validEntityNames.put(&quot;Nfr&quot;, 0x1D511);</span>
+<span class="fc" id="L252">        validEntityNames.put(&quot;NoBreak&quot;, 0x02060);</span>
+<span class="fc" id="L253">        validEntityNames.put(&quot;Nopf&quot;, 0x02115);</span>
+<span class="fc" id="L254">        validEntityNames.put(&quot;Not&quot;, 0x02AEC);</span>
+<span class="fc" id="L255">        validEntityNames.put(&quot;NotCupCap&quot;, 0x0226D);</span>
+<span class="fc" id="L256">        validEntityNames.put(&quot;Nscr&quot;, 0x1D4A9);</span>
+<span class="fc" id="L257">        validEntityNames.put(&quot;Ntilde&quot;, 0x000D1);</span>
+<span class="fc" id="L258">        validEntityNames.put(&quot;Nu&quot;, 0x0039D);</span>
+<span class="fc" id="L259">        validEntityNames.put(&quot;OElig&quot;, 0x00152);</span>
+<span class="fc" id="L260">        validEntityNames.put(&quot;Oacute&quot;, 0x000D3);</span>
+<span class="fc" id="L261">        validEntityNames.put(&quot;Ocirc&quot;, 0x000D4);</span>
+<span class="fc" id="L262">        validEntityNames.put(&quot;Ocy&quot;, 0x0041E);</span>
+<span class="fc" id="L263">        validEntityNames.put(&quot;Odblac&quot;, 0x00150);</span>
+<span class="fc" id="L264">        validEntityNames.put(&quot;Ofr&quot;, 0x1D512);</span>
+<span class="fc" id="L265">        validEntityNames.put(&quot;Ograve&quot;, 0x000D2);</span>
+<span class="fc" id="L266">        validEntityNames.put(&quot;Omacr&quot;, 0x0014C);</span>
+<span class="fc" id="L267">        validEntityNames.put(&quot;Omega&quot;, 0x003A9);</span>
+<span class="fc" id="L268">        validEntityNames.put(&quot;Omicron&quot;, 0x0039F);</span>
+<span class="fc" id="L269">        validEntityNames.put(&quot;Oopf&quot;, 0x1D546);</span>
+<span class="fc" id="L270">        validEntityNames.put(&quot;Or&quot;, 0x02A54);</span>
+<span class="fc" id="L271">        validEntityNames.put(&quot;Oscr&quot;, 0x1D4AA);</span>
+<span class="fc" id="L272">        validEntityNames.put(&quot;Oslash&quot;, 0x000D8);</span>
+<span class="fc" id="L273">        validEntityNames.put(&quot;Otilde&quot;, 0x000D5);</span>
+<span class="fc" id="L274">        validEntityNames.put(&quot;Otimes&quot;, 0x02A37);</span>
+<span class="fc" id="L275">        validEntityNames.put(&quot;Ouml&quot;, 0x000D6);</span>
+<span class="fc" id="L276">        validEntityNames.put(&quot;OverBrace&quot;, 0x023DE);</span>
+<span class="fc" id="L277">        validEntityNames.put(&quot;OverParenthesis&quot;, 0x023DC);</span>
+<span class="fc" id="L278">        validEntityNames.put(&quot;Pcy&quot;, 0x0041F);</span>
+<span class="fc" id="L279">        validEntityNames.put(&quot;Pfr&quot;, 0x1D513);</span>
+<span class="fc" id="L280">        validEntityNames.put(&quot;Phi&quot;, 0x003A6);</span>
+<span class="fc" id="L281">        validEntityNames.put(&quot;Pi&quot;, 0x003A0);</span>
+<span class="fc" id="L282">        validEntityNames.put(&quot;Popf&quot;, 0x02119);</span>
+<span class="fc" id="L283">        validEntityNames.put(&quot;Pr&quot;, 0x02ABB);</span>
+<span class="fc" id="L284">        validEntityNames.put(&quot;Prime&quot;, 0x02033);</span>
+<span class="fc" id="L285">        validEntityNames.put(&quot;Pscr&quot;, 0x1D4AB);</span>
+<span class="fc" id="L286">        validEntityNames.put(&quot;Psi&quot;, 0x003A8);</span>
+<span class="fc" id="L287">        validEntityNames.put(&quot;Qfr&quot;, 0x1D514);</span>
+<span class="fc" id="L288">        validEntityNames.put(&quot;Qscr&quot;, 0x1D4AC);</span>
+<span class="fc" id="L289">        validEntityNames.put(&quot;RBarr&quot;, 0x02910);</span>
+<span class="fc" id="L290">        validEntityNames.put(&quot;Racute&quot;, 0x00154);</span>
+<span class="fc" id="L291">        validEntityNames.put(&quot;Rang&quot;, 0x027EB);</span>
+<span class="fc" id="L292">        validEntityNames.put(&quot;Rarr&quot;, 0x021A0);</span>
+<span class="fc" id="L293">        validEntityNames.put(&quot;Rarrtl&quot;, 0x02916);</span>
+<span class="fc" id="L294">        validEntityNames.put(&quot;Rcaron&quot;, 0x00158);</span>
+<span class="fc" id="L295">        validEntityNames.put(&quot;Rcedil&quot;, 0x00156);</span>
+<span class="fc" id="L296">        validEntityNames.put(&quot;Rcy&quot;, 0x00420);</span>
+<span class="fc" id="L297">        validEntityNames.put(&quot;Rho&quot;, 0x003A1);</span>
+<span class="fc" id="L298">        validEntityNames.put(&quot;RightDownTeeVector&quot;, 0x0295D);</span>
+<span class="fc" id="L299">        validEntityNames.put(&quot;RightDownVectorBar&quot;, 0x02955);</span>
+<span class="fc" id="L300">        validEntityNames.put(&quot;RightTeeVector&quot;, 0x0295B);</span>
+<span class="fc" id="L301">        validEntityNames.put(&quot;RightTriangleBar&quot;, 0x029D0);</span>
+<span class="fc" id="L302">        validEntityNames.put(&quot;RightUpDownVector&quot;, 0x0294F);</span>
+<span class="fc" id="L303">        validEntityNames.put(&quot;RightUpTeeVector&quot;, 0x0295C);</span>
+<span class="fc" id="L304">        validEntityNames.put(&quot;RightUpVectorBar&quot;, 0x02954);</span>
+<span class="fc" id="L305">        validEntityNames.put(&quot;RightVectorBar&quot;, 0x02953);</span>
+<span class="fc" id="L306">        validEntityNames.put(&quot;RoundImplies&quot;, 0x02970);</span>
+<span class="fc" id="L307">        validEntityNames.put(&quot;Rscr&quot;, 0x0211B);</span>
+<span class="fc" id="L308">        validEntityNames.put(&quot;RuleDelayed&quot;, 0x029F4);</span>
+<span class="fc" id="L309">        validEntityNames.put(&quot;SHCHcy&quot;, 0x00429);</span>
+<span class="fc" id="L310">        validEntityNames.put(&quot;SHcy&quot;, 0x00428);</span>
+<span class="fc" id="L311">        validEntityNames.put(&quot;SOFTcy&quot;, 0x0042C);</span>
+<span class="fc" id="L312">        validEntityNames.put(&quot;Sacute&quot;, 0x0015A);</span>
+<span class="fc" id="L313">        validEntityNames.put(&quot;Sc&quot;, 0x02ABC);</span>
+<span class="fc" id="L314">        validEntityNames.put(&quot;Scaron&quot;, 0x00160);</span>
+<span class="fc" id="L315">        validEntityNames.put(&quot;Scedil&quot;, 0x0015E);</span>
+<span class="fc" id="L316">        validEntityNames.put(&quot;Scirc&quot;, 0x0015C);</span>
+<span class="fc" id="L317">        validEntityNames.put(&quot;Scy&quot;, 0x00421);</span>
+<span class="fc" id="L318">        validEntityNames.put(&quot;Sfr&quot;, 0x1D516);</span>
+<span class="fc" id="L319">        validEntityNames.put(&quot;Sigma&quot;, 0x003A3);</span>
+<span class="fc" id="L320">        validEntityNames.put(&quot;Sopf&quot;, 0x1D54A);</span>
+<span class="fc" id="L321">        validEntityNames.put(&quot;Sscr&quot;, 0x1D4AE);</span>
+<span class="fc" id="L322">        validEntityNames.put(&quot;Sub&quot;, 0x022D0);</span>
+<span class="fc" id="L323">        validEntityNames.put(&quot;Sup&quot;, 0x022D1);</span>
+<span class="fc" id="L324">        validEntityNames.put(&quot;THORN&quot;, 0x000DE);</span>
+<span class="fc" id="L325">        validEntityNames.put(&quot;TSHcy&quot;, 0x0040B);</span>
+<span class="fc" id="L326">        validEntityNames.put(&quot;TScy&quot;, 0x00426);</span>
+<span class="fc" id="L327">        validEntityNames.put(&quot;Tab&quot;, 0x00009);</span>
+<span class="fc" id="L328">        validEntityNames.put(&quot;Tau&quot;, 0x003A4);</span>
+<span class="fc" id="L329">        validEntityNames.put(&quot;Tcaron&quot;, 0x00164);</span>
+<span class="fc" id="L330">        validEntityNames.put(&quot;Tcedil&quot;, 0x00162);</span>
+<span class="fc" id="L331">        validEntityNames.put(&quot;Tcy&quot;, 0x00422);</span>
+<span class="fc" id="L332">        validEntityNames.put(&quot;Tfr&quot;, 0x1D517);</span>
+<span class="fc" id="L333">        validEntityNames.put(&quot;Theta&quot;, 0x00398);</span>
+<span class="fc" id="L334">        validEntityNames.put(&quot;Topf&quot;, 0x1D54B);</span>
+<span class="fc" id="L335">        validEntityNames.put(&quot;Tscr&quot;, 0x1D4AF);</span>
+<span class="fc" id="L336">        validEntityNames.put(&quot;Tstrok&quot;, 0x00166);</span>
+<span class="fc" id="L337">        validEntityNames.put(&quot;Uacute&quot;, 0x000DA);</span>
+<span class="fc" id="L338">        validEntityNames.put(&quot;Uarr&quot;, 0x0219F);</span>
+<span class="fc" id="L339">        validEntityNames.put(&quot;Uarrocir&quot;, 0x02949);</span>
+<span class="fc" id="L340">        validEntityNames.put(&quot;Ubrcy&quot;, 0x0040E);</span>
+<span class="fc" id="L341">        validEntityNames.put(&quot;Ubreve&quot;, 0x0016C);</span>
+<span class="fc" id="L342">        validEntityNames.put(&quot;Ucirc&quot;, 0x000DB);</span>
+<span class="fc" id="L343">        validEntityNames.put(&quot;Ucy&quot;, 0x00423);</span>
+<span class="fc" id="L344">        validEntityNames.put(&quot;Udblac&quot;, 0x00170);</span>
+<span class="fc" id="L345">        validEntityNames.put(&quot;Ufr&quot;, 0x1D518);</span>
+<span class="fc" id="L346">        validEntityNames.put(&quot;Ugrave&quot;, 0x000D9);</span>
+<span class="fc" id="L347">        validEntityNames.put(&quot;Umacr&quot;, 0x0016A);</span>
+<span class="fc" id="L348">        validEntityNames.put(&quot;UnderBar&quot;, 0x00332);</span>
+<span class="fc" id="L349">        validEntityNames.put(&quot;UnderBrace&quot;, 0x023DF);</span>
+<span class="fc" id="L350">        validEntityNames.put(&quot;UnderParenthesis&quot;, 0x023DD);</span>
+<span class="fc" id="L351">        validEntityNames.put(&quot;Uogon&quot;, 0x00172);</span>
+<span class="fc" id="L352">        validEntityNames.put(&quot;Uopf&quot;, 0x1D54C);</span>
+<span class="fc" id="L353">        validEntityNames.put(&quot;UpArrowBar&quot;, 0x02912);</span>
+<span class="fc" id="L354">        validEntityNames.put(&quot;UpTeeArrow&quot;, 0x021A5);</span>
+<span class="fc" id="L355">        validEntityNames.put(&quot;Upsi&quot;, 0x003D2);</span>
+<span class="fc" id="L356">        validEntityNames.put(&quot;Upsilon&quot;, 0x003A5);</span>
+<span class="fc" id="L357">        validEntityNames.put(&quot;Uring&quot;, 0x0016E);</span>
+<span class="fc" id="L358">        validEntityNames.put(&quot;Uscr&quot;, 0x1D4B0);</span>
+<span class="fc" id="L359">        validEntityNames.put(&quot;Utilde&quot;, 0x00168);</span>
+<span class="fc" id="L360">        validEntityNames.put(&quot;Uuml&quot;, 0x000DC);</span>
+<span class="fc" id="L361">        validEntityNames.put(&quot;VDash&quot;, 0x022AB);</span>
+<span class="fc" id="L362">        validEntityNames.put(&quot;Vbar&quot;, 0x02AEB);</span>
+<span class="fc" id="L363">        validEntityNames.put(&quot;Vcy&quot;, 0x00412);</span>
+<span class="fc" id="L364">        validEntityNames.put(&quot;Vdash&quot;, 0x022A9);</span>
+<span class="fc" id="L365">        validEntityNames.put(&quot;Vdashl&quot;, 0x02AE6);</span>
+<span class="fc" id="L366">        validEntityNames.put(&quot;Verbar&quot;, 0x02016);</span>
+<span class="fc" id="L367">        validEntityNames.put(&quot;VerticalSeparator&quot;, 0x02758);</span>
+<span class="fc" id="L368">        validEntityNames.put(&quot;Vfr&quot;, 0x1D519);</span>
+<span class="fc" id="L369">        validEntityNames.put(&quot;Vopf&quot;, 0x1D54D);</span>
+<span class="fc" id="L370">        validEntityNames.put(&quot;Vscr&quot;, 0x1D4B1);</span>
+<span class="fc" id="L371">        validEntityNames.put(&quot;Vvdash&quot;, 0x022AA);</span>
+<span class="fc" id="L372">        validEntityNames.put(&quot;Wcirc&quot;, 0x00174);</span>
+<span class="fc" id="L373">        validEntityNames.put(&quot;Wfr&quot;, 0x1D51A);</span>
+<span class="fc" id="L374">        validEntityNames.put(&quot;Wopf&quot;, 0x1D54E);</span>
+<span class="fc" id="L375">        validEntityNames.put(&quot;Wscr&quot;, 0x1D4B2);</span>
+<span class="fc" id="L376">        validEntityNames.put(&quot;Xfr&quot;, 0x1D51B);</span>
+<span class="fc" id="L377">        validEntityNames.put(&quot;Xi&quot;, 0x0039E);</span>
+<span class="fc" id="L378">        validEntityNames.put(&quot;Xopf&quot;, 0x1D54F);</span>
+<span class="fc" id="L379">        validEntityNames.put(&quot;Xscr&quot;, 0x1D4B3);</span>
+<span class="fc" id="L380">        validEntityNames.put(&quot;YAcy&quot;, 0x0042F);</span>
+<span class="fc" id="L381">        validEntityNames.put(&quot;YIcy&quot;, 0x00407);</span>
+<span class="fc" id="L382">        validEntityNames.put(&quot;YUcy&quot;, 0x0042E);</span>
+<span class="fc" id="L383">        validEntityNames.put(&quot;Yacute&quot;, 0x000DD);</span>
+<span class="fc" id="L384">        validEntityNames.put(&quot;Ycirc&quot;, 0x00176);</span>
+<span class="fc" id="L385">        validEntityNames.put(&quot;Ycy&quot;, 0x0042B);</span>
+<span class="fc" id="L386">        validEntityNames.put(&quot;Yfr&quot;, 0x1D51C);</span>
+<span class="fc" id="L387">        validEntityNames.put(&quot;Yopf&quot;, 0x1D550);</span>
+<span class="fc" id="L388">        validEntityNames.put(&quot;Yscr&quot;, 0x1D4B4);</span>
+<span class="fc" id="L389">        validEntityNames.put(&quot;Yuml&quot;, 0x00178);</span>
+<span class="fc" id="L390">        validEntityNames.put(&quot;ZHcy&quot;, 0x00416);</span>
+<span class="fc" id="L391">        validEntityNames.put(&quot;Zacute&quot;, 0x00179);</span>
+<span class="fc" id="L392">        validEntityNames.put(&quot;Zcaron&quot;, 0x0017D);</span>
+<span class="fc" id="L393">        validEntityNames.put(&quot;Zcy&quot;, 0x00417);</span>
+<span class="fc" id="L394">        validEntityNames.put(&quot;Zdot&quot;, 0x0017B);</span>
+<span class="fc" id="L395">        validEntityNames.put(&quot;ZeroWidthSpace&quot;, 0x0200B);</span>
+<span class="fc" id="L396">        validEntityNames.put(&quot;Zeta&quot;, 0x00396);</span>
+<span class="fc" id="L397">        validEntityNames.put(&quot;Zfr&quot;, 0x02128);</span>
+<span class="fc" id="L398">        validEntityNames.put(&quot;Zscr&quot;, 0x1D4B5);</span>
+<span class="fc" id="L399">        validEntityNames.put(&quot;aacute&quot;, 0x000E1);</span>
+<span class="fc" id="L400">        validEntityNames.put(&quot;abreve&quot;, 0x00103);</span>
+<span class="fc" id="L401">        validEntityNames.put(&quot;ac&quot;, 0x0223E);</span>
+<span class="fc" id="L402">        validEntityNames.put(&quot;acd&quot;, 0x0223F);</span>
+<span class="fc" id="L403">        validEntityNames.put(&quot;acirc&quot;, 0x000E2);</span>
+<span class="fc" id="L404">        validEntityNames.put(&quot;acute&quot;, 0x000B4);</span>
+<span class="fc" id="L405">        validEntityNames.put(&quot;acy&quot;, 0x00430);</span>
+<span class="fc" id="L406">        validEntityNames.put(&quot;aelig&quot;, 0x000E6);</span>
+<span class="fc" id="L407">        validEntityNames.put(&quot;afr&quot;, 0x1D51E);</span>
+<span class="fc" id="L408">        validEntityNames.put(&quot;agrave&quot;, 0x000E0);</span>
+<span class="fc" id="L409">        validEntityNames.put(&quot;alefsym&quot;, 0x02135);</span>
+<span class="fc" id="L410">        validEntityNames.put(&quot;alpha&quot;, 0x003B1);</span>
+<span class="fc" id="L411">        validEntityNames.put(&quot;amacr&quot;, 0x00101);</span>
+<span class="fc" id="L412">        validEntityNames.put(&quot;amalg&quot;, 0x02A3F);</span>
+<span class="fc" id="L413">        validEntityNames.put(&quot;amp&quot;, 0x00026);</span>
+<span class="fc" id="L414">        validEntityNames.put(&quot;and&quot;, 0x02227);</span>
+<span class="fc" id="L415">        validEntityNames.put(&quot;andand&quot;, 0x02A55);</span>
+<span class="fc" id="L416">        validEntityNames.put(&quot;andd&quot;, 0x02A5C);</span>
+<span class="fc" id="L417">        validEntityNames.put(&quot;andslope&quot;, 0x02A58);</span>
+<span class="fc" id="L418">        validEntityNames.put(&quot;andv&quot;, 0x02A5A);</span>
+<span class="fc" id="L419">        validEntityNames.put(&quot;ang&quot;, 0x02220);</span>
+<span class="fc" id="L420">        validEntityNames.put(&quot;ange&quot;, 0x029A4);</span>
+<span class="fc" id="L421">        validEntityNames.put(&quot;angmsd&quot;, 0x02221);</span>
+<span class="fc" id="L422">        validEntityNames.put(&quot;angmsdaa&quot;, 0x029A8);</span>
+<span class="fc" id="L423">        validEntityNames.put(&quot;angmsdab&quot;, 0x029A9);</span>
+<span class="fc" id="L424">        validEntityNames.put(&quot;angmsdac&quot;, 0x029AA);</span>
+<span class="fc" id="L425">        validEntityNames.put(&quot;angmsdad&quot;, 0x029AB);</span>
+<span class="fc" id="L426">        validEntityNames.put(&quot;angmsdae&quot;, 0x029AC);</span>
+<span class="fc" id="L427">        validEntityNames.put(&quot;angmsdaf&quot;, 0x029AD);</span>
+<span class="fc" id="L428">        validEntityNames.put(&quot;angmsdag&quot;, 0x029AE);</span>
+<span class="fc" id="L429">        validEntityNames.put(&quot;angmsdah&quot;, 0x029AF);</span>
+<span class="fc" id="L430">        validEntityNames.put(&quot;angrt&quot;, 0x0221F);</span>
+<span class="fc" id="L431">        validEntityNames.put(&quot;angrtvb&quot;, 0x022BE);</span>
+<span class="fc" id="L432">        validEntityNames.put(&quot;angrtvbd&quot;, 0x0299D);</span>
+<span class="fc" id="L433">        validEntityNames.put(&quot;angsph&quot;, 0x02222);</span>
+<span class="fc" id="L434">        validEntityNames.put(&quot;angst&quot;, 0x0212B);</span>
+<span class="fc" id="L435">        validEntityNames.put(&quot;angzarr&quot;, 0x0237C);</span>
+<span class="fc" id="L436">        validEntityNames.put(&quot;aogon&quot;, 0x00105);</span>
+<span class="fc" id="L437">        validEntityNames.put(&quot;aopf&quot;, 0x1D552);</span>
+<span class="fc" id="L438">        validEntityNames.put(&quot;apE&quot;, 0x02A70);</span>
+<span class="fc" id="L439">        validEntityNames.put(&quot;apacir&quot;, 0x02A6F);</span>
+<span class="fc" id="L440">        validEntityNames.put(&quot;ape&quot;, 0x0224A);</span>
+<span class="fc" id="L441">        validEntityNames.put(&quot;apid&quot;, 0x0224B);</span>
+<span class="fc" id="L442">        validEntityNames.put(&quot;apos&quot;, 0x00027);</span>
+<span class="fc" id="L443">        validEntityNames.put(&quot;aring&quot;, 0x000E5);</span>
+<span class="fc" id="L444">        validEntityNames.put(&quot;ascr&quot;, 0x1D4B6);</span>
+<span class="fc" id="L445">        validEntityNames.put(&quot;ast&quot;, 0x0002A);</span>
+<span class="fc" id="L446">        validEntityNames.put(&quot;asymp&quot;, 0x02248);</span>
+<span class="fc" id="L447">        validEntityNames.put(&quot;asympeq&quot;, 0x0224D);</span>
+<span class="fc" id="L448">        validEntityNames.put(&quot;atilde&quot;, 0x000E3);</span>
+<span class="fc" id="L449">        validEntityNames.put(&quot;auml&quot;, 0x000E4);</span>
+<span class="fc" id="L450">        validEntityNames.put(&quot;awconint&quot;, 0x02233);</span>
+<span class="fc" id="L451">        validEntityNames.put(&quot;awint&quot;, 0x02A11);</span>
+<span class="fc" id="L452">        validEntityNames.put(&quot;bNot&quot;, 0x02AED);</span>
+<span class="fc" id="L453">        validEntityNames.put(&quot;barvee&quot;, 0x022BD);</span>
+<span class="fc" id="L454">        validEntityNames.put(&quot;barwed&quot;, 0x02305);</span>
+<span class="fc" id="L455">        validEntityNames.put(&quot;bbrk&quot;, 0x023B5);</span>
+<span class="fc" id="L456">        validEntityNames.put(&quot;bbrktbrk&quot;, 0x023B6);</span>
+<span class="fc" id="L457">        validEntityNames.put(&quot;bcong&quot;, 0x0224C);</span>
+<span class="fc" id="L458">        validEntityNames.put(&quot;bcy&quot;, 0x00431);</span>
+<span class="fc" id="L459">        validEntityNames.put(&quot;becaus&quot;, 0x02235);</span>
+<span class="fc" id="L460">        validEntityNames.put(&quot;bemptyv&quot;, 0x029B0);</span>
+<span class="fc" id="L461">        validEntityNames.put(&quot;bepsi&quot;, 0x003F6);</span>
+<span class="fc" id="L462">        validEntityNames.put(&quot;bernou&quot;, 0x0212C);</span>
+<span class="fc" id="L463">        validEntityNames.put(&quot;beta&quot;, 0x003B2);</span>
+<span class="fc" id="L464">        validEntityNames.put(&quot;beth&quot;, 0x02136);</span>
+<span class="fc" id="L465">        validEntityNames.put(&quot;bfr&quot;, 0x1D51F);</span>
+<span class="fc" id="L466">        validEntityNames.put(&quot;blank&quot;, 0x02423);</span>
+<span class="fc" id="L467">        validEntityNames.put(&quot;blk12&quot;, 0x02592);</span>
+<span class="fc" id="L468">        validEntityNames.put(&quot;blk14&quot;, 0x02591);</span>
+<span class="fc" id="L469">        validEntityNames.put(&quot;blk34&quot;, 0x02593);</span>
+<span class="fc" id="L470">        validEntityNames.put(&quot;block&quot;, 0x02588);</span>
+<span class="fc" id="L471">        validEntityNames.put(&quot;bnot&quot;, 0x02310);</span>
+<span class="fc" id="L472">        validEntityNames.put(&quot;bopf&quot;, 0x1D553);</span>
+<span class="fc" id="L473">        validEntityNames.put(&quot;bottom&quot;, 0x022A5);</span>
+<span class="fc" id="L474">        validEntityNames.put(&quot;bowtie&quot;, 0x022C8);</span>
+<span class="fc" id="L475">        validEntityNames.put(&quot;boxDL&quot;, 0x02557);</span>
+<span class="fc" id="L476">        validEntityNames.put(&quot;boxDR&quot;, 0x02554);</span>
+<span class="fc" id="L477">        validEntityNames.put(&quot;boxDl&quot;, 0x02556);</span>
+<span class="fc" id="L478">        validEntityNames.put(&quot;boxDr&quot;, 0x02553);</span>
+<span class="fc" id="L479">        validEntityNames.put(&quot;boxH&quot;, 0x02550);</span>
+<span class="fc" id="L480">        validEntityNames.put(&quot;boxHD&quot;, 0x02566);</span>
+<span class="fc" id="L481">        validEntityNames.put(&quot;boxHU&quot;, 0x02569);</span>
+<span class="fc" id="L482">        validEntityNames.put(&quot;boxHd&quot;, 0x02564);</span>
+<span class="fc" id="L483">        validEntityNames.put(&quot;boxHu&quot;, 0x02567);</span>
+<span class="fc" id="L484">        validEntityNames.put(&quot;boxUL&quot;, 0x0255D);</span>
+<span class="fc" id="L485">        validEntityNames.put(&quot;boxUR&quot;, 0x0255A);</span>
+<span class="fc" id="L486">        validEntityNames.put(&quot;boxUl&quot;, 0x0255C);</span>
+<span class="fc" id="L487">        validEntityNames.put(&quot;boxUr&quot;, 0x02559);</span>
+<span class="fc" id="L488">        validEntityNames.put(&quot;boxV&quot;, 0x02551);</span>
+<span class="fc" id="L489">        validEntityNames.put(&quot;boxVH&quot;, 0x0256C);</span>
+<span class="fc" id="L490">        validEntityNames.put(&quot;boxVL&quot;, 0x02563);</span>
+<span class="fc" id="L491">        validEntityNames.put(&quot;boxVR&quot;, 0x02560);</span>
+<span class="fc" id="L492">        validEntityNames.put(&quot;boxVh&quot;, 0x0256B);</span>
+<span class="fc" id="L493">        validEntityNames.put(&quot;boxVl&quot;, 0x02562);</span>
+<span class="fc" id="L494">        validEntityNames.put(&quot;boxVr&quot;, 0x0255F);</span>
+<span class="fc" id="L495">        validEntityNames.put(&quot;boxbox&quot;, 0x029C9);</span>
+<span class="fc" id="L496">        validEntityNames.put(&quot;boxdL&quot;, 0x02555);</span>
+<span class="fc" id="L497">        validEntityNames.put(&quot;boxdR&quot;, 0x02552);</span>
+<span class="fc" id="L498">        validEntityNames.put(&quot;boxdl&quot;, 0x02510);</span>
+<span class="fc" id="L499">        validEntityNames.put(&quot;boxdr&quot;, 0x0250C);</span>
+<span class="fc" id="L500">        validEntityNames.put(&quot;boxh&quot;, 0x02500);</span>
+<span class="fc" id="L501">        validEntityNames.put(&quot;boxhD&quot;, 0x02565);</span>
+<span class="fc" id="L502">        validEntityNames.put(&quot;boxhU&quot;, 0x02568);</span>
+<span class="fc" id="L503">        validEntityNames.put(&quot;boxhd&quot;, 0x0252C);</span>
+<span class="fc" id="L504">        validEntityNames.put(&quot;boxhu&quot;, 0x02534);</span>
+<span class="fc" id="L505">        validEntityNames.put(&quot;boxuL&quot;, 0x0255B);</span>
+<span class="fc" id="L506">        validEntityNames.put(&quot;boxuR&quot;, 0x02558);</span>
+<span class="fc" id="L507">        validEntityNames.put(&quot;boxul&quot;, 0x02518);</span>
+<span class="fc" id="L508">        validEntityNames.put(&quot;boxur&quot;, 0x02514);</span>
+<span class="fc" id="L509">        validEntityNames.put(&quot;boxv&quot;, 0x02502);</span>
+<span class="fc" id="L510">        validEntityNames.put(&quot;boxvH&quot;, 0x0256A);</span>
+<span class="fc" id="L511">        validEntityNames.put(&quot;boxvL&quot;, 0x02561);</span>
+<span class="fc" id="L512">        validEntityNames.put(&quot;boxvR&quot;, 0x0255E);</span>
+<span class="fc" id="L513">        validEntityNames.put(&quot;boxvh&quot;, 0x0253C);</span>
+<span class="fc" id="L514">        validEntityNames.put(&quot;boxvl&quot;, 0x02524);</span>
+<span class="fc" id="L515">        validEntityNames.put(&quot;boxvr&quot;, 0x0251C);</span>
+<span class="fc" id="L516">        validEntityNames.put(&quot;bprime&quot;, 0x02035);</span>
+<span class="fc" id="L517">        validEntityNames.put(&quot;breve&quot;, 0x002D8);</span>
+<span class="fc" id="L518">        validEntityNames.put(&quot;brvbar&quot;, 0x000A6);</span>
+<span class="fc" id="L519">        validEntityNames.put(&quot;bscr&quot;, 0x1D4B7);</span>
+<span class="fc" id="L520">        validEntityNames.put(&quot;bsemi&quot;, 0x0204F);</span>
+<span class="fc" id="L521">        validEntityNames.put(&quot;bsim&quot;, 0x0223D);</span>
+<span class="fc" id="L522">        validEntityNames.put(&quot;bsime&quot;, 0x022CD);</span>
+<span class="fc" id="L523">        validEntityNames.put(&quot;bsol&quot;, 0x0005C);</span>
+<span class="fc" id="L524">        validEntityNames.put(&quot;bsolb&quot;, 0x029C5);</span>
+<span class="fc" id="L525">        validEntityNames.put(&quot;bull&quot;, 0x02022);</span>
+<span class="fc" id="L526">        validEntityNames.put(&quot;bump&quot;, 0x0224E);</span>
+<span class="fc" id="L527">        validEntityNames.put(&quot;bumpE&quot;, 0x02AAE);</span>
+<span class="fc" id="L528">        validEntityNames.put(&quot;bumpe&quot;, 0x0224F);</span>
+<span class="fc" id="L529">        validEntityNames.put(&quot;cacute&quot;, 0x00107);</span>
+<span class="fc" id="L530">        validEntityNames.put(&quot;cap&quot;, 0x02229);</span>
+<span class="fc" id="L531">        validEntityNames.put(&quot;capand&quot;, 0x02A44);</span>
+<span class="fc" id="L532">        validEntityNames.put(&quot;capbrcup&quot;, 0x02A49);</span>
+<span class="fc" id="L533">        validEntityNames.put(&quot;capcap&quot;, 0x02A4B);</span>
+<span class="fc" id="L534">        validEntityNames.put(&quot;capcup&quot;, 0x02A47);</span>
+<span class="fc" id="L535">        validEntityNames.put(&quot;capdot&quot;, 0x02A40);</span>
+<span class="fc" id="L536">        validEntityNames.put(&quot;caret&quot;, 0x02041);</span>
+<span class="fc" id="L537">        validEntityNames.put(&quot;caron&quot;, 0x002C7);</span>
+<span class="fc" id="L538">        validEntityNames.put(&quot;ccaps&quot;, 0x02A4D);</span>
+<span class="fc" id="L539">        validEntityNames.put(&quot;ccaron&quot;, 0x0010D);</span>
+<span class="fc" id="L540">        validEntityNames.put(&quot;ccedil&quot;, 0x000E7);</span>
+<span class="fc" id="L541">        validEntityNames.put(&quot;ccirc&quot;, 0x00109);</span>
+<span class="fc" id="L542">        validEntityNames.put(&quot;ccups&quot;, 0x02A4C);</span>
+<span class="fc" id="L543">        validEntityNames.put(&quot;ccupssm&quot;, 0x02A50);</span>
+<span class="fc" id="L544">        validEntityNames.put(&quot;cdot&quot;, 0x0010B);</span>
+<span class="fc" id="L545">        validEntityNames.put(&quot;cedil&quot;, 0x000B8);</span>
+<span class="fc" id="L546">        validEntityNames.put(&quot;cemptyv&quot;, 0x029B2);</span>
+<span class="fc" id="L547">        validEntityNames.put(&quot;cent&quot;, 0x000A2);</span>
+<span class="fc" id="L548">        validEntityNames.put(&quot;cfr&quot;, 0x1D520);</span>
+<span class="fc" id="L549">        validEntityNames.put(&quot;chcy&quot;, 0x00447);</span>
+<span class="fc" id="L550">        validEntityNames.put(&quot;check&quot;, 0x02713);</span>
+<span class="fc" id="L551">        validEntityNames.put(&quot;chi&quot;, 0x003C7);</span>
+<span class="fc" id="L552">        validEntityNames.put(&quot;cir&quot;, 0x025CB);</span>
+<span class="fc" id="L553">        validEntityNames.put(&quot;cirE&quot;, 0x029C3);</span>
+<span class="fc" id="L554">        validEntityNames.put(&quot;circ&quot;, 0x002C6);</span>
+<span class="fc" id="L555">        validEntityNames.put(&quot;cire&quot;, 0x02257);</span>
+<span class="fc" id="L556">        validEntityNames.put(&quot;cirfnint&quot;, 0x02A10);</span>
+<span class="fc" id="L557">        validEntityNames.put(&quot;cirmid&quot;, 0x02AEF);</span>
+<span class="fc" id="L558">        validEntityNames.put(&quot;cirscir&quot;, 0x029C2);</span>
+<span class="fc" id="L559">        validEntityNames.put(&quot;clubs&quot;, 0x02663);</span>
+<span class="fc" id="L560">        validEntityNames.put(&quot;colon&quot;, 0x0003A);</span>
+<span class="fc" id="L561">        validEntityNames.put(&quot;colone&quot;, 0x02254);</span>
+<span class="fc" id="L562">        validEntityNames.put(&quot;comma&quot;, 0x0002C);</span>
+<span class="fc" id="L563">        validEntityNames.put(&quot;commat&quot;, 0x00040);</span>
+<span class="fc" id="L564">        validEntityNames.put(&quot;comp&quot;, 0x02201);</span>
+<span class="fc" id="L565">        validEntityNames.put(&quot;compfn&quot;, 0x02218);</span>
+<span class="fc" id="L566">        validEntityNames.put(&quot;cong&quot;, 0x02245);</span>
+<span class="fc" id="L567">        validEntityNames.put(&quot;congdot&quot;, 0x02A6D);</span>
+<span class="fc" id="L568">        validEntityNames.put(&quot;conint&quot;, 0x0222E);</span>
+<span class="fc" id="L569">        validEntityNames.put(&quot;copf&quot;, 0x1D554);</span>
+<span class="fc" id="L570">        validEntityNames.put(&quot;coprod&quot;, 0x02210);</span>
+<span class="fc" id="L571">        validEntityNames.put(&quot;copy&quot;, 0x000A9);</span>
+<span class="fc" id="L572">        validEntityNames.put(&quot;copysr&quot;, 0x02117);</span>
+<span class="fc" id="L573">        validEntityNames.put(&quot;crarr&quot;, 0x021B5);</span>
+<span class="fc" id="L574">        validEntityNames.put(&quot;cross&quot;, 0x02717);</span>
+<span class="fc" id="L575">        validEntityNames.put(&quot;cscr&quot;, 0x1D4B8);</span>
+<span class="fc" id="L576">        validEntityNames.put(&quot;csub&quot;, 0x02ACF);</span>
+<span class="fc" id="L577">        validEntityNames.put(&quot;csube&quot;, 0x02AD1);</span>
+<span class="fc" id="L578">        validEntityNames.put(&quot;csup&quot;, 0x02AD0);</span>
+<span class="fc" id="L579">        validEntityNames.put(&quot;csupe&quot;, 0x02AD2);</span>
+<span class="fc" id="L580">        validEntityNames.put(&quot;ctdot&quot;, 0x022EF);</span>
+<span class="fc" id="L581">        validEntityNames.put(&quot;cudarrl&quot;, 0x02938);</span>
+<span class="fc" id="L582">        validEntityNames.put(&quot;cudarrr&quot;, 0x02935);</span>
+<span class="fc" id="L583">        validEntityNames.put(&quot;cuepr&quot;, 0x022DE);</span>
+<span class="fc" id="L584">        validEntityNames.put(&quot;cuesc&quot;, 0x022DF);</span>
+<span class="fc" id="L585">        validEntityNames.put(&quot;cularr&quot;, 0x021B6);</span>
+<span class="fc" id="L586">        validEntityNames.put(&quot;cularrp&quot;, 0x0293D);</span>
+<span class="fc" id="L587">        validEntityNames.put(&quot;cup&quot;, 0x0222A);</span>
+<span class="fc" id="L588">        validEntityNames.put(&quot;cupbrcap&quot;, 0x02A48);</span>
+<span class="fc" id="L589">        validEntityNames.put(&quot;cupcap&quot;, 0x02A46);</span>
+<span class="fc" id="L590">        validEntityNames.put(&quot;cupcup&quot;, 0x02A4A);</span>
+<span class="fc" id="L591">        validEntityNames.put(&quot;cupdot&quot;, 0x0228D);</span>
+<span class="fc" id="L592">        validEntityNames.put(&quot;cupor&quot;, 0x02A45);</span>
+<span class="fc" id="L593">        validEntityNames.put(&quot;curarr&quot;, 0x021B7);</span>
+<span class="fc" id="L594">        validEntityNames.put(&quot;curarrm&quot;, 0x0293C);</span>
+<span class="fc" id="L595">        validEntityNames.put(&quot;curren&quot;, 0x000A4);</span>
+<span class="fc" id="L596">        validEntityNames.put(&quot;cuvee&quot;, 0x022CE);</span>
+<span class="fc" id="L597">        validEntityNames.put(&quot;cuwed&quot;, 0x022CF);</span>
+<span class="fc" id="L598">        validEntityNames.put(&quot;cwconint&quot;, 0x02232);</span>
+<span class="fc" id="L599">        validEntityNames.put(&quot;cwint&quot;, 0x02231);</span>
+<span class="fc" id="L600">        validEntityNames.put(&quot;cylcty&quot;, 0x0232D);</span>
+<span class="fc" id="L601">        validEntityNames.put(&quot;dArr&quot;, 0x021D3);</span>
+<span class="fc" id="L602">        validEntityNames.put(&quot;dHar&quot;, 0x02965);</span>
+<span class="fc" id="L603">        validEntityNames.put(&quot;dagger&quot;, 0x02020);</span>
+<span class="fc" id="L604">        validEntityNames.put(&quot;daleth&quot;, 0x02138);</span>
+<span class="fc" id="L605">        validEntityNames.put(&quot;darr&quot;, 0x02193);</span>
+<span class="fc" id="L606">        validEntityNames.put(&quot;dashv&quot;, 0x022A3);</span>
+<span class="fc" id="L607">        validEntityNames.put(&quot;dblac&quot;, 0x002DD);</span>
+<span class="fc" id="L608">        validEntityNames.put(&quot;dcaron&quot;, 0x0010F);</span>
+<span class="fc" id="L609">        validEntityNames.put(&quot;dcy&quot;, 0x00434);</span>
+<span class="fc" id="L610">        validEntityNames.put(&quot;ddarr&quot;, 0x021CA);</span>
+<span class="fc" id="L611">        validEntityNames.put(&quot;deg&quot;, 0x000B0);</span>
+<span class="fc" id="L612">        validEntityNames.put(&quot;delta&quot;, 0x003B4);</span>
+<span class="fc" id="L613">        validEntityNames.put(&quot;demptyv&quot;, 0x029B1);</span>
+<span class="fc" id="L614">        validEntityNames.put(&quot;dfisht&quot;, 0x0297F);</span>
+<span class="fc" id="L615">        validEntityNames.put(&quot;dfr&quot;, 0x1D521);</span>
+<span class="fc" id="L616">        validEntityNames.put(&quot;dharl&quot;, 0x021C3);</span>
+<span class="fc" id="L617">        validEntityNames.put(&quot;dharr&quot;, 0x021C2);</span>
+<span class="fc" id="L618">        validEntityNames.put(&quot;diam&quot;, 0x022C4);</span>
+<span class="fc" id="L619">        validEntityNames.put(&quot;diams&quot;, 0x02666);</span>
+<span class="fc" id="L620">        validEntityNames.put(&quot;disin&quot;, 0x022F2);</span>
+<span class="fc" id="L621">        validEntityNames.put(&quot;divide&quot;, 0x000F7);</span>
+<span class="fc" id="L622">        validEntityNames.put(&quot;divonx&quot;, 0x022C7);</span>
+<span class="fc" id="L623">        validEntityNames.put(&quot;djcy&quot;, 0x00452);</span>
+<span class="fc" id="L624">        validEntityNames.put(&quot;dlcorn&quot;, 0x0231E);</span>
+<span class="fc" id="L625">        validEntityNames.put(&quot;dlcrop&quot;, 0x0230D);</span>
+<span class="fc" id="L626">        validEntityNames.put(&quot;dollar&quot;, 0x00024);</span>
+<span class="fc" id="L627">        validEntityNames.put(&quot;dopf&quot;, 0x1D555);</span>
+<span class="fc" id="L628">        validEntityNames.put(&quot;dot&quot;, 0x002D9);</span>
+<span class="fc" id="L629">        validEntityNames.put(&quot;drcorn&quot;, 0x0231F);</span>
+<span class="fc" id="L630">        validEntityNames.put(&quot;drcrop&quot;, 0x0230C);</span>
+<span class="fc" id="L631">        validEntityNames.put(&quot;dscr&quot;, 0x1D4B9);</span>
+<span class="fc" id="L632">        validEntityNames.put(&quot;dscy&quot;, 0x00455);</span>
+<span class="fc" id="L633">        validEntityNames.put(&quot;dsol&quot;, 0x029F6);</span>
+<span class="fc" id="L634">        validEntityNames.put(&quot;dstrok&quot;, 0x00111);</span>
+<span class="fc" id="L635">        validEntityNames.put(&quot;dtdot&quot;, 0x022F1);</span>
+<span class="fc" id="L636">        validEntityNames.put(&quot;dtri&quot;, 0x025BF);</span>
+<span class="fc" id="L637">        validEntityNames.put(&quot;dtrif&quot;, 0x025BE);</span>
+<span class="fc" id="L638">        validEntityNames.put(&quot;duarr&quot;, 0x021F5);</span>
+<span class="fc" id="L639">        validEntityNames.put(&quot;duhar&quot;, 0x0296F);</span>
+<span class="fc" id="L640">        validEntityNames.put(&quot;dwangle&quot;, 0x029A6);</span>
+<span class="fc" id="L641">        validEntityNames.put(&quot;dzcy&quot;, 0x0045F);</span>
+<span class="fc" id="L642">        validEntityNames.put(&quot;dzigrarr&quot;, 0x027FF);</span>
+<span class="fc" id="L643">        validEntityNames.put(&quot;eDDot&quot;, 0x02A77);</span>
+<span class="fc" id="L644">        validEntityNames.put(&quot;eDot&quot;, 0x02251);</span>
+<span class="fc" id="L645">        validEntityNames.put(&quot;eacute&quot;, 0x000E9);</span>
+<span class="fc" id="L646">        validEntityNames.put(&quot;easter&quot;, 0x02A6E);</span>
+<span class="fc" id="L647">        validEntityNames.put(&quot;ecaron&quot;, 0x0011B);</span>
+<span class="fc" id="L648">        validEntityNames.put(&quot;ecir&quot;, 0x02256);</span>
+<span class="fc" id="L649">        validEntityNames.put(&quot;ecirc&quot;, 0x000EA);</span>
+<span class="fc" id="L650">        validEntityNames.put(&quot;ecolon&quot;, 0x02255);</span>
+<span class="fc" id="L651">        validEntityNames.put(&quot;ecy&quot;, 0x0044D);</span>
+<span class="fc" id="L652">        validEntityNames.put(&quot;edot&quot;, 0x00117);</span>
+<span class="fc" id="L653">        validEntityNames.put(&quot;efDot&quot;, 0x02252);</span>
+<span class="fc" id="L654">        validEntityNames.put(&quot;efr&quot;, 0x1D522);</span>
+<span class="fc" id="L655">        validEntityNames.put(&quot;eg&quot;, 0x02A9A);</span>
+<span class="fc" id="L656">        validEntityNames.put(&quot;egrave&quot;, 0x000E8);</span>
+<span class="fc" id="L657">        validEntityNames.put(&quot;egs&quot;, 0x02A96);</span>
+<span class="fc" id="L658">        validEntityNames.put(&quot;egsdot&quot;, 0x02A98);</span>
+<span class="fc" id="L659">        validEntityNames.put(&quot;el&quot;, 0x02A99);</span>
+<span class="fc" id="L660">        validEntityNames.put(&quot;elinters&quot;, 0x023E7);</span>
+<span class="fc" id="L661">        validEntityNames.put(&quot;ell&quot;, 0x02113);</span>
+<span class="fc" id="L662">        validEntityNames.put(&quot;els&quot;, 0x02A95);</span>
+<span class="fc" id="L663">        validEntityNames.put(&quot;elsdot&quot;, 0x02A97);</span>
+<span class="fc" id="L664">        validEntityNames.put(&quot;emacr&quot;, 0x00113);</span>
+<span class="fc" id="L665">        validEntityNames.put(&quot;empty&quot;, 0x02205);</span>
+<span class="fc" id="L666">        validEntityNames.put(&quot;emsp&quot;, 0x02003);</span>
+<span class="fc" id="L667">        validEntityNames.put(&quot;emsp13&quot;, 0x02004);</span>
+<span class="fc" id="L668">        validEntityNames.put(&quot;emsp14&quot;, 0x02005);</span>
+<span class="fc" id="L669">        validEntityNames.put(&quot;eng&quot;, 0x0014B);</span>
+<span class="fc" id="L670">        validEntityNames.put(&quot;ensp&quot;, 0x02002);</span>
+<span class="fc" id="L671">        validEntityNames.put(&quot;eogon&quot;, 0x00119);</span>
+<span class="fc" id="L672">        validEntityNames.put(&quot;eopf&quot;, 0x1D556);</span>
+<span class="fc" id="L673">        validEntityNames.put(&quot;epar&quot;, 0x022D5);</span>
+<span class="fc" id="L674">        validEntityNames.put(&quot;eparsl&quot;, 0x029E3);</span>
+<span class="fc" id="L675">        validEntityNames.put(&quot;eplus&quot;, 0x02A71);</span>
+<span class="fc" id="L676">        validEntityNames.put(&quot;epsi&quot;, 0x003F5);</span>
+<span class="fc" id="L677">        validEntityNames.put(&quot;epsiv&quot;, 0x003B5);</span>
+<span class="fc" id="L678">        validEntityNames.put(&quot;equals&quot;, 0x0003D);</span>
+<span class="fc" id="L679">        validEntityNames.put(&quot;equest&quot;, 0x0225F);</span>
+<span class="fc" id="L680">        validEntityNames.put(&quot;equiv&quot;, 0x02261);</span>
+<span class="fc" id="L681">        validEntityNames.put(&quot;equivDD&quot;, 0x02A78);</span>
+<span class="fc" id="L682">        validEntityNames.put(&quot;eqvparsl&quot;, 0x029E5);</span>
+<span class="fc" id="L683">        validEntityNames.put(&quot;erDot&quot;, 0x02253);</span>
+<span class="fc" id="L684">        validEntityNames.put(&quot;erarr&quot;, 0x02971);</span>
+<span class="fc" id="L685">        validEntityNames.put(&quot;escr&quot;, 0x0212F);</span>
+<span class="fc" id="L686">        validEntityNames.put(&quot;esdot&quot;, 0x02250);</span>
+<span class="fc" id="L687">        validEntityNames.put(&quot;esim&quot;, 0x02242);</span>
+<span class="fc" id="L688">        validEntityNames.put(&quot;eta&quot;, 0x003B7);</span>
+<span class="fc" id="L689">        validEntityNames.put(&quot;eth&quot;, 0x000F0);</span>
+<span class="fc" id="L690">        validEntityNames.put(&quot;euml&quot;, 0x000EB);</span>
+<span class="fc" id="L691">        validEntityNames.put(&quot;euro&quot;, 0x020AC);</span>
+<span class="fc" id="L692">        validEntityNames.put(&quot;excl&quot;, 0x00021);</span>
+<span class="fc" id="L693">        validEntityNames.put(&quot;exist&quot;, 0x02203);</span>
+<span class="fc" id="L694">        validEntityNames.put(&quot;fcy&quot;, 0x00444);</span>
+<span class="fc" id="L695">        validEntityNames.put(&quot;female&quot;, 0x02640);</span>
+<span class="fc" id="L696">        validEntityNames.put(&quot;ffilig&quot;, 0x0FB03);</span>
+<span class="fc" id="L697">        validEntityNames.put(&quot;fflig&quot;, 0x0FB00);</span>
+<span class="fc" id="L698">        validEntityNames.put(&quot;ffllig&quot;, 0x0FB04);</span>
+<span class="fc" id="L699">        validEntityNames.put(&quot;ffr&quot;, 0x1D523);</span>
+<span class="fc" id="L700">        validEntityNames.put(&quot;filig&quot;, 0x0FB01);</span>
+<span class="fc" id="L701">        validEntityNames.put(&quot;flat&quot;, 0x0266D);</span>
+<span class="fc" id="L702">        validEntityNames.put(&quot;fllig&quot;, 0x0FB02);</span>
+<span class="fc" id="L703">        validEntityNames.put(&quot;fltns&quot;, 0x025B1);</span>
+<span class="fc" id="L704">        validEntityNames.put(&quot;fnof&quot;, 0x00192);</span>
+<span class="fc" id="L705">        validEntityNames.put(&quot;fopf&quot;, 0x1D557);</span>
+<span class="fc" id="L706">        validEntityNames.put(&quot;forall&quot;, 0x02200);</span>
+<span class="fc" id="L707">        validEntityNames.put(&quot;fork&quot;, 0x022D4);</span>
+<span class="fc" id="L708">        validEntityNames.put(&quot;forkv&quot;, 0x02AD9);</span>
+<span class="fc" id="L709">        validEntityNames.put(&quot;fpartint&quot;, 0x02A0D);</span>
+<span class="fc" id="L710">        validEntityNames.put(&quot;frac12&quot;, 0x000BD);</span>
+<span class="fc" id="L711">        validEntityNames.put(&quot;frac13&quot;, 0x02153);</span>
+<span class="fc" id="L712">        validEntityNames.put(&quot;frac14&quot;, 0x000BC);</span>
+<span class="fc" id="L713">        validEntityNames.put(&quot;frac15&quot;, 0x02155);</span>
+<span class="fc" id="L714">        validEntityNames.put(&quot;frac16&quot;, 0x02159);</span>
+<span class="fc" id="L715">        validEntityNames.put(&quot;frac18&quot;, 0x0215B);</span>
+<span class="fc" id="L716">        validEntityNames.put(&quot;frac23&quot;, 0x02154);</span>
+<span class="fc" id="L717">        validEntityNames.put(&quot;frac25&quot;, 0x02156);</span>
+<span class="fc" id="L718">        validEntityNames.put(&quot;frac34&quot;, 0x000BE);</span>
+<span class="fc" id="L719">        validEntityNames.put(&quot;frac35&quot;, 0x02157);</span>
+<span class="fc" id="L720">        validEntityNames.put(&quot;frac38&quot;, 0x0215C);</span>
+<span class="fc" id="L721">        validEntityNames.put(&quot;frac45&quot;, 0x02158);</span>
+<span class="fc" id="L722">        validEntityNames.put(&quot;frac56&quot;, 0x0215A);</span>
+<span class="fc" id="L723">        validEntityNames.put(&quot;frac58&quot;, 0x0215D);</span>
+<span class="fc" id="L724">        validEntityNames.put(&quot;frac78&quot;, 0x0215E);</span>
+<span class="fc" id="L725">        validEntityNames.put(&quot;frasl&quot;, 0x02044);</span>
+<span class="fc" id="L726">        validEntityNames.put(&quot;frown&quot;, 0x02322);</span>
+<span class="fc" id="L727">        validEntityNames.put(&quot;fscr&quot;, 0x1D4BB);</span>
+<span class="fc" id="L728">        validEntityNames.put(&quot;gE&quot;, 0x02267);</span>
+<span class="fc" id="L729">        validEntityNames.put(&quot;gEl&quot;, 0x02A8C);</span>
+<span class="fc" id="L730">        validEntityNames.put(&quot;gacute&quot;, 0x001F5);</span>
+<span class="fc" id="L731">        validEntityNames.put(&quot;gamma&quot;, 0x003B3);</span>
+<span class="fc" id="L732">        validEntityNames.put(&quot;gammad&quot;, 0x003DD);</span>
+<span class="fc" id="L733">        validEntityNames.put(&quot;gap&quot;, 0x02A86);</span>
+<span class="fc" id="L734">        validEntityNames.put(&quot;gbreve&quot;, 0x0011F);</span>
+<span class="fc" id="L735">        validEntityNames.put(&quot;gcirc&quot;, 0x0011D);</span>
+<span class="fc" id="L736">        validEntityNames.put(&quot;gcy&quot;, 0x00433);</span>
+<span class="fc" id="L737">        validEntityNames.put(&quot;gdot&quot;, 0x00121);</span>
+<span class="fc" id="L738">        validEntityNames.put(&quot;ge&quot;, 0x02265);</span>
+<span class="fc" id="L739">        validEntityNames.put(&quot;gel&quot;, 0x022DB);</span>
+<span class="fc" id="L740">        validEntityNames.put(&quot;ges&quot;, 0x02A7E);</span>
+<span class="fc" id="L741">        validEntityNames.put(&quot;gescc&quot;, 0x02AA9);</span>
+<span class="fc" id="L742">        validEntityNames.put(&quot;gesdot&quot;, 0x02A80);</span>
+<span class="fc" id="L743">        validEntityNames.put(&quot;gesdoto&quot;, 0x02A82);</span>
+<span class="fc" id="L744">        validEntityNames.put(&quot;gesdotol&quot;, 0x02A84);</span>
+<span class="fc" id="L745">        validEntityNames.put(&quot;gesles&quot;, 0x02A94);</span>
+<span class="fc" id="L746">        validEntityNames.put(&quot;gfr&quot;, 0x1D524);</span>
+<span class="fc" id="L747">        validEntityNames.put(&quot;gimel&quot;, 0x02137);</span>
+<span class="fc" id="L748">        validEntityNames.put(&quot;gjcy&quot;, 0x00453);</span>
+<span class="fc" id="L749">        validEntityNames.put(&quot;gl&quot;, 0x02277);</span>
+<span class="fc" id="L750">        validEntityNames.put(&quot;glE&quot;, 0x02A92);</span>
+<span class="fc" id="L751">        validEntityNames.put(&quot;gla&quot;, 0x02AA5);</span>
+<span class="fc" id="L752">        validEntityNames.put(&quot;glj&quot;, 0x02AA4);</span>
+<span class="fc" id="L753">        validEntityNames.put(&quot;gnE&quot;, 0x02269);</span>
+<span class="fc" id="L754">        validEntityNames.put(&quot;gnap&quot;, 0x02A8A);</span>
+<span class="fc" id="L755">        validEntityNames.put(&quot;gne&quot;, 0x02A88);</span>
+<span class="fc" id="L756">        validEntityNames.put(&quot;gnsim&quot;, 0x022E7);</span>
+<span class="fc" id="L757">        validEntityNames.put(&quot;gopf&quot;, 0x1D558);</span>
+<span class="fc" id="L758">        validEntityNames.put(&quot;grave&quot;, 0x00060);</span>
+<span class="fc" id="L759">        validEntityNames.put(&quot;gscr&quot;, 0x0210A);</span>
+<span class="fc" id="L760">        validEntityNames.put(&quot;gsim&quot;, 0x02273);</span>
+<span class="fc" id="L761">        validEntityNames.put(&quot;gsime&quot;, 0x02A8E);</span>
+<span class="fc" id="L762">        validEntityNames.put(&quot;gsiml&quot;, 0x02A90);</span>
+<span class="fc" id="L763">        validEntityNames.put(&quot;gt&quot;, 0x0003E);</span>
+<span class="fc" id="L764">        validEntityNames.put(&quot;gtcc&quot;, 0x02AA7);</span>
+<span class="fc" id="L765">        validEntityNames.put(&quot;gtcir&quot;, 0x02A7A);</span>
+<span class="fc" id="L766">        validEntityNames.put(&quot;gtdot&quot;, 0x022D7);</span>
+<span class="fc" id="L767">        validEntityNames.put(&quot;gtlPar&quot;, 0x02995);</span>
+<span class="fc" id="L768">        validEntityNames.put(&quot;gtquest&quot;, 0x02A7C);</span>
+<span class="fc" id="L769">        validEntityNames.put(&quot;gtrarr&quot;, 0x02978);</span>
+<span class="fc" id="L770">        validEntityNames.put(&quot;hArr&quot;, 0x021D4);</span>
+<span class="fc" id="L771">        validEntityNames.put(&quot;hairsp&quot;, 0x0200A);</span>
+<span class="fc" id="L772">        validEntityNames.put(&quot;hamilt&quot;, 0x0210B);</span>
+<span class="fc" id="L773">        validEntityNames.put(&quot;hardcy&quot;, 0x0044A);</span>
+<span class="fc" id="L774">        validEntityNames.put(&quot;harr&quot;, 0x02194);</span>
+<span class="fc" id="L775">        validEntityNames.put(&quot;harrcir&quot;, 0x02948);</span>
+<span class="fc" id="L776">        validEntityNames.put(&quot;harrw&quot;, 0x021AD);</span>
+<span class="fc" id="L777">        validEntityNames.put(&quot;hcirc&quot;, 0x00125);</span>
+<span class="fc" id="L778">        validEntityNames.put(&quot;hearts&quot;, 0x02665);</span>
+<span class="fc" id="L779">        validEntityNames.put(&quot;hellip&quot;, 0x02026);</span>
+<span class="fc" id="L780">        validEntityNames.put(&quot;hercon&quot;, 0x022B9);</span>
+<span class="fc" id="L781">        validEntityNames.put(&quot;hfr&quot;, 0x1D525);</span>
+<span class="fc" id="L782">        validEntityNames.put(&quot;hoarr&quot;, 0x021FF);</span>
+<span class="fc" id="L783">        validEntityNames.put(&quot;homtht&quot;, 0x0223B);</span>
+<span class="fc" id="L784">        validEntityNames.put(&quot;hopf&quot;, 0x1D559);</span>
+<span class="fc" id="L785">        validEntityNames.put(&quot;horbar&quot;, 0x02015);</span>
+<span class="fc" id="L786">        validEntityNames.put(&quot;hscr&quot;, 0x1D4BD);</span>
+<span class="fc" id="L787">        validEntityNames.put(&quot;hstrok&quot;, 0x00127);</span>
+<span class="fc" id="L788">        validEntityNames.put(&quot;hybull&quot;, 0x02043);</span>
+<span class="fc" id="L789">        validEntityNames.put(&quot;hyphen&quot;, 0x02010);</span>
+<span class="fc" id="L790">        validEntityNames.put(&quot;iacute&quot;, 0x000ED);</span>
+<span class="fc" id="L791">        validEntityNames.put(&quot;icirc&quot;, 0x000EE);</span>
+<span class="fc" id="L792">        validEntityNames.put(&quot;icy&quot;, 0x00438);</span>
+<span class="fc" id="L793">        validEntityNames.put(&quot;iecy&quot;, 0x00435);</span>
+<span class="fc" id="L794">        validEntityNames.put(&quot;iexcl&quot;, 0x000A1);</span>
+<span class="fc" id="L795">        validEntityNames.put(&quot;ifr&quot;, 0x1D526);</span>
+<span class="fc" id="L796">        validEntityNames.put(&quot;igrave&quot;, 0x000EC);</span>
+<span class="fc" id="L797">        validEntityNames.put(&quot;iinfin&quot;, 0x029DC);</span>
+<span class="fc" id="L798">        validEntityNames.put(&quot;iiota&quot;, 0x02129);</span>
+<span class="fc" id="L799">        validEntityNames.put(&quot;ijlig&quot;, 0x00133);</span>
+<span class="fc" id="L800">        validEntityNames.put(&quot;imacr&quot;, 0x0012B);</span>
+<span class="fc" id="L801">        validEntityNames.put(&quot;image&quot;, 0x02111);</span>
+<span class="fc" id="L802">        validEntityNames.put(&quot;imath&quot;, 0x00131);</span>
+<span class="fc" id="L803">        validEntityNames.put(&quot;imof&quot;, 0x022B7);</span>
+<span class="fc" id="L804">        validEntityNames.put(&quot;imped&quot;, 0x001B5);</span>
+<span class="fc" id="L805">        validEntityNames.put(&quot;incare&quot;, 0x02105);</span>
+<span class="fc" id="L806">        validEntityNames.put(&quot;infin&quot;, 0x0221E);</span>
+<span class="fc" id="L807">        validEntityNames.put(&quot;infintie&quot;, 0x029DD);</span>
+<span class="fc" id="L808">        validEntityNames.put(&quot;int&quot;, 0x0222B);</span>
+<span class="fc" id="L809">        validEntityNames.put(&quot;intcal&quot;, 0x022BA);</span>
+<span class="fc" id="L810">        validEntityNames.put(&quot;integers&quot;, 0x02124);</span>
+<span class="fc" id="L811">        validEntityNames.put(&quot;intlarhk&quot;, 0x02A17);</span>
+<span class="fc" id="L812">        validEntityNames.put(&quot;iocy&quot;, 0x00451);</span>
+<span class="fc" id="L813">        validEntityNames.put(&quot;iogon&quot;, 0x0012F);</span>
+<span class="fc" id="L814">        validEntityNames.put(&quot;iopf&quot;, 0x1D55A);</span>
+<span class="fc" id="L815">        validEntityNames.put(&quot;iota&quot;, 0x003B9);</span>
+<span class="fc" id="L816">        validEntityNames.put(&quot;iprod&quot;, 0x02A3C);</span>
+<span class="fc" id="L817">        validEntityNames.put(&quot;iquest&quot;, 0x000BF);</span>
+<span class="fc" id="L818">        validEntityNames.put(&quot;iscr&quot;, 0x1D4BE);</span>
+<span class="fc" id="L819">        validEntityNames.put(&quot;isin&quot;, 0x02208);</span>
+<span class="fc" id="L820">        validEntityNames.put(&quot;isinE&quot;, 0x022F9);</span>
+<span class="fc" id="L821">        validEntityNames.put(&quot;isindot&quot;, 0x022F5);</span>
+<span class="fc" id="L822">        validEntityNames.put(&quot;isins&quot;, 0x022F4);</span>
+<span class="fc" id="L823">        validEntityNames.put(&quot;isinsv&quot;, 0x022F3);</span>
+<span class="fc" id="L824">        validEntityNames.put(&quot;itilde&quot;, 0x00129);</span>
+<span class="fc" id="L825">        validEntityNames.put(&quot;iukcy&quot;, 0x00456);</span>
+<span class="fc" id="L826">        validEntityNames.put(&quot;iuml&quot;, 0x000EF);</span>
+<span class="fc" id="L827">        validEntityNames.put(&quot;jcirc&quot;, 0x00135);</span>
+<span class="fc" id="L828">        validEntityNames.put(&quot;jcy&quot;, 0x00439);</span>
+<span class="fc" id="L829">        validEntityNames.put(&quot;jfr&quot;, 0x1D527);</span>
+<span class="fc" id="L830">        validEntityNames.put(&quot;jmath&quot;, 0x00237);</span>
+<span class="fc" id="L831">        validEntityNames.put(&quot;jopf&quot;, 0x1D55B);</span>
+<span class="fc" id="L832">        validEntityNames.put(&quot;jscr&quot;, 0x1D4BF);</span>
+<span class="fc" id="L833">        validEntityNames.put(&quot;jsercy&quot;, 0x00458);</span>
+<span class="fc" id="L834">        validEntityNames.put(&quot;jukcy&quot;, 0x00454);</span>
+<span class="fc" id="L835">        validEntityNames.put(&quot;kappa&quot;, 0x003BA);</span>
+<span class="fc" id="L836">        validEntityNames.put(&quot;kappav&quot;, 0x003F0);</span>
+<span class="fc" id="L837">        validEntityNames.put(&quot;kcedil&quot;, 0x00137);</span>
+<span class="fc" id="L838">        validEntityNames.put(&quot;kcy&quot;, 0x0043A);</span>
+<span class="fc" id="L839">        validEntityNames.put(&quot;kfr&quot;, 0x1D528);</span>
+<span class="fc" id="L840">        validEntityNames.put(&quot;kgreen&quot;, 0x00138);</span>
+<span class="fc" id="L841">        validEntityNames.put(&quot;khcy&quot;, 0x00445);</span>
+<span class="fc" id="L842">        validEntityNames.put(&quot;kjcy&quot;, 0x0045C);</span>
+<span class="fc" id="L843">        validEntityNames.put(&quot;kopf&quot;, 0x1D55C);</span>
+<span class="fc" id="L844">        validEntityNames.put(&quot;kscr&quot;, 0x1D4C0);</span>
+<span class="fc" id="L845">        validEntityNames.put(&quot;lAarr&quot;, 0x021DA);</span>
+<span class="fc" id="L846">        validEntityNames.put(&quot;lArr&quot;, 0x021D0);</span>
+<span class="fc" id="L847">        validEntityNames.put(&quot;lAtail&quot;, 0x0291B);</span>
+<span class="fc" id="L848">        validEntityNames.put(&quot;lBarr&quot;, 0x0290E);</span>
+<span class="fc" id="L849">        validEntityNames.put(&quot;lE&quot;, 0x02266);</span>
+<span class="fc" id="L850">        validEntityNames.put(&quot;lEg&quot;, 0x02A8B);</span>
+<span class="fc" id="L851">        validEntityNames.put(&quot;lHar&quot;, 0x02962);</span>
+<span class="fc" id="L852">        validEntityNames.put(&quot;lacute&quot;, 0x0013A);</span>
+<span class="fc" id="L853">        validEntityNames.put(&quot;laemptyv&quot;, 0x029B4);</span>
+<span class="fc" id="L854">        validEntityNames.put(&quot;lambda&quot;, 0x003BB);</span>
+<span class="fc" id="L855">        validEntityNames.put(&quot;lang&quot;, 0x027E8);</span>
+<span class="fc" id="L856">        validEntityNames.put(&quot;langd&quot;, 0x02991);</span>
+<span class="fc" id="L857">        validEntityNames.put(&quot;lap&quot;, 0x02A85);</span>
+<span class="fc" id="L858">        validEntityNames.put(&quot;laquo&quot;, 0x000AB);</span>
+<span class="fc" id="L859">        validEntityNames.put(&quot;larr&quot;, 0x02190);</span>
+<span class="fc" id="L860">        validEntityNames.put(&quot;larrb&quot;, 0x021E4);</span>
+<span class="fc" id="L861">        validEntityNames.put(&quot;larrbfs&quot;, 0x0291F);</span>
+<span class="fc" id="L862">        validEntityNames.put(&quot;larrfs&quot;, 0x0291D);</span>
+<span class="fc" id="L863">        validEntityNames.put(&quot;larrhk&quot;, 0x021A9);</span>
+<span class="fc" id="L864">        validEntityNames.put(&quot;larrlp&quot;, 0x021AB);</span>
+<span class="fc" id="L865">        validEntityNames.put(&quot;larrpl&quot;, 0x02939);</span>
+<span class="fc" id="L866">        validEntityNames.put(&quot;larrsim&quot;, 0x02973);</span>
+<span class="fc" id="L867">        validEntityNames.put(&quot;larrtl&quot;, 0x021A2);</span>
+<span class="fc" id="L868">        validEntityNames.put(&quot;lat&quot;, 0x02AAB);</span>
+<span class="fc" id="L869">        validEntityNames.put(&quot;latail&quot;, 0x02919);</span>
+<span class="fc" id="L870">        validEntityNames.put(&quot;late&quot;, 0x02AAD);</span>
+<span class="fc" id="L871">        validEntityNames.put(&quot;lbarr&quot;, 0x0290C);</span>
+<span class="fc" id="L872">        validEntityNames.put(&quot;lbbrk&quot;, 0x02772);</span>
+<span class="fc" id="L873">        validEntityNames.put(&quot;lbrke&quot;, 0x0298B);</span>
+<span class="fc" id="L874">        validEntityNames.put(&quot;lbrksld&quot;, 0x0298F);</span>
+<span class="fc" id="L875">        validEntityNames.put(&quot;lbrkslu&quot;, 0x0298D);</span>
+<span class="fc" id="L876">        validEntityNames.put(&quot;lcaron&quot;, 0x0013E);</span>
+<span class="fc" id="L877">        validEntityNames.put(&quot;lcedil&quot;, 0x0013C);</span>
+<span class="fc" id="L878">        validEntityNames.put(&quot;lceil&quot;, 0x02308);</span>
+<span class="fc" id="L879">        validEntityNames.put(&quot;lcub&quot;, 0x0007B);</span>
+<span class="fc" id="L880">        validEntityNames.put(&quot;lcy&quot;, 0x0043B);</span>
+<span class="fc" id="L881">        validEntityNames.put(&quot;ldca&quot;, 0x02936);</span>
+<span class="fc" id="L882">        validEntityNames.put(&quot;ldquo&quot;, 0x0201C);</span>
+<span class="fc" id="L883">        validEntityNames.put(&quot;ldquor&quot;, 0x0201E);</span>
+<span class="fc" id="L884">        validEntityNames.put(&quot;ldrdhar&quot;, 0x02967);</span>
+<span class="fc" id="L885">        validEntityNames.put(&quot;ldrushar&quot;, 0x0294B);</span>
+<span class="fc" id="L886">        validEntityNames.put(&quot;ldsh&quot;, 0x021B2);</span>
+<span class="fc" id="L887">        validEntityNames.put(&quot;le&quot;, 0x02264);</span>
+<span class="fc" id="L888">        validEntityNames.put(&quot;leg&quot;, 0x022DA);</span>
+<span class="fc" id="L889">        validEntityNames.put(&quot;les&quot;, 0x02A7D);</span>
+<span class="fc" id="L890">        validEntityNames.put(&quot;lescc&quot;, 0x02AA8);</span>
+<span class="fc" id="L891">        validEntityNames.put(&quot;lesdot&quot;, 0x02A7F);</span>
+<span class="fc" id="L892">        validEntityNames.put(&quot;lesdoto&quot;, 0x02A81);</span>
+<span class="fc" id="L893">        validEntityNames.put(&quot;lesdotor&quot;, 0x02A83);</span>
+<span class="fc" id="L894">        validEntityNames.put(&quot;lesges&quot;, 0x02A93);</span>
+<span class="fc" id="L895">        validEntityNames.put(&quot;lfisht&quot;, 0x0297C);</span>
+<span class="fc" id="L896">        validEntityNames.put(&quot;lfloor&quot;, 0x0230A);</span>
+<span class="fc" id="L897">        validEntityNames.put(&quot;lfr&quot;, 0x1D529);</span>
+<span class="fc" id="L898">        validEntityNames.put(&quot;lg&quot;, 0x02276);</span>
+<span class="fc" id="L899">        validEntityNames.put(&quot;lgE&quot;, 0x02A91);</span>
+<span class="fc" id="L900">        validEntityNames.put(&quot;lhard&quot;, 0x021BD);</span>
+<span class="fc" id="L901">        validEntityNames.put(&quot;lharu&quot;, 0x021BC);</span>
+<span class="fc" id="L902">        validEntityNames.put(&quot;lharul&quot;, 0x0296A);</span>
+<span class="fc" id="L903">        validEntityNames.put(&quot;lhblk&quot;, 0x02584);</span>
+<span class="fc" id="L904">        validEntityNames.put(&quot;ljcy&quot;, 0x00459);</span>
+<span class="fc" id="L905">        validEntityNames.put(&quot;llarr&quot;, 0x021C7);</span>
+<span class="fc" id="L906">        validEntityNames.put(&quot;llhard&quot;, 0x0296B);</span>
+<span class="fc" id="L907">        validEntityNames.put(&quot;lltri&quot;, 0x025FA);</span>
+<span class="fc" id="L908">        validEntityNames.put(&quot;lmidot&quot;, 0x00140);</span>
+<span class="fc" id="L909">        validEntityNames.put(&quot;lmoust&quot;, 0x023B0);</span>
+<span class="fc" id="L910">        validEntityNames.put(&quot;lnE&quot;, 0x02268);</span>
+<span class="fc" id="L911">        validEntityNames.put(&quot;lnap&quot;, 0x02A89);</span>
+<span class="fc" id="L912">        validEntityNames.put(&quot;lne&quot;, 0x02A87);</span>
+<span class="fc" id="L913">        validEntityNames.put(&quot;lnsim&quot;, 0x022E6);</span>
+<span class="fc" id="L914">        validEntityNames.put(&quot;loang&quot;, 0x027EC);</span>
+<span class="fc" id="L915">        validEntityNames.put(&quot;loarr&quot;, 0x021FD);</span>
+<span class="fc" id="L916">        validEntityNames.put(&quot;lobrk&quot;, 0x027E6);</span>
+<span class="fc" id="L917">        validEntityNames.put(&quot;lopar&quot;, 0x02985);</span>
+<span class="fc" id="L918">        validEntityNames.put(&quot;lopf&quot;, 0x1D55D);</span>
+<span class="fc" id="L919">        validEntityNames.put(&quot;loplus&quot;, 0x02A2D);</span>
+<span class="fc" id="L920">        validEntityNames.put(&quot;lotimes&quot;, 0x02A34);</span>
+<span class="fc" id="L921">        validEntityNames.put(&quot;lowast&quot;, 0x02217);</span>
+<span class="fc" id="L922">        validEntityNames.put(&quot;lowbar&quot;, 0x0005F);</span>
+<span class="fc" id="L923">        validEntityNames.put(&quot;loz&quot;, 0x025CA);</span>
+<span class="fc" id="L924">        validEntityNames.put(&quot;lozf&quot;, 0x029EB);</span>
+<span class="fc" id="L925">        validEntityNames.put(&quot;lpar&quot;, 0x00028);</span>
+<span class="fc" id="L926">        validEntityNames.put(&quot;lparlt&quot;, 0x02993);</span>
+<span class="fc" id="L927">        validEntityNames.put(&quot;lrarr&quot;, 0x021C6);</span>
+<span class="fc" id="L928">        validEntityNames.put(&quot;lrhar&quot;, 0x021CB);</span>
+<span class="fc" id="L929">        validEntityNames.put(&quot;lrhard&quot;, 0x0296D);</span>
+<span class="fc" id="L930">        validEntityNames.put(&quot;lrm&quot;, 0x0200E);</span>
+<span class="fc" id="L931">        validEntityNames.put(&quot;lrtri&quot;, 0x022BF);</span>
+<span class="fc" id="L932">        validEntityNames.put(&quot;lsaquo&quot;, 0x02039);</span>
+<span class="fc" id="L933">        validEntityNames.put(&quot;lscr&quot;, 0x1D4C1);</span>
+<span class="fc" id="L934">        validEntityNames.put(&quot;lsh&quot;, 0x021B0);</span>
+<span class="fc" id="L935">        validEntityNames.put(&quot;lsim&quot;, 0x02272);</span>
+<span class="fc" id="L936">        validEntityNames.put(&quot;lsime&quot;, 0x02A8D);</span>
+<span class="fc" id="L937">        validEntityNames.put(&quot;lsimg&quot;, 0x02A8F);</span>
+<span class="fc" id="L938">        validEntityNames.put(&quot;lsqb&quot;, 0x0005B);</span>
+<span class="fc" id="L939">        validEntityNames.put(&quot;lsquo&quot;, 0x02018);</span>
+<span class="fc" id="L940">        validEntityNames.put(&quot;lsquor&quot;, 0x0201A);</span>
+<span class="fc" id="L941">        validEntityNames.put(&quot;lstrok&quot;, 0x00142);</span>
+<span class="fc" id="L942">        validEntityNames.put(&quot;lt&quot;, 0x0003C);</span>
+<span class="fc" id="L943">        validEntityNames.put(&quot;ltcc&quot;, 0x02AA6);</span>
+<span class="fc" id="L944">        validEntityNames.put(&quot;ltcir&quot;, 0x02A79);</span>
+<span class="fc" id="L945">        validEntityNames.put(&quot;ltdot&quot;, 0x022D6);</span>
+<span class="fc" id="L946">        validEntityNames.put(&quot;lthree&quot;, 0x022CB);</span>
+<span class="fc" id="L947">        validEntityNames.put(&quot;ltimes&quot;, 0x022C9);</span>
+<span class="fc" id="L948">        validEntityNames.put(&quot;ltlarr&quot;, 0x02976);</span>
+<span class="fc" id="L949">        validEntityNames.put(&quot;ltquest&quot;, 0x02A7B);</span>
+<span class="fc" id="L950">        validEntityNames.put(&quot;ltrPar&quot;, 0x02996);</span>
+<span class="fc" id="L951">        validEntityNames.put(&quot;ltri&quot;, 0x025C3);</span>
+<span class="fc" id="L952">        validEntityNames.put(&quot;ltrie&quot;, 0x022B4);</span>
+<span class="fc" id="L953">        validEntityNames.put(&quot;ltrif&quot;, 0x025C2);</span>
+<span class="fc" id="L954">        validEntityNames.put(&quot;lurdshar&quot;, 0x0294A);</span>
+<span class="fc" id="L955">        validEntityNames.put(&quot;luruhar&quot;, 0x02966);</span>
+<span class="fc" id="L956">        validEntityNames.put(&quot;mDDot&quot;, 0x0223A);</span>
+<span class="fc" id="L957">        validEntityNames.put(&quot;macr&quot;, 0x000AF);</span>
+<span class="fc" id="L958">        validEntityNames.put(&quot;male&quot;, 0x02642);</span>
+<span class="fc" id="L959">        validEntityNames.put(&quot;malt&quot;, 0x02720);</span>
+<span class="fc" id="L960">        validEntityNames.put(&quot;map&quot;, 0x021A6);</span>
+<span class="fc" id="L961">        validEntityNames.put(&quot;marker&quot;, 0x025AE);</span>
+<span class="fc" id="L962">        validEntityNames.put(&quot;mcomma&quot;, 0x02A29);</span>
+<span class="fc" id="L963">        validEntityNames.put(&quot;mcy&quot;, 0x0043C);</span>
+<span class="fc" id="L964">        validEntityNames.put(&quot;mdash&quot;, 0x02014);</span>
+<span class="fc" id="L965">        validEntityNames.put(&quot;mfr&quot;, 0x1D52A);</span>
+<span class="fc" id="L966">        validEntityNames.put(&quot;mho&quot;, 0x02127);</span>
+<span class="fc" id="L967">        validEntityNames.put(&quot;micro&quot;, 0x000B5);</span>
+<span class="fc" id="L968">        validEntityNames.put(&quot;mid&quot;, 0x02223);</span>
+<span class="fc" id="L969">        validEntityNames.put(&quot;midcir&quot;, 0x02AF0);</span>
+<span class="fc" id="L970">        validEntityNames.put(&quot;middot&quot;, 0x000B7);</span>
+<span class="fc" id="L971">        validEntityNames.put(&quot;minus&quot;, 0x02212);</span>
+<span class="fc" id="L972">        validEntityNames.put(&quot;minusb&quot;, 0x0229F);</span>
+<span class="fc" id="L973">        validEntityNames.put(&quot;minusd&quot;, 0x02238);</span>
+<span class="fc" id="L974">        validEntityNames.put(&quot;minusdu&quot;, 0x02A2A);</span>
+<span class="fc" id="L975">        validEntityNames.put(&quot;mlcp&quot;, 0x02ADB);</span>
+<span class="fc" id="L976">        validEntityNames.put(&quot;mnplus&quot;, 0x02213);</span>
+<span class="fc" id="L977">        validEntityNames.put(&quot;models&quot;, 0x022A7);</span>
+<span class="fc" id="L978">        validEntityNames.put(&quot;mopf&quot;, 0x1D55E);</span>
+<span class="fc" id="L979">        validEntityNames.put(&quot;mscr&quot;, 0x1D4C2);</span>
+<span class="fc" id="L980">        validEntityNames.put(&quot;mu&quot;, 0x003BC);</span>
+<span class="fc" id="L981">        validEntityNames.put(&quot;mumap&quot;, 0x022B8);</span>
+<span class="fc" id="L982">        validEntityNames.put(&quot;nVDash&quot;, 0x022AF);</span>
+<span class="fc" id="L983">        validEntityNames.put(&quot;nVdash&quot;, 0x022AE);</span>
+<span class="fc" id="L984">        validEntityNames.put(&quot;nabla&quot;, 0x02207);</span>
+<span class="fc" id="L985">        validEntityNames.put(&quot;nacute&quot;, 0x00144);</span>
+<span class="fc" id="L986">        validEntityNames.put(&quot;nap&quot;, 0x02249);</span>
+<span class="fc" id="L987">        validEntityNames.put(&quot;napos&quot;, 0x00149);</span>
+<span class="fc" id="L988">        validEntityNames.put(&quot;natur&quot;, 0x0266E);</span>
+<span class="fc" id="L989">        validEntityNames.put(&quot;nbsp&quot;, 0x000A0);</span>
+<span class="fc" id="L990">        validEntityNames.put(&quot;ncap&quot;, 0x02A43);</span>
+<span class="fc" id="L991">        validEntityNames.put(&quot;ncaron&quot;, 0x00148);</span>
+<span class="fc" id="L992">        validEntityNames.put(&quot;ncedil&quot;, 0x00146);</span>
+<span class="fc" id="L993">        validEntityNames.put(&quot;ncong&quot;, 0x02247);</span>
+<span class="fc" id="L994">        validEntityNames.put(&quot;ncup&quot;, 0x02A42);</span>
+<span class="fc" id="L995">        validEntityNames.put(&quot;ncy&quot;, 0x0043D);</span>
+<span class="fc" id="L996">        validEntityNames.put(&quot;ndash&quot;, 0x02013);</span>
+<span class="fc" id="L997">        validEntityNames.put(&quot;ne&quot;, 0x02260);</span>
+<span class="fc" id="L998">        validEntityNames.put(&quot;neArr&quot;, 0x021D7);</span>
+<span class="fc" id="L999">        validEntityNames.put(&quot;nearhk&quot;, 0x02924);</span>
+<span class="fc" id="L1000">        validEntityNames.put(&quot;nearr&quot;, 0x02197);</span>
+<span class="fc" id="L1001">        validEntityNames.put(&quot;nequiv&quot;, 0x02262);</span>
+<span class="fc" id="L1002">        validEntityNames.put(&quot;nesear&quot;, 0x02928);</span>
+<span class="fc" id="L1003">        validEntityNames.put(&quot;nexist&quot;, 0x02204);</span>
+<span class="fc" id="L1004">        validEntityNames.put(&quot;nfr&quot;, 0x1D52B);</span>
+<span class="fc" id="L1005">        validEntityNames.put(&quot;nge&quot;, 0x02271);</span>
+<span class="fc" id="L1006">        validEntityNames.put(&quot;ngsim&quot;, 0x02275);</span>
+<span class="fc" id="L1007">        validEntityNames.put(&quot;ngt&quot;, 0x0226F);</span>
+<span class="fc" id="L1008">        validEntityNames.put(&quot;nhArr&quot;, 0x021CE);</span>
+<span class="fc" id="L1009">        validEntityNames.put(&quot;nharr&quot;, 0x021AE);</span>
+<span class="fc" id="L1010">        validEntityNames.put(&quot;nhpar&quot;, 0x02AF2);</span>
+<span class="fc" id="L1011">        validEntityNames.put(&quot;nis&quot;, 0x022FC);</span>
+<span class="fc" id="L1012">        validEntityNames.put(&quot;nisd&quot;, 0x022FA);</span>
+<span class="fc" id="L1013">        validEntityNames.put(&quot;niv&quot;, 0x0220B);</span>
+<span class="fc" id="L1014">        validEntityNames.put(&quot;njcy&quot;, 0x0045A);</span>
+<span class="fc" id="L1015">        validEntityNames.put(&quot;nlArr&quot;, 0x021CD);</span>
+<span class="fc" id="L1016">        validEntityNames.put(&quot;nlarr&quot;, 0x0219A);</span>
+<span class="fc" id="L1017">        validEntityNames.put(&quot;nldr&quot;, 0x02025);</span>
+<span class="fc" id="L1018">        validEntityNames.put(&quot;nle&quot;, 0x02270);</span>
+<span class="fc" id="L1019">        validEntityNames.put(&quot;nlsim&quot;, 0x02274);</span>
+<span class="fc" id="L1020">        validEntityNames.put(&quot;nlt&quot;, 0x0226E);</span>
+<span class="fc" id="L1021">        validEntityNames.put(&quot;nltri&quot;, 0x022EA);</span>
+<span class="fc" id="L1022">        validEntityNames.put(&quot;nltrie&quot;, 0x022EC);</span>
+<span class="fc" id="L1023">        validEntityNames.put(&quot;nmid&quot;, 0x02224);</span>
+<span class="fc" id="L1024">        validEntityNames.put(&quot;nopf&quot;, 0x1D55F);</span>
+<span class="fc" id="L1025">        validEntityNames.put(&quot;not&quot;, 0x000AC);</span>
+<span class="fc" id="L1026">        validEntityNames.put(&quot;notin&quot;, 0x02209);</span>
+<span class="fc" id="L1027">        validEntityNames.put(&quot;notinvb&quot;, 0x022F7);</span>
+<span class="fc" id="L1028">        validEntityNames.put(&quot;notinvc&quot;, 0x022F6);</span>
+<span class="fc" id="L1029">        validEntityNames.put(&quot;notni&quot;, 0x0220C);</span>
+<span class="fc" id="L1030">        validEntityNames.put(&quot;notnivb&quot;, 0x022FE);</span>
+<span class="fc" id="L1031">        validEntityNames.put(&quot;notnivc&quot;, 0x022FD);</span>
+<span class="fc" id="L1032">        validEntityNames.put(&quot;npar&quot;, 0x02226);</span>
+<span class="fc" id="L1033">        validEntityNames.put(&quot;npolint&quot;, 0x02A14);</span>
+<span class="fc" id="L1034">        validEntityNames.put(&quot;npr&quot;, 0x02280);</span>
+<span class="fc" id="L1035">        validEntityNames.put(&quot;nprcue&quot;, 0x022E0);</span>
+<span class="fc" id="L1036">        validEntityNames.put(&quot;nrArr&quot;, 0x021CF);</span>
+<span class="fc" id="L1037">        validEntityNames.put(&quot;nrarr&quot;, 0x0219B);</span>
+<span class="fc" id="L1038">        validEntityNames.put(&quot;nrtri&quot;, 0x022EB);</span>
+<span class="fc" id="L1039">        validEntityNames.put(&quot;nrtrie&quot;, 0x022ED);</span>
+<span class="fc" id="L1040">        validEntityNames.put(&quot;nsc&quot;, 0x02281);</span>
+<span class="fc" id="L1041">        validEntityNames.put(&quot;nsccue&quot;, 0x022E1);</span>
+<span class="fc" id="L1042">        validEntityNames.put(&quot;nscr&quot;, 0x1D4C3);</span>
+<span class="fc" id="L1043">        validEntityNames.put(&quot;nsim&quot;, 0x02241);</span>
+<span class="fc" id="L1044">        validEntityNames.put(&quot;nsime&quot;, 0x02244);</span>
+<span class="fc" id="L1045">        validEntityNames.put(&quot;nsqsube&quot;, 0x022E2);</span>
+<span class="fc" id="L1046">        validEntityNames.put(&quot;nsqsupe&quot;, 0x022E3);</span>
+<span class="fc" id="L1047">        validEntityNames.put(&quot;nsub&quot;, 0x02284);</span>
+<span class="fc" id="L1048">        validEntityNames.put(&quot;nsube&quot;, 0x02288);</span>
+<span class="fc" id="L1049">        validEntityNames.put(&quot;nsup&quot;, 0x02285);</span>
+<span class="fc" id="L1050">        validEntityNames.put(&quot;nsupe&quot;, 0x02289);</span>
+<span class="fc" id="L1051">        validEntityNames.put(&quot;ntgl&quot;, 0x02279);</span>
+<span class="fc" id="L1052">        validEntityNames.put(&quot;ntilde&quot;, 0x000F1);</span>
+<span class="fc" id="L1053">        validEntityNames.put(&quot;ntlg&quot;, 0x02278);</span>
+<span class="fc" id="L1054">        validEntityNames.put(&quot;nu&quot;, 0x003BD);</span>
+<span class="fc" id="L1055">        validEntityNames.put(&quot;num&quot;, 0x00023);</span>
+<span class="fc" id="L1056">        validEntityNames.put(&quot;numero&quot;, 0x02116);</span>
+<span class="fc" id="L1057">        validEntityNames.put(&quot;numsp&quot;, 0x02007);</span>
+<span class="fc" id="L1058">        validEntityNames.put(&quot;nvDash&quot;, 0x022AD);</span>
+<span class="fc" id="L1059">        validEntityNames.put(&quot;nvHarr&quot;, 0x02904);</span>
+<span class="fc" id="L1060">        validEntityNames.put(&quot;nvdash&quot;, 0x022AC);</span>
+<span class="fc" id="L1061">        validEntityNames.put(&quot;nvinfin&quot;, 0x029DE);</span>
+<span class="fc" id="L1062">        validEntityNames.put(&quot;nvlArr&quot;, 0x02902);</span>
+<span class="fc" id="L1063">        validEntityNames.put(&quot;nvrArr&quot;, 0x02903);</span>
+<span class="fc" id="L1064">        validEntityNames.put(&quot;nwArr&quot;, 0x021D6);</span>
+<span class="fc" id="L1065">        validEntityNames.put(&quot;nwarhk&quot;, 0x02923);</span>
+<span class="fc" id="L1066">        validEntityNames.put(&quot;nwarr&quot;, 0x02196);</span>
+<span class="fc" id="L1067">        validEntityNames.put(&quot;nwnear&quot;, 0x02927);</span>
+<span class="fc" id="L1068">        validEntityNames.put(&quot;oS&quot;, 0x024C8);</span>
+<span class="fc" id="L1069">        validEntityNames.put(&quot;oacute&quot;, 0x000F3);</span>
+<span class="fc" id="L1070">        validEntityNames.put(&quot;oast&quot;, 0x0229B);</span>
+<span class="fc" id="L1071">        validEntityNames.put(&quot;ocir&quot;, 0x0229A);</span>
+<span class="fc" id="L1072">        validEntityNames.put(&quot;ocirc&quot;, 0x000F4);</span>
+<span class="fc" id="L1073">        validEntityNames.put(&quot;ocy&quot;, 0x0043E);</span>
+<span class="fc" id="L1074">        validEntityNames.put(&quot;odash&quot;, 0x0229D);</span>
+<span class="fc" id="L1075">        validEntityNames.put(&quot;odblac&quot;, 0x00151);</span>
+<span class="fc" id="L1076">        validEntityNames.put(&quot;odiv&quot;, 0x02A38);</span>
+<span class="fc" id="L1077">        validEntityNames.put(&quot;odot&quot;, 0x02299);</span>
+<span class="fc" id="L1078">        validEntityNames.put(&quot;odsold&quot;, 0x029BC);</span>
+<span class="fc" id="L1079">        validEntityNames.put(&quot;oelig&quot;, 0x00153);</span>
+<span class="fc" id="L1080">        validEntityNames.put(&quot;ofcir&quot;, 0x029BF);</span>
+<span class="fc" id="L1081">        validEntityNames.put(&quot;ofr&quot;, 0x1D52C);</span>
+<span class="fc" id="L1082">        validEntityNames.put(&quot;ogon&quot;, 0x002DB);</span>
+<span class="fc" id="L1083">        validEntityNames.put(&quot;ograve&quot;, 0x000F2);</span>
+<span class="fc" id="L1084">        validEntityNames.put(&quot;ogt&quot;, 0x029C1);</span>
+<span class="fc" id="L1085">        validEntityNames.put(&quot;ohbar&quot;, 0x029B5);</span>
+<span class="fc" id="L1086">        validEntityNames.put(&quot;ohm&quot;, 0x02126);</span>
+<span class="fc" id="L1087">        validEntityNames.put(&quot;olarr&quot;, 0x021BA);</span>
+<span class="fc" id="L1088">        validEntityNames.put(&quot;olcir&quot;, 0x029BE);</span>
+<span class="fc" id="L1089">        validEntityNames.put(&quot;olcross&quot;, 0x029BB);</span>
+<span class="fc" id="L1090">        validEntityNames.put(&quot;oline&quot;, 0x0203E);</span>
+<span class="fc" id="L1091">        validEntityNames.put(&quot;olt&quot;, 0x029C0);</span>
+<span class="fc" id="L1092">        validEntityNames.put(&quot;omacr&quot;, 0x0014D);</span>
+<span class="fc" id="L1093">        validEntityNames.put(&quot;omega&quot;, 0x003C9);</span>
+<span class="fc" id="L1094">        validEntityNames.put(&quot;omicron&quot;, 0x003BF);</span>
+<span class="fc" id="L1095">        validEntityNames.put(&quot;omid&quot;, 0x029B6);</span>
+<span class="fc" id="L1096">        validEntityNames.put(&quot;ominus&quot;, 0x02296);</span>
+<span class="fc" id="L1097">        validEntityNames.put(&quot;oopf&quot;, 0x1D560);</span>
+<span class="fc" id="L1098">        validEntityNames.put(&quot;opar&quot;, 0x029B7);</span>
+<span class="fc" id="L1099">        validEntityNames.put(&quot;operp&quot;, 0x029B9);</span>
+<span class="fc" id="L1100">        validEntityNames.put(&quot;oplus&quot;, 0x02295);</span>
+<span class="fc" id="L1101">        validEntityNames.put(&quot;or&quot;, 0x02228);</span>
+<span class="fc" id="L1102">        validEntityNames.put(&quot;orarr&quot;, 0x021BB);</span>
+<span class="fc" id="L1103">        validEntityNames.put(&quot;ord&quot;, 0x02A5D);</span>
+<span class="fc" id="L1104">        validEntityNames.put(&quot;order&quot;, 0x02134);</span>
+<span class="fc" id="L1105">        validEntityNames.put(&quot;ordf&quot;, 0x000AA);</span>
+<span class="fc" id="L1106">        validEntityNames.put(&quot;ordm&quot;, 0x000BA);</span>
+<span class="fc" id="L1107">        validEntityNames.put(&quot;origof&quot;, 0x022B6);</span>
+<span class="fc" id="L1108">        validEntityNames.put(&quot;oror&quot;, 0x02A56);</span>
+<span class="fc" id="L1109">        validEntityNames.put(&quot;orslope&quot;, 0x02A57);</span>
+<span class="fc" id="L1110">        validEntityNames.put(&quot;orv&quot;, 0x02A5B);</span>
+<span class="fc" id="L1111">        validEntityNames.put(&quot;oslash&quot;, 0x000F8);</span>
+<span class="fc" id="L1112">        validEntityNames.put(&quot;osol&quot;, 0x02298);</span>
+<span class="fc" id="L1113">        validEntityNames.put(&quot;otilde&quot;, 0x000F5);</span>
+<span class="fc" id="L1114">        validEntityNames.put(&quot;otimes&quot;, 0x02297);</span>
+<span class="fc" id="L1115">        validEntityNames.put(&quot;otimesas&quot;, 0x02A36);</span>
+<span class="fc" id="L1116">        validEntityNames.put(&quot;ouml&quot;, 0x000F6);</span>
+<span class="fc" id="L1117">        validEntityNames.put(&quot;ovbar&quot;, 0x0233D);</span>
+<span class="fc" id="L1118">        validEntityNames.put(&quot;par&quot;, 0x02225);</span>
+<span class="fc" id="L1119">        validEntityNames.put(&quot;para&quot;, 0x000B6);</span>
+<span class="fc" id="L1120">        validEntityNames.put(&quot;parsim&quot;, 0x02AF3);</span>
+<span class="fc" id="L1121">        validEntityNames.put(&quot;parsl&quot;, 0x02AFD);</span>
+<span class="fc" id="L1122">        validEntityNames.put(&quot;part&quot;, 0x02202);</span>
+<span class="fc" id="L1123">        validEntityNames.put(&quot;pcy&quot;, 0x0043F);</span>
+<span class="fc" id="L1124">        validEntityNames.put(&quot;percnt&quot;, 0x00025);</span>
+<span class="fc" id="L1125">        validEntityNames.put(&quot;period&quot;, 0x0002E);</span>
+<span class="fc" id="L1126">        validEntityNames.put(&quot;permil&quot;, 0x02030);</span>
+<span class="fc" id="L1127">        validEntityNames.put(&quot;pertenk&quot;, 0x02031);</span>
+<span class="fc" id="L1128">        validEntityNames.put(&quot;pfr&quot;, 0x1D52D);</span>
+<span class="fc" id="L1129">        validEntityNames.put(&quot;phi&quot;, 0x003C6);</span>
+<span class="fc" id="L1130">        validEntityNames.put(&quot;phmmat&quot;, 0x02133);</span>
+<span class="fc" id="L1131">        validEntityNames.put(&quot;phone&quot;, 0x0260E);</span>
+<span class="fc" id="L1132">        validEntityNames.put(&quot;pi&quot;, 0x003C0);</span>
+<span class="fc" id="L1133">        validEntityNames.put(&quot;piv&quot;, 0x003D6);</span>
+<span class="fc" id="L1134">        validEntityNames.put(&quot;planck&quot;, 0x0210F);</span>
+<span class="fc" id="L1135">        validEntityNames.put(&quot;planckh&quot;, 0x0210E);</span>
+<span class="fc" id="L1136">        validEntityNames.put(&quot;plus&quot;, 0x0002B);</span>
+<span class="fc" id="L1137">        validEntityNames.put(&quot;plusacir&quot;, 0x02A23);</span>
+<span class="fc" id="L1138">        validEntityNames.put(&quot;plusb&quot;, 0x0229E);</span>
+<span class="fc" id="L1139">        validEntityNames.put(&quot;pluscir&quot;, 0x02A22);</span>
+<span class="fc" id="L1140">        validEntityNames.put(&quot;plusdo&quot;, 0x02214);</span>
+<span class="fc" id="L1141">        validEntityNames.put(&quot;plusdu&quot;, 0x02A25);</span>
+<span class="fc" id="L1142">        validEntityNames.put(&quot;pluse&quot;, 0x02A72);</span>
+<span class="fc" id="L1143">        validEntityNames.put(&quot;plusmn&quot;, 0x000B1);</span>
+<span class="fc" id="L1144">        validEntityNames.put(&quot;plussim&quot;, 0x02A26);</span>
+<span class="fc" id="L1145">        validEntityNames.put(&quot;plustwo&quot;, 0x02A27);</span>
+<span class="fc" id="L1146">        validEntityNames.put(&quot;pointint&quot;, 0x02A15);</span>
+<span class="fc" id="L1147">        validEntityNames.put(&quot;popf&quot;, 0x1D561);</span>
+<span class="fc" id="L1148">        validEntityNames.put(&quot;pound&quot;, 0x000A3);</span>
+<span class="fc" id="L1149">        validEntityNames.put(&quot;pr&quot;, 0x0227A);</span>
+<span class="fc" id="L1150">        validEntityNames.put(&quot;prE&quot;, 0x02AB3);</span>
+<span class="fc" id="L1151">        validEntityNames.put(&quot;prap&quot;, 0x02AB7);</span>
+<span class="fc" id="L1152">        validEntityNames.put(&quot;prcue&quot;, 0x0227C);</span>
+<span class="fc" id="L1153">        validEntityNames.put(&quot;pre&quot;, 0x02AAF);</span>
+<span class="fc" id="L1154">        validEntityNames.put(&quot;prime&quot;, 0x02032);</span>
+<span class="fc" id="L1155">        validEntityNames.put(&quot;prnE&quot;, 0x02AB5);</span>
+<span class="fc" id="L1156">        validEntityNames.put(&quot;prnap&quot;, 0x02AB9);</span>
+<span class="fc" id="L1157">        validEntityNames.put(&quot;prnsim&quot;, 0x022E8);</span>
+<span class="fc" id="L1158">        validEntityNames.put(&quot;prod&quot;, 0x0220F);</span>
+<span class="fc" id="L1159">        validEntityNames.put(&quot;profalar&quot;, 0x0232E);</span>
+<span class="fc" id="L1160">        validEntityNames.put(&quot;profline&quot;, 0x02312);</span>
+<span class="fc" id="L1161">        validEntityNames.put(&quot;profsurf&quot;, 0x02313);</span>
+<span class="fc" id="L1162">        validEntityNames.put(&quot;prop&quot;, 0x0221D);</span>
+<span class="fc" id="L1163">        validEntityNames.put(&quot;prsim&quot;, 0x0227E);</span>
+<span class="fc" id="L1164">        validEntityNames.put(&quot;prurel&quot;, 0x022B0);</span>
+<span class="fc" id="L1165">        validEntityNames.put(&quot;pscr&quot;, 0x1D4C5);</span>
+<span class="fc" id="L1166">        validEntityNames.put(&quot;psi&quot;, 0x003C8);</span>
+<span class="fc" id="L1167">        validEntityNames.put(&quot;puncsp&quot;, 0x02008);</span>
+<span class="fc" id="L1168">        validEntityNames.put(&quot;qfr&quot;, 0x1D52E);</span>
+<span class="fc" id="L1169">        validEntityNames.put(&quot;qint&quot;, 0x02A0C);</span>
+<span class="fc" id="L1170">        validEntityNames.put(&quot;qopf&quot;, 0x1D562);</span>
+<span class="fc" id="L1171">        validEntityNames.put(&quot;qprime&quot;, 0x02057);</span>
+<span class="fc" id="L1172">        validEntityNames.put(&quot;qscr&quot;, 0x1D4C6);</span>
+<span class="fc" id="L1173">        validEntityNames.put(&quot;quaternions&quot;, 0x0210D);</span>
+<span class="fc" id="L1174">        validEntityNames.put(&quot;quatint&quot;, 0x02A16);</span>
+<span class="fc" id="L1175">        validEntityNames.put(&quot;quest&quot;, 0x0003F);</span>
+<span class="fc" id="L1176">        validEntityNames.put(&quot;quot&quot;, 0x00022);</span>
+<span class="fc" id="L1177">        validEntityNames.put(&quot;rAarr&quot;, 0x021DB);</span>
+<span class="fc" id="L1178">        validEntityNames.put(&quot;rArr&quot;, 0x021D2);</span>
+<span class="fc" id="L1179">        validEntityNames.put(&quot;rAtail&quot;, 0x0291C);</span>
+<span class="fc" id="L1180">        validEntityNames.put(&quot;rBarr&quot;, 0x0290F);</span>
+<span class="fc" id="L1181">        validEntityNames.put(&quot;rHar&quot;, 0x02964);</span>
+<span class="fc" id="L1182">        validEntityNames.put(&quot;race&quot;, 0x029DA);</span>
+<span class="fc" id="L1183">        validEntityNames.put(&quot;racute&quot;, 0x00155);</span>
+<span class="fc" id="L1184">        validEntityNames.put(&quot;radic&quot;, 0x0221A);</span>
+<span class="fc" id="L1185">        validEntityNames.put(&quot;raemptyv&quot;, 0x029B3);</span>
+<span class="fc" id="L1186">        validEntityNames.put(&quot;rang&quot;, 0x027E9);</span>
+<span class="fc" id="L1187">        validEntityNames.put(&quot;rangd&quot;, 0x02992);</span>
+<span class="fc" id="L1188">        validEntityNames.put(&quot;range&quot;, 0x029A5);</span>
+<span class="fc" id="L1189">        validEntityNames.put(&quot;raquo&quot;, 0x000BB);</span>
+<span class="fc" id="L1190">        validEntityNames.put(&quot;rarr&quot;, 0x02192);</span>
+<span class="fc" id="L1191">        validEntityNames.put(&quot;rarrap&quot;, 0x02975);</span>
+<span class="fc" id="L1192">        validEntityNames.put(&quot;rarrb&quot;, 0x021E5);</span>
+<span class="fc" id="L1193">        validEntityNames.put(&quot;rarrbfs&quot;, 0x02920);</span>
+<span class="fc" id="L1194">        validEntityNames.put(&quot;rarrc&quot;, 0x02933);</span>
+<span class="fc" id="L1195">        validEntityNames.put(&quot;rarrfs&quot;, 0x0291E);</span>
+<span class="fc" id="L1196">        validEntityNames.put(&quot;rarrhk&quot;, 0x021AA);</span>
+<span class="fc" id="L1197">        validEntityNames.put(&quot;rarrlp&quot;, 0x021AC);</span>
+<span class="fc" id="L1198">        validEntityNames.put(&quot;rarrpl&quot;, 0x02945);</span>
+<span class="fc" id="L1199">        validEntityNames.put(&quot;rarrsim&quot;, 0x02974);</span>
+<span class="fc" id="L1200">        validEntityNames.put(&quot;rarrtl&quot;, 0x021A3);</span>
+<span class="fc" id="L1201">        validEntityNames.put(&quot;rarrw&quot;, 0x0219D);</span>
+<span class="fc" id="L1202">        validEntityNames.put(&quot;ratail&quot;, 0x0291A);</span>
+<span class="fc" id="L1203">        validEntityNames.put(&quot;ratio&quot;, 0x02236);</span>
+<span class="fc" id="L1204">        validEntityNames.put(&quot;rationals&quot;, 0x0211A);</span>
+<span class="fc" id="L1205">        validEntityNames.put(&quot;rbarr&quot;, 0x0290D);</span>
+<span class="fc" id="L1206">        validEntityNames.put(&quot;rbbrk&quot;, 0x02773);</span>
+<span class="fc" id="L1207">        validEntityNames.put(&quot;rbrke&quot;, 0x0298C);</span>
+<span class="fc" id="L1208">        validEntityNames.put(&quot;rbrksld&quot;, 0x0298E);</span>
+<span class="fc" id="L1209">        validEntityNames.put(&quot;rbrkslu&quot;, 0x02990);</span>
+<span class="fc" id="L1210">        validEntityNames.put(&quot;rcaron&quot;, 0x00159);</span>
+<span class="fc" id="L1211">        validEntityNames.put(&quot;rcedil&quot;, 0x00157);</span>
+<span class="fc" id="L1212">        validEntityNames.put(&quot;rceil&quot;, 0x02309);</span>
+<span class="fc" id="L1213">        validEntityNames.put(&quot;rcub&quot;, 0x0007D);</span>
+<span class="fc" id="L1214">        validEntityNames.put(&quot;rcy&quot;, 0x00440);</span>
+<span class="fc" id="L1215">        validEntityNames.put(&quot;rdca&quot;, 0x02937);</span>
+<span class="fc" id="L1216">        validEntityNames.put(&quot;rdldhar&quot;, 0x02969);</span>
+<span class="fc" id="L1217">        validEntityNames.put(&quot;rdquo&quot;, 0x0201D);</span>
+<span class="fc" id="L1218">        validEntityNames.put(&quot;rdsh&quot;, 0x021B3);</span>
+<span class="fc" id="L1219">        validEntityNames.put(&quot;real&quot;, 0x0211C);</span>
+<span class="fc" id="L1220">        validEntityNames.put(&quot;reals&quot;, 0x0211D);</span>
+<span class="fc" id="L1221">        validEntityNames.put(&quot;rect&quot;, 0x025AD);</span>
+<span class="fc" id="L1222">        validEntityNames.put(&quot;reg&quot;, 0x000AE);</span>
+<span class="fc" id="L1223">        validEntityNames.put(&quot;rfisht&quot;, 0x0297D);</span>
+<span class="fc" id="L1224">        validEntityNames.put(&quot;rfloor&quot;, 0x0230B);</span>
+<span class="fc" id="L1225">        validEntityNames.put(&quot;rfr&quot;, 0x1D52F);</span>
+<span class="fc" id="L1226">        validEntityNames.put(&quot;rhard&quot;, 0x021C1);</span>
+<span class="fc" id="L1227">        validEntityNames.put(&quot;rharu&quot;, 0x021C0);</span>
+<span class="fc" id="L1228">        validEntityNames.put(&quot;rharul&quot;, 0x0296C);</span>
+<span class="fc" id="L1229">        validEntityNames.put(&quot;rho&quot;, 0x003C1);</span>
+<span class="fc" id="L1230">        validEntityNames.put(&quot;rhov&quot;, 0x003F1);</span>
+<span class="fc" id="L1231">        validEntityNames.put(&quot;ring&quot;, 0x002DA);</span>
+<span class="fc" id="L1232">        validEntityNames.put(&quot;rlarr&quot;, 0x021C4);</span>
+<span class="fc" id="L1233">        validEntityNames.put(&quot;rlhar&quot;, 0x021CC);</span>
+<span class="fc" id="L1234">        validEntityNames.put(&quot;rlm&quot;, 0x0200F);</span>
+<span class="fc" id="L1235">        validEntityNames.put(&quot;rmoust&quot;, 0x023B1);</span>
+<span class="fc" id="L1236">        validEntityNames.put(&quot;rnmid&quot;, 0x02AEE);</span>
+<span class="fc" id="L1237">        validEntityNames.put(&quot;roang&quot;, 0x027ED);</span>
+<span class="fc" id="L1238">        validEntityNames.put(&quot;roarr&quot;, 0x021FE);</span>
+<span class="fc" id="L1239">        validEntityNames.put(&quot;robrk&quot;, 0x027E7);</span>
+<span class="fc" id="L1240">        validEntityNames.put(&quot;ropar&quot;, 0x02986);</span>
+<span class="fc" id="L1241">        validEntityNames.put(&quot;ropf&quot;, 0x1D563);</span>
+<span class="fc" id="L1242">        validEntityNames.put(&quot;roplus&quot;, 0x02A2E);</span>
+<span class="fc" id="L1243">        validEntityNames.put(&quot;rotimes&quot;, 0x02A35);</span>
+<span class="fc" id="L1244">        validEntityNames.put(&quot;rpar&quot;, 0x00029);</span>
+<span class="fc" id="L1245">        validEntityNames.put(&quot;rpargt&quot;, 0x02994);</span>
+<span class="fc" id="L1246">        validEntityNames.put(&quot;rppolint&quot;, 0x02A12);</span>
+<span class="fc" id="L1247">        validEntityNames.put(&quot;rrarr&quot;, 0x021C9);</span>
+<span class="fc" id="L1248">        validEntityNames.put(&quot;rsaquo&quot;, 0x0203A);</span>
+<span class="fc" id="L1249">        validEntityNames.put(&quot;rscr&quot;, 0x1D4C7);</span>
+<span class="fc" id="L1250">        validEntityNames.put(&quot;rsh&quot;, 0x021B1);</span>
+<span class="fc" id="L1251">        validEntityNames.put(&quot;rsqb&quot;, 0x0005D);</span>
+<span class="fc" id="L1252">        validEntityNames.put(&quot;rsquo&quot;, 0x02019);</span>
+<span class="fc" id="L1253">        validEntityNames.put(&quot;rthree&quot;, 0x022CC);</span>
+<span class="fc" id="L1254">        validEntityNames.put(&quot;rtimes&quot;, 0x022CA);</span>
+<span class="fc" id="L1255">        validEntityNames.put(&quot;rtri&quot;, 0x025B9);</span>
+<span class="fc" id="L1256">        validEntityNames.put(&quot;rtrie&quot;, 0x022B5);</span>
+<span class="fc" id="L1257">        validEntityNames.put(&quot;rtrif&quot;, 0x025B8);</span>
+<span class="fc" id="L1258">        validEntityNames.put(&quot;rtriltri&quot;, 0x029CE);</span>
+<span class="fc" id="L1259">        validEntityNames.put(&quot;ruluhar&quot;, 0x02968);</span>
+<span class="fc" id="L1260">        validEntityNames.put(&quot;rx&quot;, 0x0211E);</span>
+<span class="fc" id="L1261">        validEntityNames.put(&quot;sacute&quot;, 0x0015B);</span>
+<span class="fc" id="L1262">        validEntityNames.put(&quot;sc&quot;, 0x0227B);</span>
+<span class="fc" id="L1263">        validEntityNames.put(&quot;scE&quot;, 0x02AB4);</span>
+<span class="fc" id="L1264">        validEntityNames.put(&quot;scap&quot;, 0x02AB8);</span>
+<span class="fc" id="L1265">        validEntityNames.put(&quot;scaron&quot;, 0x00161);</span>
+<span class="fc" id="L1266">        validEntityNames.put(&quot;sccue&quot;, 0x0227D);</span>
+<span class="fc" id="L1267">        validEntityNames.put(&quot;sce&quot;, 0x02AB0);</span>
+<span class="fc" id="L1268">        validEntityNames.put(&quot;scedil&quot;, 0x0015F);</span>
+<span class="fc" id="L1269">        validEntityNames.put(&quot;scirc&quot;, 0x0015D);</span>
+<span class="fc" id="L1270">        validEntityNames.put(&quot;scnE&quot;, 0x02AB6);</span>
+<span class="fc" id="L1271">        validEntityNames.put(&quot;scnap&quot;, 0x02ABA);</span>
+<span class="fc" id="L1272">        validEntityNames.put(&quot;scnsim&quot;, 0x022E9);</span>
+<span class="fc" id="L1273">        validEntityNames.put(&quot;scpolint&quot;, 0x02A13);</span>
+<span class="fc" id="L1274">        validEntityNames.put(&quot;scsim&quot;, 0x0227F);</span>
+<span class="fc" id="L1275">        validEntityNames.put(&quot;scy&quot;, 0x00441);</span>
+<span class="fc" id="L1276">        validEntityNames.put(&quot;sdot&quot;, 0x022C5);</span>
+<span class="fc" id="L1277">        validEntityNames.put(&quot;sdotb&quot;, 0x022A1);</span>
+<span class="fc" id="L1278">        validEntityNames.put(&quot;sdote&quot;, 0x02A66);</span>
+<span class="fc" id="L1279">        validEntityNames.put(&quot;seArr&quot;, 0x021D8);</span>
+<span class="fc" id="L1280">        validEntityNames.put(&quot;searhk&quot;, 0x02925);</span>
+<span class="fc" id="L1281">        validEntityNames.put(&quot;searr&quot;, 0x02198);</span>
+<span class="fc" id="L1282">        validEntityNames.put(&quot;sect&quot;, 0x000A7);</span>
+<span class="fc" id="L1283">        validEntityNames.put(&quot;semi&quot;, 0x0003B);</span>
+<span class="fc" id="L1284">        validEntityNames.put(&quot;seswar&quot;, 0x02929);</span>
+<span class="fc" id="L1285">        validEntityNames.put(&quot;setmn&quot;, 0x02216);</span>
+<span class="fc" id="L1286">        validEntityNames.put(&quot;sext&quot;, 0x02736);</span>
+<span class="fc" id="L1287">        validEntityNames.put(&quot;sfr&quot;, 0x1D530);</span>
+<span class="fc" id="L1288">        validEntityNames.put(&quot;sharp&quot;, 0x0266F);</span>
+<span class="fc" id="L1289">        validEntityNames.put(&quot;shchcy&quot;, 0x00449);</span>
+<span class="fc" id="L1290">        validEntityNames.put(&quot;shcy&quot;, 0x00448);</span>
+<span class="fc" id="L1291">        validEntityNames.put(&quot;shy&quot;, 0x000AD);</span>
+<span class="fc" id="L1292">        validEntityNames.put(&quot;sigma&quot;, 0x003C3);</span>
+<span class="fc" id="L1293">        validEntityNames.put(&quot;sigmav&quot;, 0x003C2);</span>
+<span class="fc" id="L1294">        validEntityNames.put(&quot;sim&quot;, 0x0223C);</span>
+<span class="fc" id="L1295">        validEntityNames.put(&quot;simdot&quot;, 0x02A6A);</span>
+<span class="fc" id="L1296">        validEntityNames.put(&quot;sime&quot;, 0x02243);</span>
+<span class="fc" id="L1297">        validEntityNames.put(&quot;simg&quot;, 0x02A9E);</span>
+<span class="fc" id="L1298">        validEntityNames.put(&quot;simgE&quot;, 0x02AA0);</span>
+<span class="fc" id="L1299">        validEntityNames.put(&quot;siml&quot;, 0x02A9D);</span>
+<span class="fc" id="L1300">        validEntityNames.put(&quot;simlE&quot;, 0x02A9F);</span>
+<span class="fc" id="L1301">        validEntityNames.put(&quot;simne&quot;, 0x02246);</span>
+<span class="fc" id="L1302">        validEntityNames.put(&quot;simplus&quot;, 0x02A24);</span>
+<span class="fc" id="L1303">        validEntityNames.put(&quot;simrarr&quot;, 0x02972);</span>
+<span class="fc" id="L1304">        validEntityNames.put(&quot;smashp&quot;, 0x02A33);</span>
+<span class="fc" id="L1305">        validEntityNames.put(&quot;smeparsl&quot;, 0x029E4);</span>
+<span class="fc" id="L1306">        validEntityNames.put(&quot;smile&quot;, 0x02323);</span>
+<span class="fc" id="L1307">        validEntityNames.put(&quot;smt&quot;, 0x02AAA);</span>
+<span class="fc" id="L1308">        validEntityNames.put(&quot;smte&quot;, 0x02AAC);</span>
+<span class="fc" id="L1309">        validEntityNames.put(&quot;softcy&quot;, 0x0044C);</span>
+<span class="fc" id="L1310">        validEntityNames.put(&quot;sol&quot;, 0x0002F);</span>
+<span class="fc" id="L1311">        validEntityNames.put(&quot;solb&quot;, 0x029C4);</span>
+<span class="fc" id="L1312">        validEntityNames.put(&quot;solbar&quot;, 0x0233F);</span>
+<span class="fc" id="L1313">        validEntityNames.put(&quot;sopf&quot;, 0x1D564);</span>
+<span class="fc" id="L1314">        validEntityNames.put(&quot;spades&quot;, 0x02660);</span>
+<span class="fc" id="L1315">        validEntityNames.put(&quot;sqcap&quot;, 0x02293);</span>
+<span class="fc" id="L1316">        validEntityNames.put(&quot;sqcup&quot;, 0x02294);</span>
+<span class="fc" id="L1317">        validEntityNames.put(&quot;sqsub&quot;, 0x0228F);</span>
+<span class="fc" id="L1318">        validEntityNames.put(&quot;sqsube&quot;, 0x02291);</span>
+<span class="fc" id="L1319">        validEntityNames.put(&quot;sqsup&quot;, 0x02290);</span>
+<span class="fc" id="L1320">        validEntityNames.put(&quot;sqsupe&quot;, 0x02292);</span>
+<span class="fc" id="L1321">        validEntityNames.put(&quot;squ&quot;, 0x025A1);</span>
+<span class="fc" id="L1322">        validEntityNames.put(&quot;squf&quot;, 0x025AA);</span>
+<span class="fc" id="L1323">        validEntityNames.put(&quot;sscr&quot;, 0x1D4C8);</span>
+<span class="fc" id="L1324">        validEntityNames.put(&quot;sstarf&quot;, 0x022C6);</span>
+<span class="fc" id="L1325">        validEntityNames.put(&quot;star&quot;, 0x02606);</span>
+<span class="fc" id="L1326">        validEntityNames.put(&quot;starf&quot;, 0x02605);</span>
+<span class="fc" id="L1327">        validEntityNames.put(&quot;straightphi&quot;, 0x003D5);</span>
+<span class="fc" id="L1328">        validEntityNames.put(&quot;sub&quot;, 0x02282);</span>
+<span class="fc" id="L1329">        validEntityNames.put(&quot;subE&quot;, 0x02AC5);</span>
+<span class="fc" id="L1330">        validEntityNames.put(&quot;subdot&quot;, 0x02ABD);</span>
+<span class="fc" id="L1331">        validEntityNames.put(&quot;sube&quot;, 0x02286);</span>
+<span class="fc" id="L1332">        validEntityNames.put(&quot;subedot&quot;, 0x02AC3);</span>
+<span class="fc" id="L1333">        validEntityNames.put(&quot;submult&quot;, 0x02AC1);</span>
+<span class="fc" id="L1334">        validEntityNames.put(&quot;subnE&quot;, 0x02ACB);</span>
+<span class="fc" id="L1335">        validEntityNames.put(&quot;subne&quot;, 0x0228A);</span>
+<span class="fc" id="L1336">        validEntityNames.put(&quot;subplus&quot;, 0x02ABF);</span>
+<span class="fc" id="L1337">        validEntityNames.put(&quot;subrarr&quot;, 0x02979);</span>
+<span class="fc" id="L1338">        validEntityNames.put(&quot;subsim&quot;, 0x02AC7);</span>
+<span class="fc" id="L1339">        validEntityNames.put(&quot;subsub&quot;, 0x02AD5);</span>
+<span class="fc" id="L1340">        validEntityNames.put(&quot;subsup&quot;, 0x02AD3);</span>
+<span class="fc" id="L1341">        validEntityNames.put(&quot;sum&quot;, 0x02211);</span>
+<span class="fc" id="L1342">        validEntityNames.put(&quot;sung&quot;, 0x0266A);</span>
+<span class="fc" id="L1343">        validEntityNames.put(&quot;sup&quot;, 0x02283);</span>
+<span class="fc" id="L1344">        validEntityNames.put(&quot;sup1&quot;, 0x000B9);</span>
+<span class="fc" id="L1345">        validEntityNames.put(&quot;sup2&quot;, 0x000B2);</span>
+<span class="fc" id="L1346">        validEntityNames.put(&quot;sup3&quot;, 0x000B3);</span>
+<span class="fc" id="L1347">        validEntityNames.put(&quot;supE&quot;, 0x02AC6);</span>
+<span class="fc" id="L1348">        validEntityNames.put(&quot;supdot&quot;, 0x02ABE);</span>
+<span class="fc" id="L1349">        validEntityNames.put(&quot;supdsub&quot;, 0x02AD8);</span>
+<span class="fc" id="L1350">        validEntityNames.put(&quot;supe&quot;, 0x02287);</span>
+<span class="fc" id="L1351">        validEntityNames.put(&quot;supedot&quot;, 0x02AC4);</span>
+<span class="fc" id="L1352">        validEntityNames.put(&quot;suphsub&quot;, 0x02AD7);</span>
+<span class="fc" id="L1353">        validEntityNames.put(&quot;suplarr&quot;, 0x0297B);</span>
+<span class="fc" id="L1354">        validEntityNames.put(&quot;supmult&quot;, 0x02AC2);</span>
+<span class="fc" id="L1355">        validEntityNames.put(&quot;supnE&quot;, 0x02ACC);</span>
+<span class="fc" id="L1356">        validEntityNames.put(&quot;supne&quot;, 0x0228B);</span>
+<span class="fc" id="L1357">        validEntityNames.put(&quot;supplus&quot;, 0x02AC0);</span>
+<span class="fc" id="L1358">        validEntityNames.put(&quot;supsim&quot;, 0x02AC8);</span>
+<span class="fc" id="L1359">        validEntityNames.put(&quot;supsub&quot;, 0x02AD4);</span>
+<span class="fc" id="L1360">        validEntityNames.put(&quot;supsup&quot;, 0x02AD6);</span>
+<span class="fc" id="L1361">        validEntityNames.put(&quot;swArr&quot;, 0x021D9);</span>
+<span class="fc" id="L1362">        validEntityNames.put(&quot;swarhk&quot;, 0x02926);</span>
+<span class="fc" id="L1363">        validEntityNames.put(&quot;swarr&quot;, 0x02199);</span>
+<span class="fc" id="L1364">        validEntityNames.put(&quot;swnwar&quot;, 0x0292A);</span>
+<span class="fc" id="L1365">        validEntityNames.put(&quot;szlig&quot;, 0x000DF);</span>
+<span class="fc" id="L1366">        validEntityNames.put(&quot;target&quot;, 0x02316);</span>
+<span class="fc" id="L1367">        validEntityNames.put(&quot;tau&quot;, 0x003C4);</span>
+<span class="fc" id="L1368">        validEntityNames.put(&quot;tbrk&quot;, 0x023B4);</span>
+<span class="fc" id="L1369">        validEntityNames.put(&quot;tcaron&quot;, 0x00165);</span>
+<span class="fc" id="L1370">        validEntityNames.put(&quot;tcedil&quot;, 0x00163);</span>
+<span class="fc" id="L1371">        validEntityNames.put(&quot;tcy&quot;, 0x00442);</span>
+<span class="fc" id="L1372">        validEntityNames.put(&quot;tdot&quot;, 0x020DB);</span>
+<span class="fc" id="L1373">        validEntityNames.put(&quot;telrec&quot;, 0x02315);</span>
+<span class="fc" id="L1374">        validEntityNames.put(&quot;tfr&quot;, 0x1D531);</span>
+<span class="fc" id="L1375">        validEntityNames.put(&quot;there4&quot;, 0x02234);</span>
+<span class="fc" id="L1376">        validEntityNames.put(&quot;theta&quot;, 0x003B8);</span>
+<span class="fc" id="L1377">        validEntityNames.put(&quot;thetav&quot;, 0x003D1);</span>
+<span class="fc" id="L1378">        validEntityNames.put(&quot;thinsp&quot;, 0x02009);</span>
+<span class="fc" id="L1379">        validEntityNames.put(&quot;thorn&quot;, 0x000FE);</span>
+<span class="fc" id="L1380">        validEntityNames.put(&quot;tilde&quot;, 0x002DC);</span>
+<span class="fc" id="L1381">        validEntityNames.put(&quot;times&quot;, 0x000D7);</span>
+<span class="fc" id="L1382">        validEntityNames.put(&quot;timesb&quot;, 0x022A0);</span>
+<span class="fc" id="L1383">        validEntityNames.put(&quot;timesbar&quot;, 0x02A31);</span>
+<span class="fc" id="L1384">        validEntityNames.put(&quot;timesd&quot;, 0x02A30);</span>
+<span class="fc" id="L1385">        validEntityNames.put(&quot;tint&quot;, 0x0222D);</span>
+<span class="fc" id="L1386">        validEntityNames.put(&quot;top&quot;, 0x022A4);</span>
+<span class="fc" id="L1387">        validEntityNames.put(&quot;topbot&quot;, 0x02336);</span>
+<span class="fc" id="L1388">        validEntityNames.put(&quot;topcir&quot;, 0x02AF1);</span>
+<span class="fc" id="L1389">        validEntityNames.put(&quot;topf&quot;, 0x1D565);</span>
+<span class="fc" id="L1390">        validEntityNames.put(&quot;topfork&quot;, 0x02ADA);</span>
+<span class="fc" id="L1391">        validEntityNames.put(&quot;tprime&quot;, 0x02034);</span>
+<span class="fc" id="L1392">        validEntityNames.put(&quot;trade&quot;, 0x02122);</span>
+<span class="fc" id="L1393">        validEntityNames.put(&quot;tridot&quot;, 0x025EC);</span>
+<span class="fc" id="L1394">        validEntityNames.put(&quot;trie&quot;, 0x0225C);</span>
+<span class="fc" id="L1395">        validEntityNames.put(&quot;triminus&quot;, 0x02A3A);</span>
+<span class="fc" id="L1396">        validEntityNames.put(&quot;triplus&quot;, 0x02A39);</span>
+<span class="fc" id="L1397">        validEntityNames.put(&quot;trisb&quot;, 0x029CD);</span>
+<span class="fc" id="L1398">        validEntityNames.put(&quot;tritime&quot;, 0x02A3B);</span>
+<span class="fc" id="L1399">        validEntityNames.put(&quot;trpezium&quot;, 0x023E2);</span>
+<span class="fc" id="L1400">        validEntityNames.put(&quot;tscr&quot;, 0x1D4C9);</span>
+<span class="fc" id="L1401">        validEntityNames.put(&quot;tscy&quot;, 0x00446);</span>
+<span class="fc" id="L1402">        validEntityNames.put(&quot;tshcy&quot;, 0x0045B);</span>
+<span class="fc" id="L1403">        validEntityNames.put(&quot;tstrok&quot;, 0x00167);</span>
+<span class="fc" id="L1404">        validEntityNames.put(&quot;twixt&quot;, 0x0226C);</span>
+<span class="fc" id="L1405">        validEntityNames.put(&quot;uArr&quot;, 0x021D1);</span>
+<span class="fc" id="L1406">        validEntityNames.put(&quot;uHar&quot;, 0x02963);</span>
+<span class="fc" id="L1407">        validEntityNames.put(&quot;uacute&quot;, 0x000FA);</span>
+<span class="fc" id="L1408">        validEntityNames.put(&quot;uarr&quot;, 0x02191);</span>
+<span class="fc" id="L1409">        validEntityNames.put(&quot;ubrcy&quot;, 0x0045E);</span>
+<span class="fc" id="L1410">        validEntityNames.put(&quot;ubreve&quot;, 0x0016D);</span>
+<span class="fc" id="L1411">        validEntityNames.put(&quot;ucirc&quot;, 0x000FB);</span>
+<span class="fc" id="L1412">        validEntityNames.put(&quot;ucy&quot;, 0x00443);</span>
+<span class="fc" id="L1413">        validEntityNames.put(&quot;udarr&quot;, 0x021C5);</span>
+<span class="fc" id="L1414">        validEntityNames.put(&quot;udblac&quot;, 0x00171);</span>
+<span class="fc" id="L1415">        validEntityNames.put(&quot;udhar&quot;, 0x0296E);</span>
+<span class="fc" id="L1416">        validEntityNames.put(&quot;ufisht&quot;, 0x0297E);</span>
+<span class="fc" id="L1417">        validEntityNames.put(&quot;ufr&quot;, 0x1D532);</span>
+<span class="fc" id="L1418">        validEntityNames.put(&quot;ugrave&quot;, 0x000F9);</span>
+<span class="fc" id="L1419">        validEntityNames.put(&quot;uharl&quot;, 0x021BF);</span>
+<span class="fc" id="L1420">        validEntityNames.put(&quot;uharr&quot;, 0x021BE);</span>
+<span class="fc" id="L1421">        validEntityNames.put(&quot;uhblk&quot;, 0x02580);</span>
+<span class="fc" id="L1422">        validEntityNames.put(&quot;ulcorn&quot;, 0x0231C);</span>
+<span class="fc" id="L1423">        validEntityNames.put(&quot;ulcrop&quot;, 0x0230F);</span>
+<span class="fc" id="L1424">        validEntityNames.put(&quot;ultri&quot;, 0x025F8);</span>
+<span class="fc" id="L1425">        validEntityNames.put(&quot;umacr&quot;, 0x0016B);</span>
+<span class="fc" id="L1426">        validEntityNames.put(&quot;uogon&quot;, 0x00173);</span>
+<span class="fc" id="L1427">        validEntityNames.put(&quot;uopf&quot;, 0x1D566);</span>
+<span class="fc" id="L1428">        validEntityNames.put(&quot;uplus&quot;, 0x0228E);</span>
+<span class="fc" id="L1429">        validEntityNames.put(&quot;upsi&quot;, 0x003C5);</span>
+<span class="fc" id="L1430">        validEntityNames.put(&quot;urcorn&quot;, 0x0231D);</span>
+<span class="fc" id="L1431">        validEntityNames.put(&quot;urcrop&quot;, 0x0230E);</span>
+<span class="fc" id="L1432">        validEntityNames.put(&quot;uring&quot;, 0x0016F);</span>
+<span class="fc" id="L1433">        validEntityNames.put(&quot;urtri&quot;, 0x025F9);</span>
+<span class="fc" id="L1434">        validEntityNames.put(&quot;uscr&quot;, 0x1D4CA);</span>
+<span class="fc" id="L1435">        validEntityNames.put(&quot;utdot&quot;, 0x022F0);</span>
+<span class="fc" id="L1436">        validEntityNames.put(&quot;utilde&quot;, 0x00169);</span>
+<span class="fc" id="L1437">        validEntityNames.put(&quot;utri&quot;, 0x025B5);</span>
+<span class="fc" id="L1438">        validEntityNames.put(&quot;utrif&quot;, 0x025B4);</span>
+<span class="fc" id="L1439">        validEntityNames.put(&quot;uuarr&quot;, 0x021C8);</span>
+<span class="fc" id="L1440">        validEntityNames.put(&quot;uuml&quot;, 0x000FC);</span>
+<span class="fc" id="L1441">        validEntityNames.put(&quot;uwangle&quot;, 0x029A7);</span>
+<span class="fc" id="L1442">        validEntityNames.put(&quot;vArr&quot;, 0x021D5);</span>
+<span class="fc" id="L1443">        validEntityNames.put(&quot;vBar&quot;, 0x02AE8);</span>
+<span class="fc" id="L1444">        validEntityNames.put(&quot;vBarv&quot;, 0x02AE9);</span>
+<span class="fc" id="L1445">        validEntityNames.put(&quot;vDash&quot;, 0x022A8);</span>
+<span class="fc" id="L1446">        validEntityNames.put(&quot;vangrt&quot;, 0x0299C);</span>
+<span class="fc" id="L1447">        validEntityNames.put(&quot;varr&quot;, 0x02195);</span>
+<span class="fc" id="L1448">        validEntityNames.put(&quot;vcy&quot;, 0x00432);</span>
+<span class="fc" id="L1449">        validEntityNames.put(&quot;vdash&quot;, 0x022A2);</span>
+<span class="fc" id="L1450">        validEntityNames.put(&quot;veebar&quot;, 0x022BB);</span>
+<span class="fc" id="L1451">        validEntityNames.put(&quot;veeeq&quot;, 0x0225A);</span>
+<span class="fc" id="L1452">        validEntityNames.put(&quot;vellip&quot;, 0x022EE);</span>
+<span class="fc" id="L1453">        validEntityNames.put(&quot;verbar&quot;, 0x0007C);</span>
+<span class="fc" id="L1454">        validEntityNames.put(&quot;vfr&quot;, 0x1D533);</span>
+<span class="fc" id="L1455">        validEntityNames.put(&quot;vltri&quot;, 0x022B2);</span>
+<span class="fc" id="L1456">        validEntityNames.put(&quot;vopf&quot;, 0x1D567);</span>
+<span class="fc" id="L1457">        validEntityNames.put(&quot;vrtri&quot;, 0x022B3);</span>
+<span class="fc" id="L1458">        validEntityNames.put(&quot;vscr&quot;, 0x1D4CB);</span>
+<span class="fc" id="L1459">        validEntityNames.put(&quot;vzigzag&quot;, 0x0299A);</span>
+<span class="fc" id="L1460">        validEntityNames.put(&quot;wcirc&quot;, 0x00175);</span>
+<span class="fc" id="L1461">        validEntityNames.put(&quot;wedbar&quot;, 0x02A5F);</span>
+<span class="fc" id="L1462">        validEntityNames.put(&quot;wedgeq&quot;, 0x02259);</span>
+<span class="fc" id="L1463">        validEntityNames.put(&quot;weierp&quot;, 0x02118);</span>
+<span class="fc" id="L1464">        validEntityNames.put(&quot;wfr&quot;, 0x1D534);</span>
+<span class="fc" id="L1465">        validEntityNames.put(&quot;wopf&quot;, 0x1D568);</span>
+<span class="fc" id="L1466">        validEntityNames.put(&quot;wreath&quot;, 0x02240);</span>
+<span class="fc" id="L1467">        validEntityNames.put(&quot;wscr&quot;, 0x1D4CC);</span>
+<span class="fc" id="L1468">        validEntityNames.put(&quot;xcap&quot;, 0x022C2);</span>
+<span class="fc" id="L1469">        validEntityNames.put(&quot;xcirc&quot;, 0x025EF);</span>
+<span class="fc" id="L1470">        validEntityNames.put(&quot;xcup&quot;, 0x022C3);</span>
+<span class="fc" id="L1471">        validEntityNames.put(&quot;xdtri&quot;, 0x025BD);</span>
+<span class="fc" id="L1472">        validEntityNames.put(&quot;xfr&quot;, 0x1D535);</span>
+<span class="fc" id="L1473">        validEntityNames.put(&quot;xhArr&quot;, 0x027FA);</span>
+<span class="fc" id="L1474">        validEntityNames.put(&quot;xharr&quot;, 0x027F7);</span>
+<span class="fc" id="L1475">        validEntityNames.put(&quot;xi&quot;, 0x003BE);</span>
+<span class="fc" id="L1476">        validEntityNames.put(&quot;xlArr&quot;, 0x027F8);</span>
+<span class="fc" id="L1477">        validEntityNames.put(&quot;xlarr&quot;, 0x027F5);</span>
+<span class="fc" id="L1478">        validEntityNames.put(&quot;xmap&quot;, 0x027FC);</span>
+<span class="fc" id="L1479">        validEntityNames.put(&quot;xnis&quot;, 0x022FB);</span>
+<span class="fc" id="L1480">        validEntityNames.put(&quot;xodot&quot;, 0x02A00);</span>
+<span class="fc" id="L1481">        validEntityNames.put(&quot;xopf&quot;, 0x1D569);</span>
+<span class="fc" id="L1482">        validEntityNames.put(&quot;xoplus&quot;, 0x02A01);</span>
+<span class="fc" id="L1483">        validEntityNames.put(&quot;xotime&quot;, 0x02A02);</span>
+<span class="fc" id="L1484">        validEntityNames.put(&quot;xrArr&quot;, 0x027F9);</span>
+<span class="fc" id="L1485">        validEntityNames.put(&quot;xrarr&quot;, 0x027F6);</span>
+<span class="fc" id="L1486">        validEntityNames.put(&quot;xscr&quot;, 0x1D4CD);</span>
+<span class="fc" id="L1487">        validEntityNames.put(&quot;xsqcup&quot;, 0x02A06);</span>
+<span class="fc" id="L1488">        validEntityNames.put(&quot;xuplus&quot;, 0x02A04);</span>
+<span class="fc" id="L1489">        validEntityNames.put(&quot;xutri&quot;, 0x025B3);</span>
+<span class="fc" id="L1490">        validEntityNames.put(&quot;xvee&quot;, 0x022C1);</span>
+<span class="fc" id="L1491">        validEntityNames.put(&quot;xwedge&quot;, 0x022C0);</span>
+<span class="fc" id="L1492">        validEntityNames.put(&quot;yacute&quot;, 0x000FD);</span>
+<span class="fc" id="L1493">        validEntityNames.put(&quot;yacy&quot;, 0x0044F);</span>
+<span class="fc" id="L1494">        validEntityNames.put(&quot;ycirc&quot;, 0x00177);</span>
+<span class="fc" id="L1495">        validEntityNames.put(&quot;ycy&quot;, 0x0044B);</span>
+<span class="fc" id="L1496">        validEntityNames.put(&quot;yen&quot;, 0x000A5);</span>
+<span class="fc" id="L1497">        validEntityNames.put(&quot;yfr&quot;, 0x1D536);</span>
+<span class="fc" id="L1498">        validEntityNames.put(&quot;yicy&quot;, 0x00457);</span>
+<span class="fc" id="L1499">        validEntityNames.put(&quot;yopf&quot;, 0x1D56A);</span>
+<span class="fc" id="L1500">        validEntityNames.put(&quot;yscr&quot;, 0x1D4CE);</span>
+<span class="fc" id="L1501">        validEntityNames.put(&quot;yucy&quot;, 0x0044E);</span>
+<span class="fc" id="L1502">        validEntityNames.put(&quot;yuml&quot;, 0x000FF);</span>
+<span class="fc" id="L1503">        validEntityNames.put(&quot;zacute&quot;, 0x0017A);</span>
+<span class="fc" id="L1504">        validEntityNames.put(&quot;zcaron&quot;, 0x0017E);</span>
+<span class="fc" id="L1505">        validEntityNames.put(&quot;zcy&quot;, 0x00437);</span>
+<span class="fc" id="L1506">        validEntityNames.put(&quot;zdot&quot;, 0x0017C);</span>
+<span class="fc" id="L1507">        validEntityNames.put(&quot;zeta&quot;, 0x003B6);</span>
+<span class="fc" id="L1508">        validEntityNames.put(&quot;zfr&quot;, 0x1D537);</span>
+<span class="fc" id="L1509">        validEntityNames.put(&quot;zhcy&quot;, 0x00436);</span>
+<span class="fc" id="L1510">        validEntityNames.put(&quot;zigrarr&quot;, 0x021DD);</span>
+<span class="fc" id="L1511">        validEntityNames.put(&quot;zopf&quot;, 0x1D56B);</span>
+<span class="fc" id="L1512">        validEntityNames.put(&quot;zscr&quot;, 0x1D4CF);</span>
+<span class="fc" id="L1513">        validEntityNames.put(&quot;zwj&quot;, 0x0200D);</span>
+<span class="fc" id="L1514">        validEntityNames.put(&quot;zwnj&quot;, 0x0200C);</span>
+
+<span class="fc" id="L1516">        VALID_ENTITY_NAMES = Collections.unmodifiableMap(validEntityNames);</span>
+<span class="fc" id="L1517">    }</span>
+
+    /** Non-instantiable */
+    private XmlUtil() {}
+
+    private static final class ExtendedEntityReplacingXmlResolver implements XMLResolver {
+        @Override
+        public Object resolveEntity(String thePublicID, String theSystemID, String theBaseURI, String theNamespace) {
+<span class="nc bnc" id="L1525" title="All 4 branches missed.">            if (thePublicID == null &amp;&amp; theSystemID == null) {</span>
+<span class="nc bnc" id="L1526" title="All 4 branches missed.">                if (theNamespace != null &amp;&amp; VALID_ENTITY_NAMES.containsKey(theNamespace)) {</span>
+<span class="nc" id="L1527">                    return new String(Character.toChars(VALID_ENTITY_NAMES.get(theNamespace)));</span>
+                }
+            }
+
+<span class="nc" id="L1531">            return null;</span>
+        }
+    }
+
+<span class="fc" id="L1535">    public static class MyEscaper implements EscapingWriterFactory {</span>
+
+        @Override
+        public Writer createEscapingWriterFor(OutputStream theOut, String theEnc) throws UnsupportedEncodingException {
+<span class="nc" id="L1539">            return createEscapingWriterFor(new OutputStreamWriter(theOut, theEnc), theEnc);</span>
+        }
+
+        @Override
+        public Writer createEscapingWriterFor(final Writer theW, String theEnc) {
+<span class="fc" id="L1544">            return new Writer() {</span>
+
+                @Override
+                public void close() throws IOException {
+<span class="nc" id="L1548">                    theW.close();</span>
+<span class="nc" id="L1549">                }</span>
+
+                @Override
+                public void flush() throws IOException {
+<span class="nc" id="L1553">                    theW.flush();</span>
+<span class="nc" id="L1554">                }</span>
+
+                @Override
+                public void write(char[] theCbuf, int theOff, int theLen) throws IOException {
+<span class="fc" id="L1558">                    boolean hasEscapable = false;</span>
+<span class="pc bpc" id="L1559" title="1 of 4 branches missed.">                    for (int i = 0; i &lt; theLen &amp;&amp; !hasEscapable; i++) {</span>
+<span class="fc" id="L1560">                        char nextChar = theCbuf[i + theOff];</span>
+<span class="fc bfc" id="L1561" title="All 2 branches covered.">                        switch (nextChar) {</span>
+                            case '&lt;':
+                            case '&gt;':
+                            case '&quot;':
+                            case '&amp;':
+<span class="fc" id="L1566">                                hasEscapable = true;</span>
+<span class="fc" id="L1567">                                break;</span>
+                            default:
+                                break;
+                        }
+                    }
+
+<span class="fc bfc" id="L1573" title="All 2 branches covered.">                    if (!hasEscapable) {</span>
+<span class="fc" id="L1574">                        theW.write(theCbuf, theOff, theLen);</span>
+<span class="fc" id="L1575">                        return;</span>
+                    }
+
+<span class="fc" id="L1578">                    String escaped = StringEscapeUtils.escapeXml10(new String(theCbuf, theOff, theLen));</span>
+<span class="fc" id="L1579">                    theW.write(escaped.toCharArray());</span>
+<span class="fc" id="L1580">                }</span>
+            };
+        }
+
+    }
+
+    private static XMLOutputFactory createOutputFactory() throws FactoryConfigurationError {
+        try {
+            // Detect if we're running with the Android lib, and force repackaged Woodstox to be used
+<span class="nc" id="L1589">            Class.forName(&quot;ca.uhn.fhir.repackage.javax.xml.stream.XMLOutputFactory&quot;);</span>
+<span class="nc" id="L1590">            System.setProperty(&quot;javax.xml.stream.XMLOutputFactory&quot;, &quot;com.ctc.wstx.stax.WstxOutputFactory&quot;);</span>
+<span class="fc" id="L1591">        } catch (ClassNotFoundException e) {</span>
+            // ok
+<span class="nc" id="L1593">        }</span>
+
+<span class="fc" id="L1595">        XMLOutputFactory outputFactory = newOutputFactory();</span>
+
+<span class="pc bpc" id="L1597" title="1 of 2 branches missed.">        if (!ourHaveLoggedStaxImplementation) {</span>
+<span class="nc" id="L1598">            logStaxImplementation(outputFactory.getClass());</span>
+        }
+
+        /*
+         * Note that these properties are Woodstox specific and they cause a crash in environments where SJSXP is
+         * being used (e.g. glassfish) so we don't set them there.
+         */
+        try {
+<span class="fc" id="L1606">            Class.forName(&quot;com.ctc.wstx.stax.WstxOutputFactory&quot;);</span>
+<span class="pc bpc" id="L1607" title="1 of 2 branches missed.">            if (outputFactory instanceof WstxOutputFactory) {</span>
+//				((WstxOutputFactory)outputFactory).getConfig().setAttrValueEscaperFactory(new MyEscaper());
+<span class="fc" id="L1609">                outputFactory.setProperty(XMLOutputFactory2.P_TEXT_ESCAPER, new MyEscaper());</span>
+            }
+<span class="nc" id="L1611">        } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L1612">            ourLog.debug(&quot;WstxOutputFactory (Woodstox) not found on classpath&quot;);</span>
+<span class="fc" id="L1613">        }</span>
+<span class="fc" id="L1614">        return outputFactory;</span>
+    }
+
+    private static XMLEventWriter createXmlFragmentWriter(Writer theWriter) throws FactoryConfigurationError, XMLStreamException {
+<span class="fc" id="L1618">        XMLOutputFactory outputFactory = getOrCreateFragmentOutputFactory();</span>
+<span class="fc" id="L1619">        return outputFactory.createXMLEventWriter(theWriter);</span>
+    }
+
+    public static XMLEventReader createXmlReader(Reader reader) throws FactoryConfigurationError, XMLStreamException {
+<span class="fc" id="L1623">        throwUnitTestExceptionIfConfiguredToDoSo();</span>
+
+<span class="fc" id="L1625">        XMLInputFactory inputFactory = getOrCreateInputFactory();</span>
+
+        // Now.. create the reader and return it
+<span class="fc" id="L1628">        return inputFactory.createXMLEventReader(reader);</span>
+    }
+
+    public static XMLStreamWriter createXmlStreamWriter(Writer theWriter) throws FactoryConfigurationError, XMLStreamException {
+<span class="nc" id="L1632">        throwUnitTestExceptionIfConfiguredToDoSo();</span>
+
+<span class="nc" id="L1634">        XMLOutputFactory outputFactory = getOrCreateOutputFactory();</span>
+<span class="nc" id="L1635">        return outputFactory.createXMLStreamWriter(theWriter);</span>
+    }
+
+    public static XMLEventWriter createXmlWriter(Writer theWriter) throws FactoryConfigurationError, XMLStreamException {
+<span class="nc" id="L1639">        XMLOutputFactory outputFactory = getOrCreateOutputFactory();</span>
+<span class="nc" id="L1640">        return outputFactory.createXMLEventWriter(theWriter);</span>
+    }
+
+    /**
+     * Encode a set of StAX events into a String
+     */
+    public static String encode(List&lt;XMLEvent&gt; theEvents) {
+        try {
+<span class="fc" id="L1648">            StringWriter w = new StringWriter();</span>
+<span class="fc" id="L1649">            XMLEventWriter ew = XmlUtil.createXmlFragmentWriter(w);</span>
+
+<span class="fc bfc" id="L1651" title="All 2 branches covered.">            for (XMLEvent next : theEvents) {</span>
+<span class="fc bfc" id="L1652" title="All 2 branches covered.">                if (next.isCharacters()) {</span>
+<span class="fc" id="L1653">                    ew.add(next);</span>
+                } else {
+<span class="fc" id="L1655">                    ew.add(next);</span>
+                }
+<span class="fc" id="L1657">            }</span>
+<span class="fc" id="L1658">            ew.close();</span>
+<span class="fc" id="L1659">            return w.toString();</span>
+<span class="nc" id="L1660">        } catch (XMLStreamException e) {</span>
+<span class="nc" id="L1661">            throw new DataFormatException(&quot;Problem with the contained XML events&quot;, e);</span>
+<span class="nc" id="L1662">        } catch (FactoryConfigurationError e) {</span>
+<span class="nc" id="L1663">            throw new ConfigurationException(e);</span>
+        }
+    }
+
+    private static XMLOutputFactory getOrCreateFragmentOutputFactory() throws FactoryConfigurationError {
+<span class="fc" id="L1668">        XMLOutputFactory retVal = ourFragmentOutputFactory;</span>
+<span class="fc bfc" id="L1669" title="All 2 branches covered.">        if (retVal == null) {</span>
+<span class="fc" id="L1670">            retVal = createOutputFactory();</span>
+<span class="fc" id="L1671">            retVal.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);</span>
+<span class="fc" id="L1672">            ourFragmentOutputFactory = retVal;</span>
+<span class="fc" id="L1673">            return retVal;</span>
+        }
+<span class="fc" id="L1675">        return retVal;</span>
+    }
+
+    private static XMLInputFactory getOrCreateInputFactory() throws FactoryConfigurationError {
+<span class="fc bfc" id="L1679" title="All 2 branches covered.">        if (ourInputFactory == null) {</span>
+
+            try {
+                // Detect if we're running with the Android lib, and force repackaged Woodstox to be used
+<span class="nc" id="L1683">                Class.forName(&quot;ca.uhn.fhir.repackage.javax.xml.stream.XMLInputFactory&quot;);</span>
+<span class="nc" id="L1684">                System.setProperty(&quot;javax.xml.stream.XMLInputFactory&quot;, &quot;com.ctc.wstx.stax.WstxInputFactory&quot;);</span>
+<span class="fc" id="L1685">            } catch (ClassNotFoundException e) {</span>
+                // ok
+<span class="nc" id="L1687">            }</span>
+
+<span class="fc" id="L1689">            XMLInputFactory inputFactory = newInputFactory();</span>
+
+<span class="pc bpc" id="L1691" title="1 of 2 branches missed.">            if (!ourHaveLoggedStaxImplementation) {</span>
+<span class="fc" id="L1692">                logStaxImplementation(inputFactory.getClass());</span>
+            }
+
+            /*
+             * These two properties disable external entity processing, which can
+             * be a security vulnerability.
+             *
+             * See https://github.com/jamesagnew/hapi-fhir/issues/339
+             * https://www.owasp.org/index.php/XML_External_Entity_%28XXE%29_Processing
+             */
+<span class="fc" id="L1702">            inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false); // This disables DTDs entirely for that factory</span>
+<span class="fc" id="L1703">            inputFactory.setProperty(&quot;javax.xml.stream.isSupportingExternalEntities&quot;, false); // disable external entities</span>
+
+
+            /*
+             * In the following few lines, you can uncomment the first and comment the second to disable automatic
+             * parsing of extended entities, e.g. &amp;sect;
+             *
+             * Note that these properties are Woodstox specific and they cause a crash in environments where SJSXP is
+             * being used (e.g. glassfish) so we don't set them there.
+             */
+            try {
+<span class="fc" id="L1714">                Class.forName(&quot;com.ctc.wstx.stax.WstxInputFactory&quot;);</span>
+<span class="fc" id="L1715">                boolean isWoodstox = inputFactory instanceof com.ctc.wstx.stax.WstxInputFactory;</span>
+<span class="pc bpc" id="L1716" title="1 of 2 branches missed.">                if (!isWoodstox) {</span>
+                    // Check if implementation is woodstox by property since instanceof check does not work if running in JBoss
+                    try {
+<span class="nc bnc" id="L1719" title="All 2 branches missed.">                        isWoodstox = inputFactory.getProperty(&quot;org.codehaus.stax2.implVersion&quot;) != null;</span>
+<span class="fc" id="L1720">                    } catch (Exception e) {</span>
+                        // ignore
+<span class="nc" id="L1722">                    }</span>
+                }
+<span class="pc bpc" id="L1724" title="1 of 2 branches missed.">                if (isWoodstox) {</span>
+                    // inputFactory.setProperty(WstxInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+<span class="nc" id="L1726">                    inputFactory.setProperty(WstxInputProperties.P_UNDECLARED_ENTITY_RESOLVER, XML_RESOLVER);</span>
+                    try {
+<span class="nc" id="L1728">                        inputFactory.setProperty(WstxInputProperties.P_MAX_ATTRIBUTE_SIZE, &quot;100000000&quot;);</span>
+<span class="nc" id="L1729">                    } catch (IllegalArgumentException e) {</span>
+                        // ignore
+<span class="nc" id="L1731">                    }</span>
+                }
+<span class="nc" id="L1733">            } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L1734">                ourLog.debug(&quot;WstxOutputFactory (Woodstox) not found on classpath&quot;);</span>
+<span class="fc" id="L1735">            }</span>
+<span class="fc" id="L1736">            ourInputFactory = inputFactory;</span>
+        }
+<span class="fc" id="L1738">        return ourInputFactory;</span>
+    }
+
+    private static XMLOutputFactory getOrCreateOutputFactory() throws FactoryConfigurationError {
+<span class="nc bnc" id="L1742" title="All 2 branches missed.">        if (ourOutputFactory == null) {</span>
+<span class="nc" id="L1743">            ourOutputFactory = createOutputFactory();</span>
+        }
+<span class="nc" id="L1745">        return ourOutputFactory;</span>
+    }
+
+    private static void logStaxImplementation(Class&lt;?&gt; theClass) {
+<span class="fc" id="L1749">        IDependencyLog logger = DependencyLogFactory.createJarLogger();</span>
+<span class="pc bpc" id="L1750" title="1 of 2 branches missed.">        if (logger != null) {</span>
+<span class="fc" id="L1751">            logger.logStaxImplementation(theClass);</span>
+        }
+<span class="fc" id="L1753">        ourHaveLoggedStaxImplementation = true;</span>
+<span class="fc" id="L1754">    }</span>
+
+    static XMLInputFactory newInputFactory() throws FactoryConfigurationError {
+        XMLInputFactory inputFactory;
+        try {
+<span class="fc" id="L1759">            inputFactory = XMLInputFactory.newDefaultFactory(); // ------------------------- change to use default factory here.</span>
+<span class="pc bpc" id="L1760" title="1 of 2 branches missed.">            if (inputFactory.isPropertySupported(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES)) {</span>
+<span class="fc" id="L1761">                inputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, true);</span>
+            }
+<span class="fc" id="L1763">            throwUnitTestExceptionIfConfiguredToDoSo();</span>
+<span class="nc" id="L1764">        } catch (Throwable e) {</span>
+<span class="nc" id="L1765">            throw new ConfigurationException(&quot;Unable to initialize StAX - XML processing is disabled&quot;, e);</span>
+<span class="fc" id="L1766">        }</span>
+<span class="fc" id="L1767">        return inputFactory;</span>
+    }
+
+    static XMLOutputFactory newOutputFactory() throws FactoryConfigurationError {
+        XMLOutputFactory outputFactory;
+        try {
+<span class="fc" id="L1773">            outputFactory = XMLOutputFactory.newInstance();</span>
+<span class="fc" id="L1774">            throwUnitTestExceptionIfConfiguredToDoSo();</span>
+<span class="nc" id="L1775">        } catch (Throwable e) {</span>
+<span class="nc" id="L1776">            throw new ConfigurationException(&quot;Unable to initialize StAX - XML processing is disabled&quot;, e);</span>
+<span class="fc" id="L1777">        }</span>
+<span class="fc" id="L1778">        return outputFactory;</span>
+    }
+
+    /**
+     * Parses an XML string into a set of StAX events
+     */
+    public static List&lt;XMLEvent&gt; parse(String theValue) {
+<span class="fc bfc" id="L1785" title="All 2 branches covered.">        if (isBlank(theValue)) {</span>
+<span class="fc" id="L1786">            return Collections.emptyList();</span>
+        }
+
+<span class="fc" id="L1789">        String val = theValue.trim();</span>
+<span class="pc bpc" id="L1790" title="1 of 2 branches missed.">        if (!val.startsWith(&quot;&lt;&quot;)) {</span>
+<span class="nc" id="L1791">            val = XhtmlDt.DIV_OPEN_FIRST + val + &quot;&lt;/div&gt;&quot;;</span>
+        }
+<span class="fc" id="L1793">        boolean hasProcessingInstruction = val.startsWith(&quot;&lt;?&quot;);</span>
+<span class="pc bpc" id="L1794" title="3 of 4 branches missed.">        if (hasProcessingInstruction &amp;&amp; val.endsWith(&quot;?&gt;&quot;)) {</span>
+<span class="nc" id="L1795">            return null;</span>
+        }
+
+
+        try {
+<span class="fc" id="L1800">            ArrayList&lt;XMLEvent&gt; value = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L1801">            StringReader reader = new StringReader(val);</span>
+<span class="fc" id="L1802">            XMLEventReader er = XmlUtil.createXmlReader(reader);</span>
+<span class="fc" id="L1803">            boolean first = true;</span>
+<span class="fc bfc" id="L1804" title="All 2 branches covered.">            while (er.hasNext()) {</span>
+<span class="fc" id="L1805">                XMLEvent next = er.nextEvent();</span>
+<span class="fc bfc" id="L1806" title="All 2 branches covered.">                if (first) {</span>
+<span class="fc" id="L1807">                    first = false;</span>
+<span class="fc" id="L1808">                    continue;</span>
+                }
+<span class="fc bfc" id="L1810" title="All 2 branches covered.">                if (er.hasNext()) {</span>
+                    // don't add the last event
+<span class="fc" id="L1812">                    value.add(next);</span>
+                }
+<span class="fc" id="L1814">            }</span>
+<span class="fc" id="L1815">            return value;</span>
+
+<span class="nc" id="L1817">        } catch (XMLStreamException e) {</span>
+<span class="nc" id="L1818">            throw new DataFormatException(&quot;String does not appear to be valid XML/XHTML (error is \&quot;&quot; + e.getMessage() + &quot;\&quot;): &quot; + theValue, e);</span>
+<span class="nc" id="L1819">        } catch (FactoryConfigurationError e) {</span>
+<span class="nc" id="L1820">            throw new ConfigurationException(e);</span>
+        }
+    }
+
+    /**
+     * FOR UNIT TESTS ONLY - Throw this exception for the next operation
+     */
+    static void setThrowExceptionForUnitTest(Throwable theException) {
+<span class="nc" id="L1828">        ourNextException = theException;</span>
+<span class="nc" id="L1829">    }</span>
+
+    private static void throwUnitTestExceptionIfConfiguredToDoSo() throws FactoryConfigurationError, XMLStreamException {
+<span class="pc bpc" id="L1832" title="1 of 2 branches missed.">        if (ourNextException != null) {</span>
+<span class="nc bnc" id="L1833" title="All 2 branches missed.">            if (ourNextException instanceof javax.xml.stream.FactoryConfigurationError) {</span>
+<span class="nc" id="L1834">                throw ((javax.xml.stream.FactoryConfigurationError) ourNextException);</span>
+            }
+<span class="nc" id="L1836">            throw (XMLStreamException) ourNextException;</span>
+        }
+<span class="fc" id="L1838">    }</span>
+
+    public static Document parseDocument(String theInput) throws IOException, SAXException {
+<span class="nc" id="L1841">        DocumentBuilder builder = null;</span>
+        try {
+<span class="nc" id="L1843">            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();</span>
+<span class="nc" id="L1844">            docBuilderFactory.setNamespaceAware(true);</span>
+<span class="nc" id="L1845">            docBuilderFactory.setXIncludeAware(false);</span>
+<span class="nc" id="L1846">            docBuilderFactory.setExpandEntityReferences(false);</span>
+            try {
+<span class="nc" id="L1848">                docBuilderFactory.setFeature(&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;, true);</span>
+<span class="nc" id="L1849">                docBuilderFactory.setFeature(&quot;http://xml.org/sax/features/external-general-entities&quot;, false);</span>
+<span class="nc" id="L1850">                docBuilderFactory.setFeature(&quot;http://apache.org/xml/features/nonvalidating/load-dtd-grammar&quot;, false);</span>
+<span class="nc" id="L1851">                docBuilderFactory.setFeature(&quot;http://apache.org/xml/features/nonvalidating/load-external-dtd&quot;, false);</span>
+<span class="nc" id="L1852">                docBuilderFactory.setFeature(&quot;http://xml.org/sax/features/external-parameter-entities&quot;, false);</span>
+<span class="nc" id="L1853">                throwUnitTestExceptionIfConfiguredToDoSo();</span>
+<span class="nc" id="L1854">            } catch (Exception e) {</span>
+<span class="nc" id="L1855">                ourLog.warn(&quot;Failed to set feature on XML parser: &quot; + e.toString());</span>
+<span class="nc" id="L1856">            }</span>
+
+<span class="nc" id="L1858">            builder = docBuilderFactory.newDocumentBuilder();</span>
+<span class="nc" id="L1859">        } catch (ParserConfigurationException e) {</span>
+<span class="nc" id="L1860">            throw new ConfigurationException(e);</span>
+<span class="nc" id="L1861">        }</span>
+
+<span class="nc" id="L1863">        InputSource src = new InputSource(new StringReader(theInput));</span>
+<span class="nc" id="L1864">        return builder.parse(src);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

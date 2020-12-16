@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FhirServerConfigCommon.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hapi-fhir</a> &gt; <a href="index.source.html" class="el_package">ca.uhn.fhir.jpa.starter</a> &gt; <span class="el_source">FhirServerConfigCommon.java</span></div><h1>FhirServerConfigCommon.java</h1><pre class="source lang-java linenums">package ca.uhn.fhir.jpa.starter;
+
+import ca.uhn.fhir.jpa.api.config.DaoConfig;
+import ca.uhn.fhir.jpa.binstore.DatabaseBlobBinaryStorageSvcImpl;
+import ca.uhn.fhir.jpa.binstore.IBinaryStorageSvc;
+import ca.uhn.fhir.jpa.model.config.PartitionSettings;
+import ca.uhn.fhir.jpa.model.entity.ModelConfig;
+import ca.uhn.fhir.jpa.subscription.channel.subscription.SubscriptionDeliveryHandlerFactory;
+import ca.uhn.fhir.jpa.subscription.match.deliver.email.IEmailSender;
+import ca.uhn.fhir.jpa.subscription.match.deliver.email.JavaMailEmailSender;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.hl7.fhir.dstu2.model.Subscription;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.thymeleaf.util.Validate;
+
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Driver;
+
+/**
+ * This is the primary configuration file for the example server
+ */
+@Configuration
+@EnableTransactionManagement
+public class FhirServerConfigCommon {
+
+<span class="fc" id="L30">    private static final org.slf4j.Logger ourLog = org.slf4j.LoggerFactory.getLogger(FhirServerConfigCommon.class);</span>
+
+<span class="fc" id="L32">    private Boolean enableIndexMissingFields = HapiProperties.getEnableIndexMissingFields();</span>
+<span class="fc" id="L33">    private Boolean autoCreatePlaceholderReferenceTargets = HapiProperties.getAutoCreatePlaceholderReferenceTargets();</span>
+<span class="fc" id="L34">    private Boolean enforceReferentialIntegrityOnWrite = HapiProperties.getEnforceReferentialIntegrityOnWrite();</span>
+<span class="fc" id="L35">    private Boolean enforceReferentialIntegrityOnDelete = HapiProperties.getEnforceReferentialIntegrityOnDelete();</span>
+<span class="fc" id="L36">    private Boolean allowContainsSearches = HapiProperties.getAllowContainsSearches();</span>
+<span class="fc" id="L37">    private Boolean allowMultipleDelete = HapiProperties.getAllowMultipleDelete();</span>
+<span class="fc" id="L38">    private Boolean allowExternalReferences = HapiProperties.getAllowExternalReferences();</span>
+<span class="fc" id="L39">    private Boolean expungeEnabled = HapiProperties.getExpungeEnabled();</span>
+<span class="fc" id="L40">    private Boolean allowPlaceholderReferences = HapiProperties.getAllowPlaceholderReferences();</span>
+<span class="fc" id="L41">    private Boolean subscriptionRestHookEnabled = HapiProperties.getSubscriptionRestHookEnabled();</span>
+<span class="fc" id="L42">    private Boolean subscriptionEmailEnabled = HapiProperties.getSubscriptionEmailEnabled();</span>
+<span class="fc" id="L43">    private Boolean allowOverrideDefaultSearchParams = HapiProperties.getAllowOverrideDefaultSearchParams();</span>
+<span class="fc" id="L44">    private String emailFrom = HapiProperties.getEmailFrom();</span>
+<span class="fc" id="L45">    private Boolean emailEnabled = HapiProperties.getEmailEnabled();</span>
+<span class="fc" id="L46">    private String emailHost = HapiProperties.getEmailHost();</span>
+<span class="fc" id="L47">    private Integer emailPort = HapiProperties.getEmailPort();</span>
+<span class="fc" id="L48">    private String emailUsername = HapiProperties.getEmailUsername();</span>
+<span class="fc" id="L49">    private String emailPassword = HapiProperties.getEmailPassword();</span>
+<span class="fc" id="L50">    private Boolean emailAuth = HapiProperties.getEmailAuth();</span>
+<span class="fc" id="L51">    private Boolean emailStartTlsEnable = HapiProperties.getEmailStartTlsEnable();</span>
+<span class="fc" id="L52">    private Boolean emailStartTlsRequired = HapiProperties.getEmailStartTlsRequired();</span>
+<span class="fc" id="L53">    private Boolean emailQuitWait = HapiProperties.getEmailQuitWait();</span>
+    @Autowired
+    private ApplicationContext myAppCtx;
+
+<span class="fc" id="L57">    public FhirServerConfigCommon() {</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        ourLog.info(&quot;Server configured to &quot; + (this.allowContainsSearches ? &quot;allow&quot; : &quot;deny&quot;) + &quot; contains searches&quot;);</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        ourLog.info(&quot;Server configured to &quot; + (this.allowMultipleDelete ? &quot;allow&quot; : &quot;deny&quot;) + &quot; multiple deletes&quot;);</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        ourLog.info(&quot;Server configured to &quot; + (this.allowExternalReferences ? &quot;allow&quot; : &quot;deny&quot;) + &quot; external references&quot;);</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        ourLog.info(&quot;Server configured to &quot; + (this.expungeEnabled ? &quot;enable&quot; : &quot;disable&quot;) + &quot; expunges&quot;);</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        ourLog.info(&quot;Server configured to &quot; + (this.allowPlaceholderReferences ? &quot;allow&quot; : &quot;deny&quot;) + &quot; placeholder references&quot;);</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        ourLog.info(&quot;Server configured to &quot; + (this.allowOverrideDefaultSearchParams ? &quot;allow&quot; : &quot;deny&quot;) + &quot; overriding default search params&quot;);</span>
+
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (this.emailEnabled) {</span>
+<span class="nc" id="L66">            ourLog.info(&quot;Server is configured to enable email with host '&quot; + this.emailHost + &quot;' and port &quot; + this.emailPort.toString());</span>
+<span class="nc" id="L67">            ourLog.info(&quot;Server will use '&quot; + this.emailFrom + &quot;' as the from email address&quot;);</span>
+
+<span class="nc bnc" id="L69" title="All 4 branches missed.">            if (this.emailUsername != null &amp;&amp; this.emailUsername.length() &gt; 0) {</span>
+<span class="nc" id="L70">                ourLog.info(&quot;Server is configured to use username '&quot; + this.emailUsername + &quot;' for email&quot;);</span>
+            }
+
+<span class="nc bnc" id="L73" title="All 4 branches missed.">            if (this.emailPassword != null &amp;&amp; this.emailPassword.length() &gt; 0) {</span>
+<span class="nc" id="L74">                ourLog.info(&quot;Server is configured to use a password for email&quot;);</span>
+            }
+        }
+
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (this.subscriptionRestHookEnabled) {</span>
+<span class="nc" id="L79">            ourLog.info(&quot;REST-hook subscriptions enabled&quot;);</span>
+        }
+
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (this.subscriptionEmailEnabled) {</span>
+<span class="nc" id="L83">            ourLog.info(&quot;Email subscriptions enabled&quot;);</span>
+        }
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Configure FHIR properties around the the JPA server via this bean
+     */
+    @Bean()
+    public DaoConfig daoConfig() {
+<span class="fc" id="L92">        DaoConfig retVal = new DaoConfig();</span>
+
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        retVal.setIndexMissingFields(this.enableIndexMissingFields ? DaoConfig.IndexEnabledEnum.ENABLED : DaoConfig.IndexEnabledEnum.DISABLED);</span>
+<span class="fc" id="L95">        retVal.setAutoCreatePlaceholderReferenceTargets(this.autoCreatePlaceholderReferenceTargets);</span>
+<span class="fc" id="L96">        retVal.setEnforceReferentialIntegrityOnWrite(this.enforceReferentialIntegrityOnWrite);</span>
+<span class="fc" id="L97">        retVal.setEnforceReferentialIntegrityOnDelete(this.enforceReferentialIntegrityOnDelete);</span>
+<span class="fc" id="L98">        retVal.setAllowContainsSearches(this.allowContainsSearches);</span>
+<span class="fc" id="L99">        retVal.setAllowMultipleDelete(this.allowMultipleDelete);</span>
+<span class="fc" id="L100">        retVal.setAllowExternalReferences(this.allowExternalReferences);</span>
+<span class="fc" id="L101">        retVal.setExpungeEnabled(this.expungeEnabled);</span>
+<span class="fc" id="L102">        retVal.setAutoCreatePlaceholderReferenceTargets(this.allowPlaceholderReferences);</span>
+<span class="fc" id="L103">        retVal.setEmailFromAddress(this.emailFrom);</span>
+
+<span class="fc" id="L105">        Integer maxFetchSize = HapiProperties.getMaximumFetchSize();</span>
+<span class="fc" id="L106">        retVal.setFetchSizeDefaultMaximum(maxFetchSize);</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        ourLog.info(&quot;Server configured to have a maximum fetch size of &quot; + (maxFetchSize == Integer.MAX_VALUE ? &quot;'unlimited'&quot; : maxFetchSize));</span>
+
+<span class="fc" id="L109">        Long reuseCachedSearchResultsMillis = HapiProperties.getReuseCachedSearchResultsMillis();</span>
+<span class="fc" id="L110">        retVal.setReuseCachedSearchResultsForMillis(reuseCachedSearchResultsMillis);</span>
+<span class="fc" id="L111">        ourLog.info(&quot;Server configured to cache search results for {} milliseconds&quot;, reuseCachedSearchResultsMillis);</span>
+
+<span class="fc" id="L113">        Long retainCachedSearchesMinutes = HapiProperties.getExpireSearchResultsAfterMins();</span>
+<span class="fc" id="L114">        retVal.setExpireSearchResultsAfterMillis(retainCachedSearchesMinutes * 60 * 1000);</span>
+
+        // Subscriptions are enabled by channel type
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">        if (HapiProperties.getSubscriptionRestHookEnabled()) {</span>
+<span class="nc" id="L118">            ourLog.info(&quot;Enabling REST-hook subscriptions&quot;);</span>
+<span class="nc" id="L119">            retVal.addSupportedSubscriptionType(org.hl7.fhir.dstu2.model.Subscription.SubscriptionChannelType.RESTHOOK);</span>
+        }
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        if (HapiProperties.getSubscriptionEmailEnabled()) {</span>
+<span class="nc" id="L122">            ourLog.info(&quot;Enabling email subscriptions&quot;);</span>
+<span class="nc" id="L123">            retVal.addSupportedSubscriptionType(org.hl7.fhir.dstu2.model.Subscription.SubscriptionChannelType.EMAIL);</span>
+        }
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        if (HapiProperties.getSubscriptionWebsocketEnabled()) {</span>
+<span class="fc" id="L126">            ourLog.info(&quot;Enabling websocket subscriptions&quot;);</span>
+<span class="fc" id="L127">            retVal.addSupportedSubscriptionType(org.hl7.fhir.dstu2.model.Subscription.SubscriptionChannelType.WEBSOCKET);</span>
+        }
+
+<span class="fc" id="L130">        retVal.setFilterParameterEnabled(HapiProperties.getFilterSearchEnabled());</span>
+
+<span class="fc" id="L132">        return retVal;</span>
+    }
+
+    @Bean
+    public PartitionSettings partitionSettings() {
+<span class="fc" id="L137">        PartitionSettings retVal = new PartitionSettings();</span>
+
+        // Partitioning
+<span class="fc bfc" id="L140" title="All 2 branches covered.">        if (HapiProperties.getPartitioningMultitenancyEnabled()) {</span>
+<span class="fc" id="L141">            retVal.setPartitioningEnabled(true);</span>
+        }
+
+<span class="fc" id="L144">        return retVal;</span>
+    }
+
+
+    @Bean
+    public ModelConfig modelConfig() {
+<span class="fc" id="L150">        ModelConfig modelConfig = new ModelConfig();</span>
+<span class="fc" id="L151">        modelConfig.setAllowContainsSearches(this.allowContainsSearches);</span>
+<span class="fc" id="L152">        modelConfig.setAllowExternalReferences(this.allowExternalReferences);</span>
+<span class="fc" id="L153">        modelConfig.setDefaultSearchParamsCanBeOverridden(this.allowOverrideDefaultSearchParams);</span>
+<span class="fc" id="L154">        modelConfig.setEmailFromAddress(this.emailFrom);</span>
+
+        // You can enable these if you want to support Subscriptions from your server
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (this.subscriptionRestHookEnabled) {</span>
+<span class="nc" id="L158">            modelConfig.addSupportedSubscriptionType(Subscription.SubscriptionChannelType.RESTHOOK);</span>
+        }
+
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">        if (this.subscriptionEmailEnabled) {</span>
+<span class="nc" id="L162">            modelConfig.addSupportedSubscriptionType(Subscription.SubscriptionChannelType.EMAIL);</span>
+        }
+
+<span class="fc" id="L165">        return modelConfig;</span>
+    }
+
+    /**
+     * The following bean configures the database connection. The 'url' property value of &quot;jdbc:derby:directory:jpaserver_derby_files;create=true&quot; indicates that the server should save resources in a
+     * directory called &quot;jpaserver_derby_files&quot;.
+     * &lt;p&gt;
+     * A URL to a remote database could also be placed here, along with login credentials and other properties supported by BasicDataSource.
+     */
+    @Bean(destroyMethod = &quot;close&quot;)
+    public BasicDataSource dataSource() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+<span class="fc" id="L176">        BasicDataSource retVal = new BasicDataSource();</span>
+<span class="fc" id="L177">        Driver driver = (Driver) Class.forName(HapiProperties.getDataSourceDriver()).getConstructor().newInstance();</span>
+<span class="fc" id="L178">        retVal.setDriver(driver);</span>
+<span class="fc" id="L179">        retVal.setUrl(HapiProperties.getDataSourceUrl());</span>
+<span class="fc" id="L180">        retVal.setUsername(HapiProperties.getDataSourceUsername());</span>
+<span class="fc" id="L181">        retVal.setPassword(HapiProperties.getDataSourcePassword());</span>
+<span class="fc" id="L182">        retVal.setMaxTotal(HapiProperties.getDataSourceMaxPoolSize());</span>
+<span class="fc" id="L183">        return retVal;</span>
+    }
+
+    @Lazy
+    @Bean
+    public IBinaryStorageSvc binaryStorageSvc() {
+<span class="fc" id="L189">        DatabaseBlobBinaryStorageSvcImpl binaryStorageSvc = new DatabaseBlobBinaryStorageSvcImpl();</span>
+
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">        if (HapiProperties.getMaxBinarySize() != null) {</span>
+<span class="fc" id="L192">            binaryStorageSvc.setMaximumBinarySize(HapiProperties.getMaxBinarySize());</span>
+        }
+
+<span class="fc" id="L195">        return binaryStorageSvc;</span>
+    }
+
+    @Bean()
+    public IEmailSender emailSender() {
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        if (this.emailEnabled) {</span>
+<span class="nc" id="L201">            JavaMailEmailSender retVal = new JavaMailEmailSender();</span>
+
+<span class="nc" id="L203">            retVal.setSmtpServerHostname(this.emailHost);</span>
+<span class="nc" id="L204">            retVal.setSmtpServerPort(this.emailPort);</span>
+<span class="nc" id="L205">            retVal.setSmtpServerUsername(this.emailUsername);</span>
+<span class="nc" id="L206">            retVal.setSmtpServerPassword(this.emailPassword);</span>
+<span class="nc" id="L207">            retVal.setAuth(this.emailAuth);</span>
+<span class="nc" id="L208">            retVal.setStartTlsEnable(this.emailStartTlsEnable);</span>
+<span class="nc" id="L209">            retVal.setStartTlsRequired(this.emailStartTlsRequired);</span>
+<span class="nc" id="L210">            retVal.setQuitWait(this.emailQuitWait);</span>
+
+<span class="nc" id="L212">            SubscriptionDeliveryHandlerFactory subscriptionDeliveryHandlerFactory = myAppCtx.getBean(SubscriptionDeliveryHandlerFactory.class);</span>
+<span class="nc" id="L213">            Validate.notNull(subscriptionDeliveryHandlerFactory, &quot;No subscription delivery handler&quot;);</span>
+<span class="nc" id="L214">            subscriptionDeliveryHandlerFactory.setEmailSender(retVal);</span>
+
+
+<span class="nc" id="L217">            return retVal;</span>
+        }
+
+<span class="fc" id="L220">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

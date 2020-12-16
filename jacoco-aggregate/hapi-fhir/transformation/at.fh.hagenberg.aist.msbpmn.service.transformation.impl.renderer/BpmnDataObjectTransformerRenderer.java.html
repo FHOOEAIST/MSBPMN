@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>BpmnDataObjectTransformerRenderer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">hapi-fhir</a> &gt; <a href="../index.html" class="el_bundle">transformation</a> &gt; <a href="index.source.html" class="el_package">at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer</a> &gt; <span class="el_source">BpmnDataObjectTransformerRenderer.java</span></div><h1>BpmnDataObjectTransformerRenderer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer;
+
+import at.fh.hagenberg.aist.msbpmn.service.transformation.helper.PlanDefinitionActionDataComponent;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.renderer.AbstractBpmnGraphTransformationRenderer;
+import org.hl7.fhir.r4.model.BackboneElement;
+import org.omg.spec.bpmn.model.ObjectFactory;
+import org.omg.spec.bpmn.model.TDataObject;
+import org.springframework.stereotype.Component;
+import science.aist.gtf.graph.Vertex;
+
+import javax.xml.bind.JAXBElement;
+import java.util.function.Function;
+
+/**
+ * &lt;p&gt;Renderer for the BPMN Data Object element&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+@Component
+public class BpmnDataObjectTransformerRenderer extends AbstractBpmnGraphTransformationRenderer&lt;TDataObject, BackboneElement, PlanDefinitionActionDataComponent&gt; {
+    public BpmnDataObjectTransformerRenderer(ObjectFactory objectFactory) {
+        // No condition needed, as this renderer is executed for every vertex where the decorated element is of type PlanDefinitionActionDataComponent
+<span class="pc" id="L32">        super(() -&gt; x -&gt; true, objectFactory);</span>
+<span class="fc" id="L33">    }</span>
+
+    @Override
+    protected Function&lt;TDataObject, JAXBElement&lt;? extends TDataObject&gt;&gt; constructJaxBElementMapping() {
+<span class="fc" id="L37">        return objectFactory::createDataObject;</span>
+    }
+
+    @Override
+    public boolean canRenderer(Vertex&lt;?, ?&gt; vertex) {
+<span class="pc bpc" id="L42" title="1 of 4 branches missed.">        return vertex != null &amp;&amp; vertex.getElement() instanceof PlanDefinitionActionDataComponent;</span>
+    }
+
+    @Override
+    public TDataObject createElement() {
+<span class="fc" id="L47">        return objectFactory.createTDataObject();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

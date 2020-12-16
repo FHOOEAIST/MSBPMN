@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BpmnDocumentRootToStringTransformer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">transformation</a> &gt; <a href="index.source.html" class="el_package">at.fh.hagenberg.aist.msbpmn.service.transformation.impl</a> &gt; <span class="el_source">BpmnDocumentRootToStringTransformer.java</span></div><h1>BpmnDocumentRootToStringTransformer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package at.fh.hagenberg.aist.msbpmn.service.transformation.impl;
+
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import org.omg.spec.bpmn.model.TDefinitions;
+import org.springframework.stereotype.Component;
+import science.aist.bpmn.model.XMLRepository;
+import science.aist.bpmn.viz.BpmnAutoLayout;
+import science.aist.gtf.transformation.Transformer;
+
+import javax.xml.bind.JAXBElement;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
+
+/**
+ * &lt;p&gt;Transforms a given Document Root into a BPMN Representation&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+@Component
+<span class="fc" id="L31">@AllArgsConstructor</span>
+public class BpmnDocumentRootToStringTransformer implements Transformer&lt;JAXBElement&lt;TDefinitions&gt;, String&gt; {
+
+    private final XMLRepository&lt;TDefinitions&gt; repository;
+
+    @Override
+<span class="nc" id="L37">    @SneakyThrows</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">    public String applyTransformation(@NonNull JAXBElement&lt;TDefinitions&gt; documentRoot) {</span>
+<span class="fc" id="L39">        BpmnAutoLayout bpmnAutoLayout = new BpmnAutoLayout(documentRoot, true);</span>
+<span class="fc" id="L40">        bpmnAutoLayout.execute();</span>
+<span class="fc" id="L41">        try(ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {</span>
+<span class="fc" id="L42">            repository.save(documentRoot, byteArrayOutputStream);</span>
+<span class="fc" id="L43">            return new String(byteArrayOutputStream.toByteArray(), Charset.defaultCharset());</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

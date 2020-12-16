@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HapiProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hapi-fhir</a> &gt; <a href="index.source.html" class="el_package">ca.uhn.fhir.jpa.starter</a> &gt; <span class="el_source">HapiProperties.java</span></div><h1>HapiProperties.java</h1><pre class="source lang-java linenums">package ca.uhn.fhir.jpa.starter;
+
+import ca.uhn.fhir.context.ConfigurationException;
+import ca.uhn.fhir.context.FhirVersionEnum;
+import ca.uhn.fhir.jpa.api.config.DaoConfig;
+import ca.uhn.fhir.jpa.search.elastic.ElasticsearchHibernatePropertiesBuilder;
+import ca.uhn.fhir.rest.api.EncodingEnum;
+import ca.uhn.fhir.rest.server.ETagSupportEnum;
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.search.elasticsearch.cfg.ElasticsearchIndexStatus;
+import org.hibernate.search.elasticsearch.cfg.IndexSchemaManagementStrategy;
+import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.StringUtils.defaultString;
+
+<span class="nc" id="L23">public class HapiProperties {</span>
+    static final String ENABLE_INDEX_MISSING_FIELDS = &quot;enable_index_missing_fields&quot;;
+    static final String AUTO_CREATE_PLACEHOLDER_REFERENCE_TARGETS = &quot;auto_create_placeholder_reference_targets&quot;;
+    static final String ENFORCE_REFERENTIAL_INTEGRITY_ON_WRITE = &quot;enforce_referential_integrity_on_write&quot;;
+    static final String ENFORCE_REFERENTIAL_INTEGRITY_ON_DELETE = &quot;enforce_referential_integrity_on_delete&quot;;
+    static final String BINARY_STORAGE_ENABLED = &quot;binary_storage.enabled&quot;;
+    static final String ALLOW_EXTERNAL_REFERENCES = &quot;allow_external_references&quot;;
+    static final String ALLOW_MULTIPLE_DELETE = &quot;allow_multiple_delete&quot;;
+    static final String ALLOW_PLACEHOLDER_REFERENCES = &quot;allow_placeholder_references&quot;;
+    static final String REUSE_CACHED_SEARCH_RESULTS_MILLIS = &quot;reuse_cached_search_results_millis&quot;;
+    static final String DATASOURCE_DRIVER = &quot;datasource.driver&quot;;
+    static final String DATASOURCE_MAX_POOL_SIZE = &quot;datasource.max_pool_size&quot;;
+    @SuppressWarnings(&quot;squid:S2068&quot;)
+    static final String DATASOURCE_PASSWORD = &quot;datasource.password&quot;;
+    static final String DATASOURCE_URL = &quot;datasource.url&quot;;
+    static final String DATASOURCE_USERNAME = &quot;datasource.username&quot;;
+    static final String DEFAULT_ENCODING = &quot;default_encoding&quot;;
+    static final String DEFAULT_PAGE_SIZE = &quot;default_page_size&quot;;
+    static final String DEFAULT_PRETTY_PRINT = &quot;default_pretty_print&quot;;
+    static final String ETAG_SUPPORT = &quot;etag_support&quot;;
+    static final String FHIR_VERSION = &quot;fhir_version&quot;;
+    static final String ALLOW_CASCADING_DELETES = &quot;allow_cascading_deletes&quot;;
+    static final String HAPI_PROPERTIES = &quot;hapi.properties&quot;;
+    static final String LOGGER_ERROR_FORMAT = &quot;logger.error_format&quot;;
+    static final String LOGGER_FORMAT = &quot;logger.format&quot;;
+    static final String LOGGER_LOG_EXCEPTIONS = &quot;logger.log_exceptions&quot;;
+    static final String LOGGER_NAME = &quot;logger.name&quot;;
+    static final String MAX_FETCH_SIZE = &quot;max_fetch_size&quot;;
+    static final String MAX_PAGE_SIZE = &quot;max_page_size&quot;;
+    static final String SERVER_ADDRESS = &quot;server_address&quot;;
+    static final String SERVER_ID = &quot;server.id&quot;;
+    static final String SERVER_NAME = &quot;server.name&quot;;
+    static final String SUBSCRIPTION_EMAIL_ENABLED = &quot;subscription.email.enabled&quot;;
+    static final String SUBSCRIPTION_RESTHOOK_ENABLED = &quot;subscription.resthook.enabled&quot;;
+    static final String SUBSCRIPTION_WEBSOCKET_ENABLED = &quot;subscription.websocket.enabled&quot;;
+    static final String EMPI_ENABLED = &quot;empi.enabled&quot;;
+    static final String PARTITIONING_ENABLED = &quot;partitioning.enabled&quot;;
+    static final String PARTITIONING_CROSS_PARTITION_REFERENCE_MODE = &quot;partitioning.cross_partition_reference_mode&quot;;
+    static final String ALLOWED_BUNDLE_TYPES = &quot;allowed_bundle_types&quot;;
+    static final String TEST_PORT = &quot;test.port&quot;;
+    static final String TESTER_CONFIG_REFUSE_TO_FETCH_THIRD_PARTY_URLS = &quot;tester.config.refuse_to_fetch_third_party_urls&quot;;
+    static final String CORS_ENABLED = &quot;cors.enabled&quot;;
+    static final String CORS_ALLOWED_ORIGIN = &quot;cors.allowed_origin&quot;;
+    static final String CORS_ALLOW_CREDENTIALS = &quot;cors.allowCredentials&quot;;
+    static final String ALLOW_CONTAINS_SEARCHES = &quot;allow_contains_searches&quot;;
+    static final String ALLOW_OVERRIDE_DEFAULT_SEARCH_PARAMS = &quot;allow_override_default_search_params&quot;;
+    static final String EMAIL_FROM = &quot;email.from&quot;;
+    static final String VALIDATE_REQUESTS_ENABLED = &quot;validation.requests.enabled&quot;;
+    static final String VALIDATE_RESPONSES_ENABLED = &quot;validation.responses.enabled&quot;;
+    static final String FILTER_SEARCH_ENABLED = &quot;filter_search.enabled&quot;;
+    static final String GRAPHQL_ENABLED = &quot;graphql.enabled&quot;;
+    static final String BULK_EXPORT_ENABLED = &quot;bulk.export.enabled&quot;;
+    static final String EXPIRE_SEARCH_RESULTS_AFTER_MINS = &quot;retain_cached_searches_mins&quot;;
+    static final String MAX_BINARY_SIZE = &quot;max_binary_size&quot;;
+    static final String PARTITIONING_MULTITENANCY_ENABLED = &quot;partitioning.multitenancy.enabled&quot;;
+    static final String CLIENT_ID_STRATEGY = &quot;daoconfig.client_id_strategy&quot;;
+    private static final String PARTITIONING_INCLUDE_PARTITION_IN_SEARCH_HASHES = &quot;partitioning.partitioning_include_in_search_hashes&quot;;
+    private static Properties ourProperties;
+
+    public static boolean isElasticSearchEnabled() {
+<span class="fc" id="L83">        return HapiProperties.getPropertyBoolean(&quot;elasticsearch.enabled&quot;, false);</span>
+    }
+
+    /*
+     * Force the configuration to be reloaded
+     */
+    public static void forceReload() {
+<span class="fc" id="L90">        ourProperties = null;</span>
+<span class="fc" id="L91">        getProperties();</span>
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * This is mostly here for unit tests. Use the actual properties file
+     * to set values
+     */
+    @VisibleForTesting
+    public static void setProperty(String theKey, String theValue) {
+<span class="fc" id="L100">        getProperties().setProperty(theKey, theValue);</span>
+<span class="fc" id="L101">    }</span>
+
+    public static Properties getJpaProperties() {
+<span class="fc" id="L104">        Properties retVal = loadProperties();</span>
+
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        if (isElasticSearchEnabled()) {</span>
+<span class="nc" id="L107">            ElasticsearchHibernatePropertiesBuilder builder = new ElasticsearchHibernatePropertiesBuilder();</span>
+<span class="nc" id="L108">            builder.setRequiredIndexStatus(getPropertyEnum(&quot;elasticsearch.required_index_status&quot;, ElasticsearchIndexStatus.class, ElasticsearchIndexStatus.YELLOW));</span>
+<span class="nc" id="L109">            builder.setRestUrl(getProperty(&quot;elasticsearch.rest_url&quot;));</span>
+<span class="nc" id="L110">            builder.setUsername(getProperty(&quot;elasticsearch.username&quot;));</span>
+<span class="nc" id="L111">            builder.setPassword(getProperty(&quot;elasticsearch.password&quot;));</span>
+<span class="nc" id="L112">            builder.setIndexSchemaManagementStrategy(getPropertyEnum(&quot;elasticsearch.schema_management_strategy&quot;, IndexSchemaManagementStrategy.class, IndexSchemaManagementStrategy.CREATE));</span>
+<span class="nc" id="L113">            builder.setDebugRefreshAfterWrite(getPropertyBoolean(&quot;elasticsearch.debug.refresh_after_write&quot;, false));</span>
+<span class="nc" id="L114">            builder.setDebugPrettyPrintJsonLog(getPropertyBoolean(&quot;elasticsearch.debug.pretty_print_json_log&quot;, false));</span>
+<span class="nc" id="L115">            builder.apply(retVal);</span>
+        }
+
+<span class="fc" id="L118">        return retVal;</span>
+    }
+
+    private static Properties getProperties() {
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (ourProperties == null) {</span>
+<span class="fc" id="L123">            Properties properties = loadProperties();</span>
+<span class="fc" id="L124">            HapiProperties.ourProperties = properties;</span>
+        }
+
+<span class="fc" id="L127">        return ourProperties;</span>
+    }
+
+    @NotNull
+    private static Properties loadProperties() {
+        // Load the configurable properties file
+        Properties properties;
+<span class="fc" id="L134">        try (InputStream in = HapiProperties.class.getClassLoader().getResourceAsStream(HAPI_PROPERTIES)) {</span>
+<span class="fc" id="L135">            properties = new Properties();</span>
+<span class="fc" id="L136">            properties.load(in);</span>
+<span class="nc" id="L137">        } catch (Exception e) {</span>
+<span class="nc" id="L138">            throw new ConfigurationException(&quot;Could not load HAPI properties&quot;, e);</span>
+<span class="fc" id="L139">        }</span>
+
+<span class="fc" id="L141">        Properties overrideProps = loadOverrideProperties();</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (overrideProps != null) {</span>
+<span class="nc" id="L143">            properties.putAll(overrideProps);</span>
+        }
+<span class="fc" id="L145">        properties.putAll(System.getenv().entrySet()</span>
+<span class="fc" id="L146">                .stream()</span>
+<span class="pc bpc" id="L147" title="2 of 4 branches missed.">                .filter(e -&gt; e.getValue() != null &amp;&amp; properties.containsKey(e.getKey()))</span>
+<span class="fc" id="L148">                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));</span>
+<span class="fc" id="L149">        return properties;</span>
+    }
+
+    /**
+     * If a configuration file path is explicitly specified via -Dhapi.properties=&lt;path&gt;, the properties there will
+     * be used to override the entries in the default hapi.properties file (currently under WEB-INF/classes)
+     *
+     * @return properties loaded from the explicitly specified configuraiton file if there is one, or null otherwise.
+     */
+    private static Properties loadOverrideProperties() {
+<span class="fc" id="L159">        String confFile = System.getProperty(HAPI_PROPERTIES);</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if (confFile != null) {</span>
+            try {
+<span class="nc" id="L162">                Properties props = new Properties();</span>
+<span class="nc" id="L163">                props.load(new FileInputStream(confFile));</span>
+<span class="nc" id="L164">                return props;</span>
+<span class="nc" id="L165">            } catch (Exception e) {</span>
+<span class="nc" id="L166">                throw new ConfigurationException(&quot;Could not load HAPI properties file: &quot; + confFile, e);</span>
+            }
+        }
+
+<span class="fc" id="L170">        return null;</span>
+    }
+
+    private static String getProperty(String propertyName) {
+<span class="fc" id="L174">        String env = &quot;HAPI_&quot; + propertyName.toUpperCase(Locale.US);</span>
+<span class="fc" id="L175">        env = env.replace(&quot;.&quot;, &quot;_&quot;);</span>
+<span class="fc" id="L176">        env = env.replace(&quot;-&quot;, &quot;_&quot;);</span>
+
+<span class="fc" id="L178">        String propertyValue = System.getenv(env);</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">        if (propertyValue != null) {</span>
+<span class="nc" id="L180">            return propertyValue;</span>
+        }
+
+<span class="fc" id="L183">        Properties properties = HapiProperties.getProperties();</span>
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">        if (properties != null) {</span>
+<span class="fc" id="L185">            propertyValue = properties.getProperty(propertyName);</span>
+        }
+
+<span class="fc" id="L188">        return propertyValue;</span>
+    }
+
+    private static String getProperty(String propertyName, String defaultValue) {
+<span class="fc" id="L192">        String value = getProperty(propertyName);</span>
+
+<span class="pc bpc" id="L194" title="1 of 4 branches missed.">        if (value != null &amp;&amp; value.length() &gt; 0) {</span>
+<span class="fc" id="L195">            return value;</span>
+        }
+
+<span class="fc" id="L198">        return defaultValue;</span>
+    }
+
+    private static Boolean getBooleanProperty(String propertyName, Boolean defaultValue) {
+<span class="fc" id="L202">        String value = HapiProperties.getProperty(propertyName);</span>
+
+<span class="pc bpc" id="L204" title="1 of 4 branches missed.">        if (value == null || value.length() == 0) {</span>
+<span class="fc" id="L205">            return defaultValue;</span>
+        }
+
+<span class="fc" id="L208">        return Boolean.parseBoolean(value);</span>
+    }
+
+    private static boolean getBooleanProperty(String propertyName, boolean defaultValue) {
+<span class="fc" id="L212">        return getBooleanProperty(propertyName, Boolean.valueOf(defaultValue));</span>
+    }
+
+    private static Integer getIntegerProperty(String propertyName, Integer defaultValue) {
+<span class="fc" id="L216">        String value = HapiProperties.getProperty(propertyName);</span>
+
+<span class="pc bpc" id="L218" title="1 of 4 branches missed.">        if (value == null || value.length() == 0) {</span>
+<span class="fc" id="L219">            return defaultValue;</span>
+        }
+
+<span class="fc" id="L222">        return Integer.parseInt(value);</span>
+    }
+
+    public static FhirVersionEnum getFhirVersion() {
+<span class="fc" id="L226">        String fhirVersionString = HapiProperties.getProperty(FHIR_VERSION);</span>
+
+<span class="pc bpc" id="L228" title="2 of 4 branches missed.">        if (fhirVersionString != null &amp;&amp; fhirVersionString.length() &gt; 0) {</span>
+<span class="fc" id="L229">            return FhirVersionEnum.valueOf(fhirVersionString);</span>
+        }
+
+<span class="nc" id="L232">        return FhirVersionEnum.DSTU3;</span>
+    }
+
+    public static boolean isBinaryStorageEnabled() {
+<span class="fc" id="L236">        return HapiProperties.getBooleanProperty(BINARY_STORAGE_ENABLED, true);</span>
+    }
+
+    public static ETagSupportEnum getEtagSupport() {
+<span class="fc" id="L240">        String etagSupportString = HapiProperties.getProperty(ETAG_SUPPORT);</span>
+
+<span class="pc bpc" id="L242" title="2 of 4 branches missed.">        if (etagSupportString != null &amp;&amp; etagSupportString.length() &gt; 0) {</span>
+<span class="fc" id="L243">            return ETagSupportEnum.valueOf(etagSupportString);</span>
+        }
+
+<span class="nc" id="L246">        return ETagSupportEnum.ENABLED;</span>
+    }
+
+    public static DaoConfig.ClientIdStrategyEnum getClientIdStrategy() {
+<span class="fc" id="L250">        String idStrategy = HapiProperties.getProperty(CLIENT_ID_STRATEGY);</span>
+
+<span class="pc bpc" id="L252" title="3 of 4 branches missed.">        if (idStrategy != null &amp;&amp; idStrategy.length() &gt; 0) {</span>
+<span class="nc" id="L253">            return DaoConfig.ClientIdStrategyEnum.valueOf(idStrategy);</span>
+        }
+
+<span class="fc" id="L256">        return DaoConfig.ClientIdStrategyEnum.ALPHANUMERIC;</span>
+    }
+
+    public static EncodingEnum getDefaultEncoding() {
+<span class="fc" id="L260">        String defaultEncodingString = HapiProperties.getProperty(DEFAULT_ENCODING);</span>
+
+<span class="pc bpc" id="L262" title="2 of 4 branches missed.">        if (defaultEncodingString != null &amp;&amp; defaultEncodingString.length() &gt; 0) {</span>
+<span class="fc" id="L263">            return EncodingEnum.valueOf(defaultEncodingString);</span>
+        }
+
+<span class="nc" id="L266">        return EncodingEnum.JSON;</span>
+    }
+
+    public static Boolean getDefaultPrettyPrint() {
+<span class="fc" id="L270">        return HapiProperties.getBooleanProperty(DEFAULT_PRETTY_PRINT, true);</span>
+    }
+
+    public static String getServerAddress() {
+<span class="fc" id="L274">        return HapiProperties.getProperty(SERVER_ADDRESS);</span>
+    }
+
+    public static Integer getDefaultPageSize() {
+<span class="fc" id="L278">        return HapiProperties.getIntegerProperty(DEFAULT_PAGE_SIZE, 20);</span>
+    }
+
+    public static Integer getMaximumPageSize() {
+<span class="fc" id="L282">        return HapiProperties.getIntegerProperty(MAX_PAGE_SIZE, 200);</span>
+    }
+
+    public static Integer getMaximumFetchSize() {
+<span class="fc" id="L286">        return HapiProperties.getIntegerProperty(MAX_FETCH_SIZE, Integer.MAX_VALUE);</span>
+    }
+
+    public static String getLoggerName() {
+<span class="fc" id="L290">        return HapiProperties.getProperty(LOGGER_NAME, &quot;fhirtest.access&quot;);</span>
+    }
+
+    public static String getLoggerFormat() {
+<span class="fc" id="L294">        return HapiProperties.getProperty(LOGGER_FORMAT, &quot;Path[${servletPath}] Source[${requestHeader.x-forwarded-for}] Operation[${operationType} ${operationName} ${idOrResourceName}] UA[${requestHeader.user-agent}] Params[${requestParameters}] ResponseEncoding[${responseEncodingNoDefault}]&quot;);</span>
+    }
+
+    public static String getLoggerErrorFormat() {
+<span class="fc" id="L298">        return HapiProperties.getProperty(LOGGER_ERROR_FORMAT, &quot;ERROR - ${requestVerb} ${requestUrl}&quot;);</span>
+    }
+
+    public static Boolean getLoggerLogExceptions() {
+<span class="fc" id="L302">        return HapiProperties.getBooleanProperty(LOGGER_LOG_EXCEPTIONS, true);</span>
+    }
+
+    public static String getDataSourceDriver() {
+<span class="fc" id="L306">        return HapiProperties.getProperty(DATASOURCE_DRIVER, &quot;org.apache.derby.jdbc.EmbeddedDriver&quot;);</span>
+    }
+
+    public static Integer getDataSourceMaxPoolSize() {
+<span class="fc" id="L310">        return HapiProperties.getIntegerProperty(DATASOURCE_MAX_POOL_SIZE, 10);</span>
+    }
+
+    public static String getDataSourceUrl() {
+<span class="fc" id="L314">        return HapiProperties.getProperty(DATASOURCE_URL, &quot;jdbc:derby:directory:target/jpaserver_derby_files;create=true&quot;);</span>
+    }
+
+    public static String getDataSourceUsername() {
+<span class="fc" id="L318">        return HapiProperties.getProperty(DATASOURCE_USERNAME);</span>
+    }
+
+    public static String getDataSourcePassword() {
+<span class="fc" id="L322">        return HapiProperties.getProperty(DATASOURCE_PASSWORD);</span>
+    }
+
+    public static Boolean getAllowMultipleDelete() {
+<span class="fc" id="L326">        return HapiProperties.getBooleanProperty(ALLOW_MULTIPLE_DELETE, false);</span>
+    }
+
+    public static Boolean getAllowCascadingDeletes() {
+<span class="fc" id="L330">        return HapiProperties.getBooleanProperty(ALLOW_CASCADING_DELETES, false);</span>
+    }
+
+    public static Boolean getAllowExternalReferences() {
+<span class="fc" id="L334">        return HapiProperties.getBooleanProperty(ALLOW_EXTERNAL_REFERENCES, false);</span>
+    }
+
+    public static Boolean getExpungeEnabled() {
+<span class="fc" id="L338">        return HapiProperties.getBooleanProperty(&quot;expunge_enabled&quot;, true);</span>
+    }
+
+    public static Boolean getTesterConfigRefustToFetchThirdPartyUrls() {
+<span class="fc" id="L342">        return HapiProperties.getBooleanProperty(TESTER_CONFIG_REFUSE_TO_FETCH_THIRD_PARTY_URLS, false);</span>
+    }
+
+    public static Boolean getCorsEnabled() {
+<span class="fc" id="L346">        return HapiProperties.getBooleanProperty(CORS_ENABLED, true);</span>
+    }
+
+    public static String getCorsAllowedOrigin() {
+<span class="fc" id="L350">        return HapiProperties.getProperty(CORS_ALLOWED_ORIGIN, &quot;*&quot;);</span>
+    }
+
+    public static String getAllowedBundleTypes() {
+<span class="fc" id="L354">        return HapiProperties.getProperty(ALLOWED_BUNDLE_TYPES, &quot;&quot;);</span>
+    }
+
+    @Nonnull
+    public static Set&lt;String&gt; getSupportedResourceTypes() {
+<span class="fc" id="L359">        String[] types = defaultString(getProperty(&quot;supported_resource_types&quot;)).split(&quot;,&quot;);</span>
+<span class="fc" id="L360">        return Arrays.stream(types)</span>
+<span class="fc" id="L361">                .map(StringUtils::trim)</span>
+<span class="fc" id="L362">                .filter(StringUtils::isNotBlank)</span>
+<span class="fc" id="L363">                .collect(Collectors.toSet());</span>
+    }
+
+    public static String getServerName() {
+<span class="fc" id="L367">        return HapiProperties.getProperty(SERVER_NAME, &quot;Local Tester&quot;);</span>
+    }
+
+    public static String getServerId() {
+<span class="fc" id="L371">        return HapiProperties.getProperty(SERVER_ID, &quot;home&quot;);</span>
+    }
+
+    public static Boolean getAllowPlaceholderReferences() {
+<span class="fc" id="L375">        return HapiProperties.getBooleanProperty(ALLOW_PLACEHOLDER_REFERENCES, true);</span>
+    }
+
+    public static Boolean getSubscriptionEmailEnabled() {
+<span class="fc" id="L379">        return HapiProperties.getBooleanProperty(SUBSCRIPTION_EMAIL_ENABLED, false);</span>
+    }
+
+    public static Boolean getSubscriptionRestHookEnabled() {
+<span class="fc" id="L383">        return HapiProperties.getBooleanProperty(SUBSCRIPTION_RESTHOOK_ENABLED, false);</span>
+    }
+
+    public static Boolean getSubscriptionWebsocketEnabled() {
+<span class="fc" id="L387">        return HapiProperties.getBooleanProperty(SUBSCRIPTION_WEBSOCKET_ENABLED, false);</span>
+    }
+
+    public static Boolean getEmpiEnabled() {
+<span class="fc" id="L391">        return HapiProperties.getBooleanProperty(EMPI_ENABLED, false);</span>
+    }
+
+    public static Boolean getPartitioningEnabled() {
+<span class="nc" id="L395">        return HapiProperties.getBooleanProperty(PARTITIONING_ENABLED, false);</span>
+    }
+
+
+    public static String getPartitioningCrossPartitionReferenceMode() {
+<span class="nc" id="L400">        return HapiProperties.getProperty(PARTITIONING_CROSS_PARTITION_REFERENCE_MODE, &quot;NOT_ALLOWED&quot;);</span>
+    }
+
+    public static Boolean getIncludePartitionInSearchHashes() {
+<span class="nc" id="L404">        return HapiProperties.getBooleanProperty(PARTITIONING_INCLUDE_PARTITION_IN_SEARCH_HASHES, true);</span>
+    }
+
+    public static Boolean getAllowContainsSearches() {
+<span class="fc" id="L408">        return HapiProperties.getBooleanProperty(ALLOW_CONTAINS_SEARCHES, true);</span>
+    }
+
+    public static Boolean getAllowOverrideDefaultSearchParams() {
+<span class="fc" id="L412">        return HapiProperties.getBooleanProperty(ALLOW_OVERRIDE_DEFAULT_SEARCH_PARAMS, true);</span>
+    }
+
+    public static String getEmailFrom() {
+<span class="fc" id="L416">        return HapiProperties.getProperty(EMAIL_FROM, &quot;some@test.com&quot;);</span>
+    }
+
+    public static Boolean getEmailEnabled() {
+<span class="fc" id="L420">        return HapiProperties.getBooleanProperty(&quot;email.enabled&quot;, false);</span>
+    }
+
+    public static String getEmailHost() {
+<span class="fc" id="L424">        return HapiProperties.getProperty(&quot;email.host&quot;);</span>
+    }
+
+    public static Integer getEmailPort() {
+<span class="fc" id="L428">        return HapiProperties.getIntegerProperty(&quot;email.port&quot;, 0);</span>
+    }
+
+    public static String getEmailUsername() {
+<span class="fc" id="L432">        return HapiProperties.getProperty(&quot;email.username&quot;);</span>
+    }
+
+    public static String getEmailPassword() {
+<span class="fc" id="L436">        return HapiProperties.getProperty(&quot;email.password&quot;);</span>
+    }
+
+    // Defaults from https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
+    public static Boolean getEmailAuth() {
+<span class="fc" id="L441">        return HapiProperties.getBooleanProperty(&quot;email.auth&quot;, false);</span>
+    }
+
+    public static Boolean getEmailStartTlsEnable() {
+<span class="fc" id="L445">        return HapiProperties.getBooleanProperty(&quot;email.starttls.enable&quot;, false);</span>
+    }
+
+    public static Boolean getEmailStartTlsRequired() {
+<span class="fc" id="L449">        return HapiProperties.getBooleanProperty(&quot;email.starttls.required&quot;, false);</span>
+    }
+
+    public static Boolean getEmailQuitWait() {
+<span class="fc" id="L453">        return HapiProperties.getBooleanProperty(&quot;email.quitwait&quot;, true);</span>
+    }
+
+    public static Long getReuseCachedSearchResultsMillis() {
+<span class="fc" id="L457">        String value = HapiProperties.getProperty(REUSE_CACHED_SEARCH_RESULTS_MILLIS, &quot;60000&quot;);</span>
+<span class="fc" id="L458">        return Long.valueOf(value);</span>
+    }
+
+    public static Long getExpireSearchResultsAfterMins() {
+<span class="fc" id="L462">        String value = HapiProperties.getProperty(EXPIRE_SEARCH_RESULTS_AFTER_MINS, &quot;60&quot;);</span>
+<span class="fc" id="L463">        return Long.valueOf(value);</span>
+    }
+
+    public static Boolean getCorsAllowedCredentials() {
+<span class="fc" id="L467">        return HapiProperties.getBooleanProperty(CORS_ALLOW_CREDENTIALS, false);</span>
+    }
+
+    public static boolean getValidateRequestsEnabled() {
+<span class="fc" id="L471">        return HapiProperties.getBooleanProperty(VALIDATE_REQUESTS_ENABLED, false);</span>
+    }
+
+    public static boolean getValidateResponsesEnabled() {
+<span class="fc" id="L475">        return HapiProperties.getBooleanProperty(VALIDATE_RESPONSES_ENABLED, false);</span>
+    }
+
+    public static boolean getFilterSearchEnabled() {
+<span class="fc" id="L479">        return HapiProperties.getBooleanProperty(FILTER_SEARCH_ENABLED, true);</span>
+    }
+
+    public static boolean getGraphqlEnabled() {
+<span class="fc" id="L483">        return HapiProperties.getBooleanProperty(GRAPHQL_ENABLED, true);</span>
+    }
+
+    public static boolean getEnforceReferentialIntegrityOnDelete() {
+<span class="fc" id="L487">        return HapiProperties.getBooleanProperty(ENFORCE_REFERENTIAL_INTEGRITY_ON_DELETE, true);</span>
+    }
+
+    public static boolean getEnforceReferentialIntegrityOnWrite() {
+<span class="fc" id="L491">        return HapiProperties.getBooleanProperty(ENFORCE_REFERENTIAL_INTEGRITY_ON_WRITE, true);</span>
+    }
+
+    public static boolean getAutoCreatePlaceholderReferenceTargets() {
+<span class="fc" id="L495">        return HapiProperties.getBooleanProperty(AUTO_CREATE_PLACEHOLDER_REFERENCE_TARGETS, true);</span>
+    }
+
+    public static boolean getEnableIndexMissingFields() {
+<span class="fc" id="L499">        return HapiProperties.getBooleanProperty(ENABLE_INDEX_MISSING_FIELDS, false);</span>
+    }
+
+    public static Integer getMaxBinarySize() {
+<span class="fc" id="L503">        return getIntegerProperty(MAX_BINARY_SIZE, null);</span>
+    }
+
+    private static boolean getPropertyBoolean(String thePropertyName, boolean theDefaultValue) {
+<span class="fc" id="L507">        String value = getProperty(thePropertyName, Boolean.toString(theDefaultValue));</span>
+<span class="fc" id="L508">        return Boolean.parseBoolean(value);</span>
+    }
+
+    private static &lt;T extends Enum&gt; T getPropertyEnum(String thePropertyName, Class&lt;T&gt; theEnumType, T theDefaultValue) {
+<span class="nc" id="L512">        String value = getProperty(thePropertyName, theDefaultValue.name());</span>
+<span class="nc" id="L513">        return (T) Enum.valueOf(theEnumType, value);</span>
+    }
+
+    public static boolean getBulkExportEnabled() {
+<span class="fc" id="L517">        return HapiProperties.getBooleanProperty(BULK_EXPORT_ENABLED, true);</span>
+    }
+
+    public static boolean isFhirPathFilterInterceptorEnabled() {
+<span class="fc" id="L521">        return HapiProperties.getBooleanProperty(&quot;fhirpath_interceptor.enabled&quot;, false);</span>
+    }
+
+    public static boolean getPartitioningMultitenancyEnabled() {
+<span class="fc" id="L525">        return HapiProperties.getBooleanProperty(PARTITIONING_MULTITENANCY_ENABLED, false);</span>
+    }
+
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

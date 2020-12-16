@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>BpmnSequenceFlowTransformationRenderer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">hapi-fhir</a> &gt; <a href="../index.html" class="el_bundle">transformation</a> &gt; <a href="index.source.html" class="el_package">at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer</a> &gt; <span class="el_source">BpmnSequenceFlowTransformationRenderer.java</span></div><h1>BpmnSequenceFlowTransformationRenderer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer;
+
+import at.fh.hagenberg.aist.msbpmn.service.transformation.helper.IdProvider;
+import lombok.AllArgsConstructor;
+import org.hl7.fhir.r4.model.BackboneElement;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.omg.spec.bpmn.model.ObjectFactory;
+import org.omg.spec.bpmn.model.TExpression;
+import org.omg.spec.bpmn.model.TSequenceFlow;
+import org.springframework.stereotype.Component;
+import science.aist.gtf.graph.Edge;
+import science.aist.gtf.graph.Graph;
+import science.aist.gtf.transformation.renderer.TransformationRender;
+import science.aist.gtf.transformation.renderer.condition.RendererCondition;
+
+import javax.xml.bind.JAXBElement;
+import java.util.Objects;
+import java.util.Optional;
+
+/**
+ * &lt;p&gt;Renderer for the sequence flow element. So the connectors between the {@link org.omg.spec.bpmn.model.TFlowNode}s&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+@Component
+<span class="fc" id="L35">@AllArgsConstructor</span>
+public class BpmnSequenceFlowTransformationRenderer implements TransformationRender&lt;Optional&lt;JAXBElement&lt;? extends TSequenceFlow&gt;&gt;, TSequenceFlow, Graph&lt;BackboneElement, Void&gt;, Edge&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt; {
+
+    private static final String BPMN_SEQUENCE_FLOW_PREFIX = &quot;sf_&quot;;
+
+    private final ObjectFactory objectFactory;
+
+    private final RendererCondition&lt;Edge&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt; condition;
+
+    @Override
+    public Optional&lt;JAXBElement&lt;? extends TSequenceFlow&gt;&gt; renderElement(Graph&lt;BackboneElement, Void&gt; vertices, Edge&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt; planDefinitionActionComponentEdge) {
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (!canRenderer(planDefinitionActionComponentEdge)) return Optional.empty();</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        return Optional.ofNullable(condition.createCondition().test(planDefinitionActionComponentEdge) ? objectFactory.createSequenceFlow(mapProperties(createElement(), vertices, planDefinitionActionComponentEdge)) : null);</span>
+    }
+
+    boolean canRenderer(Edge&lt;?, Void&gt; edge) {
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        return edge.getSource().getElement() instanceof PlanDefinition.PlanDefinitionActionComponent</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">                &amp;&amp; edge.getTarget().getElement() instanceof PlanDefinition.PlanDefinitionActionComponent;</span>
+    }
+
+    @Override
+    public TSequenceFlow createElement() {
+<span class="fc" id="L57">        return objectFactory.createTSequenceFlow();</span>
+    }
+
+    @Override
+    public TSequenceFlow mapProperties(TSequenceFlow sequenceFlow, Graph&lt;BackboneElement, Void&gt; vertices, Edge&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt; element) {
+<span class="fc" id="L62">        sequenceFlow.setId(BPMN_SEQUENCE_FLOW_PREFIX + element.getSource().getElement().getId() + &quot;_&quot; + element.getTarget().getElement().getId());</span>
+
+        // This needs a object reference here, as we cannot access the new BPMN element anymore we need to create some helper object that is of exact the type that is required to extract the id.
+<span class="fc" id="L65">        sequenceFlow.setSourceRef(new IdProvider(element.getSource().getElement().getId())); // id from sourceTask</span>
+<span class="fc" id="L66">        sequenceFlow.setTargetRef(new IdProvider(element.getTarget().getElement().getId())); // id from targetTask</span>
+
+        // Assumption: each edge that has an action target with a condition set
+        // needs to be associated with that condition
+<span class="fc" id="L70">        processConditions(sequenceFlow, element);</span>
+
+<span class="fc" id="L72">        return sequenceFlow;</span>
+    }
+
+    protected void processConditions(TSequenceFlow flow, Edge&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt; edgeParam) {
+<span class="fc" id="L76">        PlanDefinition.PlanDefinitionActionComponent element = edgeParam.getTarget().getElement();</span>
+<span class="fc bfc" id="L77" title="All 4 branches covered.">        if (element.hasCondition() &amp;&amp; !element.hasTrigger()) {</span>
+            // Problem is, how to interpret several conditions
+<span class="fc" id="L79">            TExpression expression = objectFactory.createTExpression();</span>
+<span class="fc" id="L80">            expression.setId(flow.getId() + &quot;_condition&quot;);</span>
+
+<span class="fc" id="L82">            String conditionExpression = element.getConditionFirstRep().getExpression().getExpression();</span>
+<span class="fc" id="L83">            Objects.requireNonNull(conditionExpression, &quot;Empty condition expression leads to NullPointerException in eclipse ecore.&quot;);</span>
+
+<span class="fc" id="L85">            expression.getContent().add(conditionExpression);</span>
+<span class="fc" id="L86">            flow.setConditionExpression(expression);</span>
+<span class="fc" id="L87">            flow.setName(conditionExpression);</span>
+        }
+
+        // special condition if start and end are both xor (with at most once)
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (PlanDefinition.ActionSelectionBehavior.ATMOSTONE == edgeParam.getSource().getElement().getSelectionBehavior()</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">                &amp;&amp; edgeParam.getTarget().getElement().getId().startsWith(&quot;join_of_&quot;)) {</span>
+<span class="fc" id="L93">            TExpression expression = objectFactory.createTExpression();</span>
+<span class="fc" id="L94">            expression.setId(flow.getId() + &quot;_condition&quot;);</span>
+<span class="fc" id="L95">            expression.getContent().add(&quot;else&quot;);</span>
+<span class="fc" id="L96">            flow.setConditionExpression(expression);</span>
+<span class="fc" id="L97">            flow.setName(&quot;else&quot;);</span>
+        }
+<span class="fc" id="L99">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

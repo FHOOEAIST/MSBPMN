@@ -1,0 +1,12 @@
+at.fh.hagenberg.aist.msbpmn.service
+at.fh.hagenberg.aist.msbpmn.service.configuration
+at.fh.hagenberg.aist.msbpmn.service.impl
+at.fh.hagenberg.aist.msbpmn.service.transformation
+at.fh.hagenberg.aist.msbpmn.service.transformation.helper
+at.fh.hagenberg.aist.msbpmn.service.transformation.impl
+at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer
+at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors
+at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer.condition
+at.fh.hagenberg.aist.msbpmn.service.transformation.impl.traversal
+at.fh.hagenberg.aist.msbpmn.service.transformation.renderer
+at.fh.hagenberg.aist.msbpmn.service.transformation.renderer.condition

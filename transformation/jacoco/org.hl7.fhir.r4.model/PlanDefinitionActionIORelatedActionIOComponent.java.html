@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanDefinitionActionIORelatedActionIOComponent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">transformation</a> &gt; <a href="index.source.html" class="el_package">org.hl7.fhir.r4.model</a> &gt; <span class="el_source">PlanDefinitionActionIORelatedActionIOComponent.java</span></div><h1>PlanDefinitionActionIORelatedActionIOComponent.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package org.hl7.fhir.r4.model;
+
+import ca.uhn.fhir.model.api.annotation.Block;
+import ca.uhn.fhir.model.api.annotation.Child;
+import ca.uhn.fhir.model.api.annotation.Description;
+import org.hl7.fhir.exceptions.FHIRException;
+
+import java.util.List;
+
+/**
+ * &lt;p&gt;Base class of a reference to an input/output object inside an action of a HL7® FHIR® plan definition&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+@Block()
+public class PlanDefinitionActionIORelatedActionIOComponent extends BackboneElement {
+
+    @Child(name = &quot;requirementId&quot;, type = {IdType.class}, order=1, min=1, max=1, modifier=false, summary=false)
+    @Description(shortDefinition=&quot;What requirement (other ActionIOComponent) is this related to&quot;, formalDefinition=&quot;The element id of the related requirement.&quot; )
+    protected IdType requirementId;
+
+    public PlanDefinitionActionIORelatedActionIOComponent() {
+<span class="fc" id="L32">        super();</span>
+<span class="fc" id="L33">    }</span>
+
+    public PlanDefinitionActionIORelatedActionIOComponent(IdType requirementId) {
+<span class="nc" id="L36">        super();</span>
+<span class="nc" id="L37">        this.requirementId = requirementId;</span>
+<span class="nc" id="L38">    }</span>
+
+    public IdType getRequirementIdElement() {
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (this.requirementId == null)</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">            if (Configuration.errorOnAutoCreate())</span>
+<span class="nc" id="L43">                throw new Error(&quot;Attempt to auto-create PlanDefinitionActionRelatedActionComponent.actionId&quot;);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">            else if (Configuration.doAutoCreate())</span>
+<span class="nc" id="L45">                this.requirementId = new IdType(); // bb</span>
+<span class="nc" id="L46">        return this.requirementId;</span>
+    }
+
+    public boolean hasRequirementIdElement() {
+<span class="nc bnc" id="L50" title="All 4 branches missed.">        return this.requirementId != null &amp;&amp; !this.requirementId.isEmpty();</span>
+    }
+
+    public boolean hasRequirementId() {
+<span class="nc bnc" id="L54" title="All 4 branches missed.">        return this.requirementId != null &amp;&amp; !this.requirementId.isEmpty();</span>
+    }
+
+    public PlanDefinitionActionIORelatedActionIOComponent setRequirementIdElement(IdType value) {
+<span class="nc" id="L58">        this.requirementId = value;</span>
+<span class="nc" id="L59">        return this;</span>
+    }
+
+    public String getRequirementId() {
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        return this.requirementId == null ? null : this.requirementId.getValue();</span>
+    }
+
+    public PlanDefinitionActionIORelatedActionIOComponent setRequirementId(String value) {
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (this.requirementId == null)</span>
+<span class="fc" id="L68">            this.requirementId = new IdType();</span>
+<span class="fc" id="L69">        this.requirementId.setValue(value);</span>
+<span class="fc" id="L70">        return this;</span>
+    }
+
+    protected void listChildren(List&lt;Property&gt; children) {
+<span class="nc" id="L74">        super.listChildren(children);</span>
+<span class="nc" id="L75">        children.add(new Property(&quot;requirementId&quot;, &quot;id&quot;, &quot;The element id of the related action.&quot;, 1, 1, requirementId));</span>
+<span class="nc" id="L76">    }</span>
+
+    @Override
+    public Property getNamedProperty(int _hash, String _name, boolean _checkValid) throws FHIRException {
+<span class="nc" id="L80">        throw new UnsupportedOperationException(&quot;No sure what hash to use here&quot;);</span>
+    }
+
+    @Override
+    public Base[] getProperty(int hash, String name, boolean checkValid) throws FHIRException {
+<span class="nc" id="L85">        throw new UnsupportedOperationException(&quot;No sure what hash to use here&quot;);</span>
+    }
+
+    @Override
+    public Base setProperty(int hash, String name, Base value) throws FHIRException {
+<span class="nc" id="L90">        throw new UnsupportedOperationException(&quot;No sure what hash to use here&quot;);</span>
+    }
+
+    @Override
+    public Base setProperty(String name, Base value) throws FHIRException {
+<span class="nc" id="L95">        throw new UnsupportedOperationException(&quot;Seems not to be needed...&quot;);</span>
+    }
+
+    @Override
+    public Base makeProperty(int hash, String name) throws FHIRException {
+<span class="nc" id="L100">        throw new UnsupportedOperationException(&quot;No sure what hash to use here&quot;);</span>
+    }
+
+    @Override
+    public String[] getTypesForProperty(int hash, String name) throws FHIRException {
+<span class="nc" id="L105">        throw new UnsupportedOperationException(&quot;No sure what hash to use here&quot;);</span>
+    }
+
+    @Override
+    public Base addChild(String name) throws FHIRException {
+<span class="nc" id="L110">        throw new UnsupportedOperationException(&quot;Seems not to be needed...&quot;);</span>
+    }
+
+    @Override
+    public PlanDefinitionActionIORelatedActionIOComponent copy() {
+<span class="nc" id="L115">        PlanDefinitionActionIORelatedActionIOComponent dst = new PlanDefinitionActionIORelatedActionIOComponent();</span>
+<span class="nc" id="L116">        copyValues(dst);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        dst.requirementId = requirementId == null ? null : requirementId.copy();</span>
+<span class="nc" id="L118">        return dst;</span>
+    }
+
+    @Override
+    public boolean equalsDeep(Base other_) {
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (!super.equalsDeep(other_))</span>
+<span class="nc" id="L124">            return false;</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (!(other_ instanceof PlanDefinitionActionIORelatedActionIOComponent))</span>
+<span class="nc" id="L126">            return false;</span>
+<span class="nc" id="L127">        PlanDefinitionActionIORelatedActionIOComponent o = (PlanDefinitionActionIORelatedActionIOComponent) other_;</span>
+<span class="nc" id="L128">        return compareDeep(requirementId, o.requirementId, true);</span>
+    }
+
+    @Override
+    public boolean equalsShallow(Base other_) {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (!super.equalsShallow(other_))</span>
+<span class="nc" id="L134">            return false;</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (!(other_ instanceof PlanDefinitionActionIORelatedActionIOComponent))</span>
+<span class="nc" id="L136">            return false;</span>
+<span class="nc" id="L137">        PlanDefinitionActionIORelatedActionIOComponent o = (PlanDefinitionActionIORelatedActionIOComponent) other_;</span>
+<span class="nc" id="L138">        return compareValues(requirementId, o.requirementId, true);</span>
+    }
+
+    public boolean isEmpty() {
+<span class="pc bpc" id="L142" title="2 of 4 branches missed.">        return super.isEmpty() &amp;&amp; ca.uhn.fhir.util.ElementUtil.isEmpty(requirementId);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

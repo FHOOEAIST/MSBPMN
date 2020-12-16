@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BaseJpaRestfulServer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hapi-fhir</a> &gt; <a href="index.source.html" class="el_package">ca.uhn.fhir.jpa.starter</a> &gt; <span class="el_source">BaseJpaRestfulServer.java</span></div><h1>BaseJpaRestfulServer.java</h1><pre class="source lang-java linenums">package ca.uhn.fhir.jpa.starter;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.context.FhirVersionEnum;
+import ca.uhn.fhir.interceptor.api.IInterceptorBroadcaster;
+import ca.uhn.fhir.interceptor.api.IInterceptorService;
+import ca.uhn.fhir.jpa.api.config.DaoConfig;
+import ca.uhn.fhir.jpa.api.dao.DaoRegistry;
+import ca.uhn.fhir.jpa.api.dao.IFhirSystemDao;
+import ca.uhn.fhir.jpa.binstore.BinaryStorageInterceptor;
+import ca.uhn.fhir.jpa.bulk.provider.BulkDataExportProvider;
+import ca.uhn.fhir.jpa.interceptor.CascadingDeleteInterceptor;
+import ca.uhn.fhir.jpa.msbpmn.BpmnProvider;
+import ca.uhn.fhir.jpa.partition.PartitionManagementProvider;
+import ca.uhn.fhir.jpa.provider.*;
+import ca.uhn.fhir.jpa.provider.dstu3.JpaConformanceProviderDstu3;
+import ca.uhn.fhir.jpa.provider.dstu3.JpaSystemProviderDstu3;
+import ca.uhn.fhir.jpa.provider.r4.JpaConformanceProviderR4;
+import ca.uhn.fhir.jpa.provider.r4.JpaSystemProviderR4;
+import ca.uhn.fhir.jpa.provider.r5.JpaConformanceProviderR5;
+import ca.uhn.fhir.jpa.provider.r5.JpaSystemProviderR5;
+import ca.uhn.fhir.jpa.search.DatabaseBackedPagingProvider;
+import ca.uhn.fhir.jpa.searchparam.registry.ISearchParamRegistry;
+import ca.uhn.fhir.jpa.subscription.util.SubscriptionDebugLogInterceptor;
+import ca.uhn.fhir.model.dstu2.composite.MetaDt;
+import ca.uhn.fhir.narrative.DefaultThymeleafNarrativeGenerator;
+import ca.uhn.fhir.rest.server.HardcodedServerAddressStrategy;
+import ca.uhn.fhir.rest.server.RestfulServer;
+import ca.uhn.fhir.rest.server.interceptor.*;
+import ca.uhn.fhir.rest.server.interceptor.partition.RequestTenantPartitionInterceptor;
+import ca.uhn.fhir.rest.server.provider.ResourceProviderFactory;
+import ca.uhn.fhir.rest.server.tenant.UrlBaseTenantIdentificationStrategy;
+import ca.uhn.fhir.validation.IValidatorModule;
+import ca.uhn.fhir.validation.ResultSeverityEnum;
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Meta;
+import org.hl7.fhir.r4.model.Bundle.BundleType;
+import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.cors.CorsConfiguration;
+
+import javax.servlet.ServletException;
+import java.util.*;
+
+<span class="fc" id="L45">public class BaseJpaRestfulServer extends RestfulServer {</span>
+
+    private static final long serialVersionUID = 1L;
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    protected void initialize() throws ServletException {
+<span class="fc" id="L52">        super.initialize();</span>
+
+        /*
+         * Create a FhirContext object that uses the version of FHIR
+         * specified in the properties file.
+         */
+<span class="fc" id="L58">        ApplicationContext appCtx = (ApplicationContext) getServletContext()</span>
+<span class="fc" id="L59">                .getAttribute(&quot;org.springframework.web.context.WebApplicationContext.ROOT&quot;);</span>
+        // Customize supported resource types
+<span class="fc" id="L61">        Set&lt;String&gt; supportedResourceTypes = HapiProperties.getSupportedResourceTypes();</span>
+
+<span class="pc bpc" id="L63" title="3 of 4 branches missed.">        if (!supportedResourceTypes.isEmpty() &amp;&amp; !supportedResourceTypes.contains(&quot;SearchParameter&quot;)) {</span>
+<span class="nc" id="L64">            supportedResourceTypes.add(&quot;SearchParameter&quot;);</span>
+        }
+
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (!supportedResourceTypes.isEmpty()) {</span>
+<span class="nc" id="L68">            DaoRegistry daoRegistry = appCtx.getBean(DaoRegistry.class);</span>
+<span class="nc" id="L69">            daoRegistry.setSupportedResourceTypes(supportedResourceTypes);</span>
+        }
+
+        /*
+         * ResourceProviders are fetched from the Spring context
+         */
+<span class="fc" id="L75">        FhirVersionEnum fhirVersion = HapiProperties.getFhirVersion();</span>
+        ResourceProviderFactory resourceProviders;
+        Object systemProvider;
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (fhirVersion == FhirVersionEnum.DSTU2) {</span>
+<span class="nc" id="L79">            resourceProviders = appCtx.getBean(&quot;myResourceProvidersDstu2&quot;, ResourceProviderFactory.class);</span>
+<span class="nc" id="L80">            systemProvider = appCtx.getBean(&quot;mySystemProviderDstu2&quot;, JpaSystemProviderDstu2.class);</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        } else if (fhirVersion == FhirVersionEnum.DSTU3) {</span>
+<span class="nc" id="L82">            resourceProviders = appCtx.getBean(&quot;myResourceProvidersDstu3&quot;, ResourceProviderFactory.class);</span>
+<span class="nc" id="L83">            systemProvider = appCtx.getBean(&quot;mySystemProviderDstu3&quot;, JpaSystemProviderDstu3.class);</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        } else if (fhirVersion == FhirVersionEnum.R4) {</span>
+<span class="fc" id="L85">            resourceProviders = appCtx.getBean(&quot;myResourceProvidersR4&quot;, ResourceProviderFactory.class);</span>
+<span class="fc" id="L86">            systemProvider = appCtx.getBean(&quot;mySystemProviderR4&quot;, JpaSystemProviderR4.class);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        } else if (fhirVersion == FhirVersionEnum.R5) {</span>
+<span class="nc" id="L88">            resourceProviders = appCtx.getBean(&quot;myResourceProvidersR5&quot;, ResourceProviderFactory.class);</span>
+<span class="nc" id="L89">            systemProvider = appCtx.getBean(&quot;mySystemProviderR5&quot;, JpaSystemProviderR5.class);</span>
+        } else {
+<span class="nc" id="L91">            throw new IllegalStateException();</span>
+        }
+
+<span class="fc" id="L94">        setFhirContext(appCtx.getBean(FhirContext.class));</span>
+
+<span class="fc" id="L96">        registerProviders(resourceProviders.createProviders());</span>
+<span class="fc" id="L97">        registerProvider(appCtx.getBean(&quot;bpmnProvider&quot;, BpmnProvider.class));</span>
+<span class="fc" id="L98">        registerProvider(systemProvider);</span>
+
+        /*
+         * The conformance provider exports the supported resources, search parameters, etc for
+         * this server. The JPA version adds resourceProviders counts to the exported statement, so it
+         * is a nice addition.
+         *
+         * You can also create your own subclass of the conformance provider if you need to
+         * provide further customization of your server's CapabilityStatement
+         */
+<span class="fc" id="L108">        DaoConfig daoConfig = appCtx.getBean(DaoConfig.class);</span>
+<span class="fc" id="L109">        ISearchParamRegistry searchParamRegistry = appCtx.getBean(ISearchParamRegistry.class);</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">        if (fhirVersion == FhirVersionEnum.DSTU2) {</span>
+<span class="nc" id="L111">            IFhirSystemDao&lt;ca.uhn.fhir.model.dstu2.resource.Bundle, MetaDt&gt; systemDao = appCtx.getBean(&quot;mySystemDaoDstu2&quot;, IFhirSystemDao.class);</span>
+<span class="nc" id="L112">            JpaConformanceProviderDstu2 confProvider = new JpaConformanceProviderDstu2(this, systemDao, daoConfig);</span>
+<span class="nc" id="L113">            confProvider.setImplementationDescription(&quot;HAPI FHIR DSTU2 Server&quot;);</span>
+<span class="nc" id="L114">            setServerConformanceProvider(confProvider);</span>
+<span class="nc" id="L115">        } else {</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">            if (fhirVersion == FhirVersionEnum.DSTU3) {</span>
+<span class="nc" id="L117">                IFhirSystemDao&lt;Bundle, Meta&gt; systemDao = appCtx.getBean(&quot;mySystemDaoDstu3&quot;, IFhirSystemDao.class);</span>
+<span class="nc" id="L118">                JpaConformanceProviderDstu3 confProvider = new JpaConformanceProviderDstu3(this, systemDao, daoConfig, searchParamRegistry);</span>
+<span class="nc" id="L119">                confProvider.setImplementationDescription(&quot;HAPI FHIR DSTU3 Server&quot;);</span>
+<span class="nc" id="L120">                setServerConformanceProvider(confProvider);</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">            } else if (fhirVersion == FhirVersionEnum.R4) {</span>
+<span class="fc" id="L122">                IFhirSystemDao&lt;org.hl7.fhir.r4.model.Bundle, org.hl7.fhir.r4.model.Meta&gt; systemDao = appCtx.getBean(&quot;mySystemDaoR4&quot;, IFhirSystemDao.class);</span>
+<span class="fc" id="L123">                JpaConformanceProviderR4 confProvider = new JpaConformanceProviderR4(this, systemDao, daoConfig, searchParamRegistry);</span>
+<span class="fc" id="L124">                confProvider.setImplementationDescription(&quot;HAPI FHIR R4 Server&quot;);</span>
+<span class="fc" id="L125">                setServerConformanceProvider(confProvider);</span>
+<span class="pc bnc" id="L126" title="All 2 branches missed.">            } else if (fhirVersion == FhirVersionEnum.R5) {</span>
+<span class="nc" id="L127">                IFhirSystemDao&lt;org.hl7.fhir.r5.model.Bundle, org.hl7.fhir.r5.model.Meta&gt; systemDao = appCtx.getBean(&quot;mySystemDaoR5&quot;, IFhirSystemDao.class);</span>
+<span class="nc" id="L128">                JpaConformanceProviderR5 confProvider = new JpaConformanceProviderR5(this, systemDao, daoConfig, searchParamRegistry);</span>
+<span class="nc" id="L129">                confProvider.setImplementationDescription(&quot;HAPI FHIR R5 Server&quot;);</span>
+<span class="nc" id="L130">                setServerConformanceProvider(confProvider);</span>
+<span class="nc" id="L131">            } else {</span>
+<span class="nc" id="L132">                throw new IllegalStateException();</span>
+            }
+        }
+
+        /*
+         * ETag Support
+         */
+<span class="fc" id="L139">        setETagSupport(HapiProperties.getEtagSupport());</span>
+
+        /*
+         * This server tries to dynamically generate narratives
+         */
+<span class="fc" id="L144">        FhirContext ctx = getFhirContext();</span>
+<span class="fc" id="L145">        ctx.setNarrativeGenerator(new DefaultThymeleafNarrativeGenerator());</span>
+
+        /*
+         * Default to JSON and pretty printing
+         */
+<span class="fc" id="L150">        setDefaultPrettyPrint(HapiProperties.getDefaultPrettyPrint());</span>
+
+        /*
+         * Default encoding
+         */
+<span class="fc" id="L155">        setDefaultResponseEncoding(HapiProperties.getDefaultEncoding());</span>
+
+        /*
+         * This configures the server to page search results to and from
+         * the database, instead of only paging them to memory. This may mean
+         * a performance hit when performing searches that return lots of results,
+         * but makes the server much more scalable.
+         */
+<span class="fc" id="L163">        setPagingProvider(appCtx.getBean(DatabaseBackedPagingProvider.class));</span>
+
+        /*
+         * This interceptor formats the output using nice colourful
+         * HTML output when the request is detected to come from a
+         * browser.
+         */
+<span class="fc" id="L170">        ResponseHighlighterInterceptor responseHighlighterInterceptor = new ResponseHighlighterInterceptor();</span>
+<span class="fc" id="L171">        this.registerInterceptor(responseHighlighterInterceptor);</span>
+
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">        if (HapiProperties.isFhirPathFilterInterceptorEnabled()) {</span>
+<span class="nc" id="L174">            registerInterceptor(new FhirPathFilterInterceptor());</span>
+        }
+
+        /*
+         * Add some logging for each request
+         */
+<span class="fc" id="L180">        LoggingInterceptor loggingInterceptor = new LoggingInterceptor();</span>
+<span class="fc" id="L181">        loggingInterceptor.setLoggerName(HapiProperties.getLoggerName());</span>
+<span class="fc" id="L182">        loggingInterceptor.setMessageFormat(HapiProperties.getLoggerFormat());</span>
+<span class="fc" id="L183">        loggingInterceptor.setErrorMessageFormat(HapiProperties.getLoggerErrorFormat());</span>
+<span class="fc" id="L184">        loggingInterceptor.setLogExceptions(HapiProperties.getLoggerLogExceptions());</span>
+<span class="fc" id="L185">        this.registerInterceptor(loggingInterceptor);</span>
+
+        /*
+         * If you are hosting this server at a specific DNS name, the server will try to
+         * figure out the FHIR base URL based on what the web container tells it, but
+         * this doesn't always work. If you are setting links in your search bundles that
+         * just refer to &quot;localhost&quot;, you might want to use a server address strategy:
+         */
+<span class="fc" id="L193">        String serverAddress = HapiProperties.getServerAddress();</span>
+<span class="pc bpc" id="L194" title="2 of 4 branches missed.">        if (serverAddress != null &amp;&amp; serverAddress.length() &gt; 0) {</span>
+<span class="fc" id="L195">            setServerAddressStrategy(new HardcodedServerAddressStrategy(serverAddress));</span>
+        }
+
+        /*
+         * If you are using DSTU3+, you may want to add a terminology uploader, which allows
+         * uploading of external terminologies such as Snomed CT. Note that this uploader
+         * does not have any security attached (any anonymous user may use it by default)
+         * so it is a potential security vulnerability. Consider using an AuthorizationInterceptor
+         * with this feature.
+         */
+        if (false) { // &lt;-- DISABLED RIGHT NOW
+            registerProvider(appCtx.getBean(TerminologyUploaderProvider.class));
+        }
+
+        // If you want to enable the $trigger-subscription operation to allow
+        // manual triggering of a subscription delivery, enable this provider
+        if (false) { // &lt;-- DISABLED RIGHT NOW
+            SubscriptionTriggeringProvider retriggeringProvider = appCtx
+                    .getBean(SubscriptionTriggeringProvider.class);
+            registerProvider(retriggeringProvider);
+        }
+
+        // Define your CORS configuration. This is an example
+        // showing a typical setup. You should customize this
+        // to your specific needs
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        if (HapiProperties.getCorsEnabled()) {</span>
+<span class="fc" id="L221">            CorsConfiguration config = new CorsConfiguration();</span>
+<span class="fc" id="L222">            config.addAllowedHeader(HttpHeaders.ORIGIN);</span>
+<span class="fc" id="L223">            config.addAllowedHeader(HttpHeaders.ACCEPT);</span>
+<span class="fc" id="L224">            config.addAllowedHeader(HttpHeaders.CONTENT_TYPE);</span>
+<span class="fc" id="L225">            config.addAllowedHeader(HttpHeaders.AUTHORIZATION);</span>
+<span class="fc" id="L226">            config.addAllowedHeader(HttpHeaders.CACHE_CONTROL);</span>
+<span class="fc" id="L227">            config.addAllowedHeader(&quot;x-fhir-starter&quot;);</span>
+<span class="fc" id="L228">            config.addAllowedHeader(&quot;X-Requested-With&quot;);</span>
+<span class="fc" id="L229">            config.addAllowedHeader(&quot;Prefer&quot;);</span>
+<span class="fc" id="L230">            String allAllowedCORSOrigins = HapiProperties.getCorsAllowedOrigin();</span>
+<span class="fc" id="L231">            Arrays.stream(allAllowedCORSOrigins.split(&quot;,&quot;)).forEach(o -&gt; {</span>
+<span class="fc" id="L232">                config.addAllowedOrigin(o);</span>
+<span class="fc" id="L233">            });</span>
+<span class="fc" id="L234">            config.addAllowedOrigin(HapiProperties.getCorsAllowedOrigin());</span>
+
+<span class="fc" id="L236">            config.addExposedHeader(&quot;Location&quot;);</span>
+<span class="fc" id="L237">            config.addExposedHeader(&quot;Content-Location&quot;);</span>
+<span class="fc" id="L238">            config.setAllowedMethods(</span>
+<span class="fc" id="L239">                    Arrays.asList(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;, &quot;PATCH&quot;, &quot;HEAD&quot;));</span>
+<span class="fc" id="L240">            config.setAllowCredentials(HapiProperties.getCorsAllowedCredentials());</span>
+
+            // Create the interceptor and register it
+<span class="fc" id="L243">            CorsInterceptor interceptor = new CorsInterceptor(config);</span>
+<span class="fc" id="L244">            registerInterceptor(interceptor);</span>
+        }
+
+        // If subscriptions are enabled, we want to register the interceptor that
+        // will activate them and match results against them
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">        if (HapiProperties.getSubscriptionWebsocketEnabled() ||</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">                HapiProperties.getSubscriptionEmailEnabled() ||</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">                HapiProperties.getSubscriptionRestHookEnabled()) {</span>
+            // Subscription debug logging
+<span class="fc" id="L253">            IInterceptorService interceptorService = appCtx.getBean(IInterceptorService.class);</span>
+<span class="fc" id="L254">            interceptorService.registerInterceptor(new SubscriptionDebugLogInterceptor());</span>
+        }
+
+        // Cascading deletes
+<span class="fc" id="L258">        DaoRegistry daoRegistry = appCtx.getBean(DaoRegistry.class);</span>
+<span class="fc" id="L259">        IInterceptorBroadcaster interceptorBroadcaster = appCtx.getBean(IInterceptorBroadcaster.class);</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">        if (HapiProperties.getAllowCascadingDeletes()) {</span>
+<span class="fc" id="L261">            CascadingDeleteInterceptor cascadingDeleteInterceptor = new CascadingDeleteInterceptor(ctx, daoRegistry, interceptorBroadcaster);</span>
+<span class="fc" id="L262">            getInterceptorService().registerInterceptor(cascadingDeleteInterceptor);</span>
+        }
+
+        // Binary Storage
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">        if (HapiProperties.isBinaryStorageEnabled()) {</span>
+<span class="fc" id="L267">            BinaryStorageInterceptor binaryStorageInterceptor = appCtx</span>
+<span class="fc" id="L268">                    .getBean(BinaryStorageInterceptor.class);</span>
+<span class="fc" id="L269">            getInterceptorService().registerInterceptor(binaryStorageInterceptor);</span>
+        }
+
+        // Validation
+<span class="fc" id="L273">        IValidatorModule validatorModule = appCtx.getBean(IValidatorModule.class);</span>
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">        if (validatorModule != null) {</span>
+<span class="pc bpc" id="L275" title="1 of 2 branches missed.">            if (HapiProperties.getValidateRequestsEnabled()) {</span>
+<span class="nc" id="L276">                RequestValidatingInterceptor interceptor = new RequestValidatingInterceptor();</span>
+<span class="nc" id="L277">                interceptor.setFailOnSeverity(ResultSeverityEnum.ERROR);</span>
+<span class="nc" id="L278">                interceptor.setValidatorModules(Collections.singletonList(validatorModule));</span>
+<span class="nc" id="L279">                registerInterceptor(interceptor);</span>
+            }
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">            if (HapiProperties.getValidateResponsesEnabled()) {</span>
+<span class="nc" id="L282">                ResponseValidatingInterceptor interceptor = new ResponseValidatingInterceptor();</span>
+<span class="nc" id="L283">                interceptor.setFailOnSeverity(ResultSeverityEnum.ERROR);</span>
+<span class="nc" id="L284">                interceptor.setValidatorModules(Collections.singletonList(validatorModule));</span>
+<span class="nc" id="L285">                registerInterceptor(interceptor);</span>
+            }
+        }
+
+        // GraphQL
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">        if (HapiProperties.getGraphqlEnabled()) {</span>
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">            if (fhirVersion.isEqualOrNewerThan(FhirVersionEnum.DSTU3)) {</span>
+<span class="fc" id="L292">                registerProvider(appCtx.getBean(GraphQLProvider.class));</span>
+            }
+        }
+
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">        if (!HapiProperties.getAllowedBundleTypes().isEmpty()) {</span>
+<span class="nc" id="L297">            String allowedBundleTypesString = HapiProperties.getAllowedBundleTypes();</span>
+<span class="nc" id="L298">            Set&lt;String&gt; allowedBundleTypes = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L299">            Arrays.stream(allowedBundleTypesString.split(&quot;,&quot;)).forEach(o -&gt; {</span>
+<span class="nc" id="L300">                BundleType type = BundleType.valueOf(o);</span>
+<span class="nc" id="L301">                allowedBundleTypes.add(type.toCode());</span>
+<span class="nc" id="L302">            });</span>
+<span class="nc" id="L303">            DaoConfig config = daoConfig;</span>
+<span class="nc" id="L304">            config.setBundleTypesAllowedForStorage(</span>
+<span class="nc" id="L305">                    Collections.unmodifiableSet(new TreeSet&lt;&gt;(allowedBundleTypes)));</span>
+        }
+
+        // Bulk Export
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">        if (HapiProperties.getBulkExportEnabled()) {</span>
+<span class="fc" id="L310">            registerProvider(appCtx.getBean(BulkDataExportProvider.class));</span>
+        }
+
+        // Partitioning
+<span class="fc bfc" id="L314" title="All 2 branches covered.">        if (HapiProperties.getPartitioningMultitenancyEnabled()) {</span>
+<span class="fc" id="L315">            registerInterceptor(new RequestTenantPartitionInterceptor());</span>
+<span class="fc" id="L316">            setTenantIdentificationStrategy(new UrlBaseTenantIdentificationStrategy());</span>
+<span class="fc" id="L317">            registerProviders(appCtx.getBean(PartitionManagementProvider.class));</span>
+        }
+
+<span class="pc bpc" id="L320" title="1 of 2 branches missed.">        if (HapiProperties.getClientIdStrategy() == DaoConfig.ClientIdStrategyEnum.ANY) {</span>
+<span class="nc" id="L321">            daoConfig.setResourceServerIdStrategy(DaoConfig.IdStrategyEnum.UUID);</span>
+<span class="nc" id="L322">            daoConfig.setResourceClientIdStrategy(HapiProperties.getClientIdStrategy());</span>
+        }
+<span class="fc" id="L324">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

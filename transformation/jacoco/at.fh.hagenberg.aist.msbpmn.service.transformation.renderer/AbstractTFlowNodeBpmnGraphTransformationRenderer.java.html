@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTFlowNodeBpmnGraphTransformationRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">transformation</a> &gt; <a href="index.source.html" class="el_package">at.fh.hagenberg.aist.msbpmn.service.transformation.renderer</a> &gt; <span class="el_source">AbstractTFlowNodeBpmnGraphTransformationRenderer.java</span></div><h1>AbstractTFlowNodeBpmnGraphTransformationRenderer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package at.fh.hagenberg.aist.msbpmn.service.transformation.renderer;
+
+import at.fh.hagenberg.aist.msbpmn.service.transformation.TransformationConstants;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.EdgeType;
+import lombok.NonNull;
+import org.hl7.fhir.r4.model.BackboneElement;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.omg.spec.bpmn.model.ObjectFactory;
+import org.omg.spec.bpmn.model.TFlowNode;
+import science.aist.bpmn.model.BPMNHelper;
+import science.aist.gtf.graph.Edge;
+import science.aist.gtf.graph.Graph;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.transformation.renderer.condition.RendererCondition;
+
+/**
+ * &lt;p&gt;Abstract Base class for BPMN FlowNode elements&lt;/p&gt;
+ *
+ * @author Andreas Schuler
+ * @author Andreas Pointner
+ */
+public abstract class AbstractTFlowNodeBpmnGraphTransformationRenderer&lt;R extends TFlowNode, S extends BackboneElement, T extends PlanDefinition.PlanDefinitionActionComponent&gt; extends AbstractBpmnGraphTransformationRenderer&lt;R, S, T&gt; {
+
+    private static final String BPMN_SEQUENCE_FLOW_PREFIX = &quot;sf_&quot;;
+
+
+    public AbstractTFlowNodeBpmnGraphTransformationRenderer(RendererCondition&lt;Vertex&lt;T, Void&gt;&gt; rendererCondition, ObjectFactory objectFactory) {
+<span class="fc" id="L37">        super(rendererCondition, objectFactory);</span>
+<span class="fc" id="L38">    }</span>
+
+    @Override
+    // The default behaviour of the mapProperties method is to just return the provided element
+    // if additional mapping of properties is needed, sub classes need to override this method
+<span class="pc bpc" id="L43" title="2 of 4 branches missed.">    public R mapProperties(@NonNull R element, Graph&lt;S, Void&gt; container, @NonNull Vertex&lt;T, Void&gt; currentElement) {</span>
+<span class="fc" id="L44">        element = super.mapProperties(element, container, currentElement);</span>
+<span class="fc" id="L45">        element.setName(currentElement.getElement().getTitle());</span>
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        for (Edge&lt;T, Void&gt; edge : currentElement.getEdges()) {</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">            if (edge.getMetaTagValue(TransformationConstants.EDGE_TYPE_META_TAG, EdgeType.class) == EdgeType.SEQUENCE) {</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">                if (edge.getTarget().equals(currentElement)) {</span>
+                    // incoming edge
+<span class="fc" id="L51">                    element.getIncoming().add(BPMNHelper.createQName(BPMN_SEQUENCE_FLOW_PREFIX + edge.getSource().getElement().getId() + &quot;_&quot; + currentElement.getElement().getId()));</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">                } else if (edge.getSource().equals(currentElement)) {</span>
+                    // outgoing edge
+<span class="fc" id="L54">                    element.getOutgoing().add(BPMNHelper.createQName(BPMN_SEQUENCE_FLOW_PREFIX + currentElement.getElement().getId() + &quot;_&quot; + edge.getTarget().getElement().getId()));</span>
+                }
+            }
+<span class="fc" id="L57">        }</span>
+
+<span class="fc" id="L59">        return element;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

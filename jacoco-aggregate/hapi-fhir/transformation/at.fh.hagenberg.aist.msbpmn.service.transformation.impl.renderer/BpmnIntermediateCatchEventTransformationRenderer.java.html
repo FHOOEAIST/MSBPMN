@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>BpmnIntermediateCatchEventTransformationRenderer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">hapi-fhir</a> &gt; <a href="../index.html" class="el_bundle">transformation</a> &gt; <a href="index.source.html" class="el_package">at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer</a> &gt; <span class="el_source">BpmnIntermediateCatchEventTransformationRenderer.java</span></div><h1>BpmnIntermediateCatchEventTransformationRenderer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer;
+
+import at.fh.hagenberg.aist.msbpmn.service.transformation.renderer.AbstractBpmnEventDefinitionTransformationRenderer;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.renderer.AbstractTFlowNodeBpmnGraphTransformationRenderer;
+import org.hl7.fhir.r4.model.BackboneElement;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.omg.spec.bpmn.model.ObjectFactory;
+import org.omg.spec.bpmn.model.TEventDefinition;
+import org.omg.spec.bpmn.model.TIntermediateCatchEvent;
+import science.aist.gtf.graph.Graph;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.transformation.renderer.condition.RendererCondition;
+
+import javax.xml.bind.JAXBElement;
+import java.util.function.Function;
+
+/**
+ * &lt;p&gt;Renderer for Conditional Events in BPMN&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+public class BpmnIntermediateCatchEventTransformationRenderer extends AbstractTFlowNodeBpmnGraphTransformationRenderer&lt;TIntermediateCatchEvent, BackboneElement, PlanDefinition.PlanDefinitionActionComponent&gt; {
+
+    private final AbstractBpmnEventDefinitionTransformationRenderer&lt;? extends TEventDefinition, BackboneElement, PlanDefinition.PlanDefinitionActionComponent&gt; bpmnEventDefinitionTransformationRenderer;
+
+    public BpmnIntermediateCatchEventTransformationRenderer(RendererCondition&lt;Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt; rendererCondition, ObjectFactory objectFactory, AbstractBpmnEventDefinitionTransformationRenderer&lt;? extends TEventDefinition, BackboneElement, PlanDefinition.PlanDefinitionActionComponent&gt; bpmnEventDefinitionTransformationRenderer) {
+<span class="fc" id="L36">        super(rendererCondition, objectFactory);</span>
+<span class="fc" id="L37">        this.bpmnEventDefinitionTransformationRenderer = bpmnEventDefinitionTransformationRenderer;</span>
+<span class="fc" id="L38">    }</span>
+
+    @Override
+    public TIntermediateCatchEvent createElement() {
+<span class="fc" id="L42">        return objectFactory.createTIntermediateCatchEvent();</span>
+    }
+
+    @Override
+    public TIntermediateCatchEvent mapProperties(TIntermediateCatchEvent element, Graph&lt;BackboneElement, Void&gt; container, Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt; currentElement) {
+<span class="fc" id="L47">        element = super.mapProperties(element, container, currentElement);</span>
+<span class="fc" id="L48">        element.getEventDefinition().add(bpmnEventDefinitionTransformationRenderer.renderElement(container, currentElement));</span>
+<span class="fc" id="L49">        return element;</span>
+    }
+
+    @Override
+    protected Function&lt;TIntermediateCatchEvent, JAXBElement&lt;? extends TIntermediateCatchEvent&gt;&gt; constructJaxBElementMapping() {
+<span class="fc" id="L54">        return objectFactory::createIntermediateCatchEvent;</span>
+    }
+
+    @Override
+    public boolean canRenderer(Vertex&lt;?, ?&gt; vertex) {
+<span class="pc bpc" id="L59" title="1 of 4 branches missed.">        return vertex != null &amp;&amp; vertex.getElement() instanceof PlanDefinition.PlanDefinitionActionComponent;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

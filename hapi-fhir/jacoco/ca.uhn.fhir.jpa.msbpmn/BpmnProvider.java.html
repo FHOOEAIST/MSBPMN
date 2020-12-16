@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BpmnProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hapi-fhir</a> &gt; <a href="index.source.html" class="el_package">ca.uhn.fhir.jpa.msbpmn</a> &gt; <span class="el_source">BpmnProvider.java</span></div><h1>BpmnProvider.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package ca.uhn.fhir.jpa.msbpmn;
+
+import ca.uhn.fhir.jpa.api.dao.IFhirResourceDao;
+import ca.uhn.fhir.rest.annotation.IdParam;
+import ca.uhn.fhir.rest.annotation.Operation;
+import ca.uhn.fhir.rest.server.IResourceProvider;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.IdType;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.springframework.beans.factory.annotation.Autowired;
+import science.aist.gtf.transformation.Transformer;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Objects;
+
+/**
+ * &lt;p&gt;Created by Andreas Pointner on 02.09.2020&lt;/p&gt;
+ * &lt;p&gt;The transformation to BPMN&lt;/p&gt;
+ *
+ * @author Andreas Pointner andreas.pointner@fh-hagenberg.at
+ */
+<span class="fc" id="L33">public class BpmnProvider implements IResourceProvider {</span>
+
+    @Autowired
+    IFhirResourceDao&lt;PlanDefinition&gt; planDefinitionDao;
+
+    @Autowired
+    Transformer&lt;PlanDefinition, String&gt; planDefinitionToBpmnStringTransformer;
+
+    @Override
+    public Class&lt;? extends IBaseResource&gt; getResourceType() {
+<span class="fc" id="L43">        return PlanDefinition.class;</span>
+    }
+
+    @Operation(name = &quot;$bpmn&quot;, manualRequest = true, manualResponse = true, idempotent = true)
+    public void toBpmnOperation(@IdParam IdType thePlanDefinitionId, HttpServletRequest theServletRequest, HttpServletResponse theServletResponse) throws IOException {
+<span class="nc" id="L48">        theServletResponse.getWriter().write(planDefinitionToBpmn(planDefinitionDao.read(thePlanDefinitionId)));</span>
+<span class="nc" id="L49">    }</span>
+
+    public String planDefinitionToBpmn(PlanDefinition planDefinition) {
+<span class="nc" id="L52">        Objects.requireNonNull(planDefinition, &quot;Plan Definition must not be null&quot;);</span>
+<span class="nc" id="L53">        return planDefinitionToBpmnStringTransformer.applyTransformation(planDefinition);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

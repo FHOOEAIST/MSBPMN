@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransformationConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">transformation</a> &gt; <a href="index.source.html" class="el_package">at.fh.hagenberg.aist.msbpmn.service.configuration</a> &gt; <span class="el_source">TransformationConfiguration.java</span></div><h1>TransformationConfiguration.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package at.fh.hagenberg.aist.msbpmn.service.configuration;
+
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.BpmnDocumentRootToStringTransformer;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.BpmnGraphTransformer;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.EdgeType;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.PlanDefinitionToGraphTransformer;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer.*;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors.*;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer.condition.ConditionalEventCondition;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer.condition.StartConditionalEventCondition;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer.condition.TimedEventCondition;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.renderer.condition.TimedStartEventCondition;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.renderer.MultiConditionalGraphTransformationRenderer;
+import org.hl7.fhir.r4.model.BackboneElement;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.omg.spec.bpmn.model.ObjectFactory;
+import org.omg.spec.bpmn.model.TFlowElement;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import science.aist.bpmn.model.impl.BPMNTDefinitionsRepository;
+import science.aist.gtf.graph.Edge;
+import science.aist.gtf.graph.Graph;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.graph.factory.GraphFactory;
+import science.aist.gtf.graph.factory.GraphFactoryFactory;
+import science.aist.gtf.transformation.Transformer;
+import science.aist.gtf.transformation.renderer.TransformationRender;
+
+import javax.xml.bind.JAXBElement;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import static at.fh.hagenberg.aist.msbpmn.service.transformation.TransformationConstants.EDGE_TYPE_META_TAG;
+
+/**
+ * &lt;p&gt;Configuration for Transformation Service&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+@Configuration
+@ComponentScan(&quot;at.fh.hagenberg.aist.msbpmn.service&quot;)
+<span class="fc" id="L54">public class TransformationConfiguration {</span>
+
+    @Bean
+    public ObjectFactory bpmnObjectFactory() {
+<span class="fc" id="L58">        return new ObjectFactory();</span>
+    }
+
+    @Bean
+    public GraphFactory graphFactory() {
+<span class="fc" id="L63">        return GraphFactoryFactory.getDefaultFactory();</span>
+    }
+
+    @Bean
+    public BiConsumer&lt;Edge&lt;?, Void&gt;, EdgeType&gt; edgeTypeConsumer() {
+<span class="fc" id="L68">        return (e, t) -&gt; e.addMetaTag(graphFactory().createMetaTag(EDGE_TYPE_META_TAG, t));</span>
+    }
+
+    @Bean
+    public Consumer&lt;Edge&lt;BackboneElement, Void&gt;&gt; edgeDataRefConsumer() {
+<span class="fc" id="L73">        return e -&gt; edgeTypeConsumer().accept(e, EdgeType.DATA_REF);</span>
+    }
+
+    @Bean
+    public Consumer&lt;Edge&lt;BackboneElement, Void&gt;&gt; edgeSequenceConsumer() {
+<span class="fc" id="L78">        return e -&gt; edgeTypeConsumer().accept(e, EdgeType.SEQUENCE);</span>
+    }
+
+    @Bean
+    public Consumer&lt;Edge&lt;BackboneElement, Void&gt;&gt; edgeParticipantConsumer() {
+<span class="fc" id="L83">        return e -&gt; edgeTypeConsumer().accept(e, EdgeType.PARTICIPANT);</span>
+    }
+
+    @Bean
+    public BPMNTDefinitionsRepository bpmntDefinitionsRepository() {
+<span class="fc" id="L88">        return new BPMNTDefinitionsRepository();</span>
+    }
+
+    @Bean
+    public BpmnIntermediateCatchEventTransformationRenderer bpmnIntermediateCatchEventConditionalEventDefinitionTransformationRenderer(
+            ConditionalEventCondition rendererCondition,
+            ObjectFactory objectFactory,
+            BpmnConditionalEventDefinitionTransformationRenderer bpmnConditionalEventDefinitionTransformationRenderer) {
+<span class="fc" id="L96">        return new BpmnIntermediateCatchEventTransformationRenderer(rendererCondition, objectFactory, bpmnConditionalEventDefinitionTransformationRenderer);</span>
+    }
+
+    @Bean
+    public BpmnIntermediateCatchEventTransformationRenderer bpmnIntermediateCatchEventStartEventDefinitionTransformationRenderer(
+            TimedEventCondition rendererCondition,
+            ObjectFactory objectFactory,
+            BpmnTTimerEventDefinitionTransformerRenderer bpmnConditionalEventDefinitionTransformationRenderer) {
+<span class="fc" id="L104">        return new BpmnIntermediateCatchEventTransformationRenderer(rendererCondition, objectFactory, bpmnConditionalEventDefinitionTransformationRenderer);</span>
+    }
+
+    @Bean
+    public BpmnEventStartEventTransformationRenderer bpmnTimedStartEventTransformationRenderer(
+            TimedStartEventCondition rendererCondition,
+            ObjectFactory objectFactory,
+            BpmnTTimerEventDefinitionTransformerRenderer bpmnTTimerEventDefinitionTransformerRenderer) {
+<span class="fc" id="L112">        return new BpmnEventStartEventTransformationRenderer(rendererCondition, objectFactory, bpmnTTimerEventDefinitionTransformerRenderer);</span>
+    }
+
+    @Bean
+    public BpmnEventStartEventTransformationRenderer bpmnConditionalStartEventTransformationRenderer(
+            StartConditionalEventCondition rendererCondition,
+            ObjectFactory objectFactory,
+            BpmnConditionalEventDefinitionTransformationRenderer bpmnTTimerEventDefinitionTransformerRenderer) {
+<span class="fc" id="L120">        return new BpmnEventStartEventTransformationRenderer(rendererCondition, objectFactory, bpmnTTimerEventDefinitionTransformerRenderer);</span>
+    }
+
+    @Bean
+    public TransformationRender&lt;JAXBElement&lt;? extends TFlowElement&gt;, ?, Graph&lt;BackboneElement, Void&gt;,
+            Vertex&lt;BackboneElement, Void&gt;&gt; multiConditionalGraphTransformationRenderer(
+            @Lazy BpmnSubprocessTransformationRenderer subprocessTransformationRenderer,
+            BpmnEventStartEventTransformationRenderer bpmnTimedStartEventTransformationRenderer,
+            BpmnEventStartEventTransformationRenderer bpmnConditionalStartEventTransformationRenderer,
+            BpmnStartEventTransformerRenderer bpmnStartEventTransformerRenderer,
+            BpmnEndEventTransformerRenderer bpmnEndEventTransformerRenderer,
+            BpmnIntermediateCatchEventTransformationRenderer bpmnIntermediateCatchEventStartEventDefinitionTransformationRenderer,
+            BpmnIntermediateCatchEventTransformationRenderer bpmnIntermediateCatchEventConditionalEventDefinitionTransformationRenderer,
+            BpmnParallelGatewayTransformerRenderer bpmnParallelGatewayTransformerRenderer,
+            BpmnExclusiveGatewayTransformerRenderer bpmnExclusiveGatewayTransformerRenderer,
+            BpmnUserTaskTransformerRenderer bpmnUserTaskTransformerRenderer,
+            BpmnDataObjectReferenceTransformerRenderer bpmnDataObjectReferenceTransformerRenderer,
+            BpmnDataObjectTransformerRenderer bpmnDataObjectTransformerRenderer
+    ) {
+<span class="fc" id="L139">        return new MultiConditionalGraphTransformationRenderer&lt;&gt;(List.of(</span>
+                subprocessTransformationRenderer,
+                bpmnConditionalStartEventTransformationRenderer,
+                bpmnTimedStartEventTransformationRenderer,
+                bpmnStartEventTransformerRenderer,
+                bpmnEndEventTransformerRenderer,
+                bpmnIntermediateCatchEventStartEventDefinitionTransformationRenderer,
+                bpmnIntermediateCatchEventConditionalEventDefinitionTransformationRenderer,
+                bpmnParallelGatewayTransformerRenderer,
+                bpmnExclusiveGatewayTransformerRenderer,
+                bpmnUserTaskTransformerRenderer,
+                bpmnDataObjectReferenceTransformerRenderer,
+                bpmnDataObjectTransformerRenderer
+        ));
+    }
+
+    @Bean
+    public Transformer&lt;PlanDefinition, String&gt; planDefinitionToBpmnStringTransformer(PlanDefinitionToGraphTransformer planDefinitionToGraphTransformer,
+                                                                                     BpmnGraphTransformer bpmnGraphTransformer,
+                                                                                     BpmnDocumentRootToStringTransformer bpmnDocumentRootToStringTransformer) {
+<span class="fc" id="L159">        return planDefinitionToGraphTransformer</span>
+<span class="fc" id="L160">                .andThen(bpmnGraphTransformer)</span>
+<span class="fc" id="L161">                .andThen(bpmnDocumentRootToStringTransformer);</span>
+    }
+
+    @Bean
+    public PlanDefinitionBackboneGraphComponentProcessor planDefinitionBackboneGraphComponentsProcessor(
+            PlanDefinitionBackboneGraphParticipantsProcessor planDefinitionBackboneGraphParticipantsProcessor,
+            PlanDefinitionBackboneGraphStartAndEndProcessor planDefinitionBackboneGraphStartAndEndProcessor,
+            PlanDefinitionBackboneGraphTriggerProcessor planDefinitionBackboneGraphTriggerProcessor,
+            @Lazy PlanDefinitionBackboneGraphVerticesProcessor planDefinitionBackboneGraphVerticesProcessor
+    ) {
+<span class="fc" id="L171">        return new MultiPlanDefinitionBackboneGraphComponentProcessor(List.of(</span>
+                planDefinitionBackboneGraphTriggerProcessor,
+                planDefinitionBackboneGraphStartAndEndProcessor,
+                planDefinitionBackboneGraphParticipantsProcessor,
+                planDefinitionBackboneGraphVerticesProcessor
+        ));
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BpmnGraphTransformer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">transformation</a> &gt; <a href="index.source.html" class="el_package">at.fh.hagenberg.aist.msbpmn.service.transformation.impl</a> &gt; <span class="el_source">BpmnGraphTransformer.java</span></div><h1>BpmnGraphTransformer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package at.fh.hagenberg.aist.msbpmn.service.transformation.impl;
+
+import at.fh.hagenberg.aist.msbpmn.service.transformation.TransformationConstants;
+import at.fh.hagenberg.aist.msbpmn.service.transformation.impl.traversal.FhirGraphTraversalStrategy;
+import lombok.AllArgsConstructor;
+import org.hl7.fhir.r4.model.BackboneElement;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.omg.spec.bpmn.model.*;
+import org.springframework.stereotype.Component;
+import science.aist.gtf.graph.Edge;
+import science.aist.gtf.graph.Graph;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.transformation.GraphTransformer;
+import science.aist.gtf.transformation.renderer.TransformationRender;
+import science.aist.jack.general.util.CastUtils;
+
+import javax.xml.bind.JAXBElement;
+import java.util.Optional;
+
+/**
+ * &lt;p&gt;Transforms a given graph representation of a process to a BPMN process diagram.&lt;/p&gt;
+ *
+ * @author Andreas Schuler
+ * @author Andreas Pointner
+ */
+@Component
+<span class="fc" id="L36">@AllArgsConstructor</span>
+public class BpmnGraphTransformer implements GraphTransformer&lt;BackboneElement, Void, JAXBElement&lt;TDefinitions&gt;&gt; {
+
+    private static final String BPMN_AIST_MSBPMN_DEFAULT_NS = &quot;http://aist.fh-hagenberg.at/msbpmn&quot;;
+
+    private final ObjectFactory objectFactory;
+    private final TransformationRender&lt;JAXBElement&lt;? extends TFlowNode&gt;, ?, Graph&lt;BackboneElement, Void&gt;, Vertex&lt;BackboneElement, Void&gt;&gt; elementRenderer;
+    private final TransformationRender&lt;Optional&lt;JAXBElement&lt;? extends TSequenceFlow&gt;&gt;, TSequenceFlow, Graph&lt;BackboneElement, Void&gt;, Edge&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt; edgeRenderer;
+    private final TransformationRender&lt;TLaneSet, ?, Graph&lt;BackboneElement, Void&gt;, Vertex&lt;BackboneElement, Void&gt;&gt; tLaneSetGraphVertexTransformationRender;
+
+    @Override
+    public JAXBElement&lt;TDefinitions&gt; applyTransformation(Graph&lt;BackboneElement, Void&gt; graph) {
+<span class="fc" id="L48">        TDefinitions definitions = objectFactory.createTDefinitions();</span>
+<span class="fc" id="L49">        definitions.setTargetNamespace(BPMN_AIST_MSBPMN_DEFAULT_NS);</span>
+
+<span class="fc" id="L51">        TProcess process = objectFactory.createTProcess();</span>
+<span class="fc" id="L52">        process.setName(graph.getMetaTagValue(TransformationConstants.PROCESS_NAME_TAG));</span>
+<span class="fc" id="L53">        process.setId(graph.getMetaTagValue(TransformationConstants.PROCESS_NAME_TAG));</span>
+<span class="fc" id="L54">        process.setIsExecutable(false); // I guess we would need some more specific bpmn structure to make it executable</span>
+
+<span class="fc" id="L56">        graph.setVertexTraversalStrategy(new FhirGraphTraversalStrategy&lt;&gt;(graph));</span>
+
+        // Rendering the Lane sets
+<span class="fc" id="L59">        graph.getVertices()</span>
+<span class="fc" id="L60">                .stream()</span>
+<span class="fc" id="L61">                .filter(v -&gt; v.tryGetMetaTagValue(TransformationConstants.PARTICIPANTS_COLL_META_TAG).isPresent())</span>
+<span class="fc" id="L62">                .map(v -&gt; tLaneSetGraphVertexTransformationRender.renderElement(graph, v))</span>
+<span class="fc" id="L63">                .forEach(process.getLaneSet()::add);</span>
+
+        // Traverse Sequence Flow
+<span class="fc" id="L66">        graph.traverseEdges(</span>
+<span class="fc" id="L67">                vertex -&gt; process.getFlowElement().add(elementRenderer.renderElement(graph, vertex)),</span>
+<span class="fc" id="L68">                edge -&gt; edgeRenderer.renderElement(graph, CastUtils.cast(edge)).ifPresent(process.getFlowElement()::add)</span>
+        );
+
+<span class="fc" id="L71">        definitions.getRootElement().add(objectFactory.createProcess(process));</span>
+
+<span class="fc" id="L73">        return objectFactory.createDefinitions(definitions);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
