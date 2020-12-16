@@ -67,12 +67,11 @@ void doTransformation() {
 ```
 
 In addition to that the transformation was included as an operation into a [hapi-fhir](https://hapifhir.io/) server.
-You are able to run the server inside a docker container using the TODO(#40)-docker container or building it yourself.
-
-TODO (#40): we need to deploy the docker container to docker-hub first.
+You are able to run the server inside a docker container using the fhooeaist/msbpmn-docker image 
+(https://hub.docker.com/r/fhooeaist/msbpmn) or building it yourself.
 
 ```shell
-docker container run -p 8080:8080 --name myHapiFhirServer --rm TODO (#40)
+docker container run -p 8080:8080 --name msbpmn --rm -d fhooeaist/msbpmn
 ```
 
 ```shell
