@@ -90,7 +90,7 @@ Usage: Mouse Click + Move: Scroll around. Ctrl + Mouse Wheel: Zoom.
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:ns2="http://www.omg.org/spec/DD/20100524/DI" xmlns:ns3="http://www.omg.org/spec/DD/20100524/DC" xmlns:ns4="http://www.omg.org/spec/BPMN/20100524/DI" targetNamespace="http://aist.fh-hagenberg.at/msbpmn">
-    <process isExecutable="false" name="Process_yDBTqK8rnR" id="Process_yDBTqK8rnR">
+    <process isExecutable="false" name="Process_YD1SaVBFOi" id="Process_YD1SaVBFOi">
         <startEvent isInterrupting="false" parallelMultiple="false" name="Start 1" id="id_start16">
             <outgoing>sf_start16_start_1_triggerAction</outgoing>
             <timerEventDefinition id="trigger1">
@@ -126,7 +126,7 @@ Usage: Mouse Click + Move: Scroll around. Ctrl + Mouse Wheel: Zoom.
         </endEvent>
     </process>
     <ns4:BPMNDiagram>
-        <ns4:BPMNPlane bpmnElement="Process_yDBTqK8rnR">
+        <ns4:BPMNPlane bpmnElement="Process_YD1SaVBFOi">
             <ns4:BPMNShape bpmnElement="id_start16" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="60.0" y="85.0" width="30.0" height="30.0"/>
             </ns4:BPMNShape>

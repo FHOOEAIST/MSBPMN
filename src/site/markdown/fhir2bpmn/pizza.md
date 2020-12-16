@@ -113,7 +113,7 @@ Usage: Mouse Click + Move: Scroll around. Ctrl + Mouse Wheel: Zoom.
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:ns2="http://www.omg.org/spec/DD/20100524/DI" xmlns:ns3="http://www.omg.org/spec/DD/20100524/DC" xmlns:ns4="http://www.omg.org/spec/BPMN/20100524/DI" targetNamespace="http://aist.fh-hagenberg.at/msbpmn">
-    <process isExecutable="false" name="Process_UU2JUQDeAs" id="Process_UU2JUQDeAs">
+    <process isExecutable="false" name="Process_F3F6O38U1y" id="Process_F3F6O38U1y">
         <startEvent isInterrupting="false" parallelMultiple="false" name="Take Pizza from freezer" id="id_start14">
             <outgoing>sf_start14_ad_1_triggerAction</outgoing>
             <conditionalEventDefinition id="event_start14">
@@ -162,7 +162,7 @@ Usage: Mouse Click + Move: Scroll around. Ctrl + Mouse Wheel: Zoom.
         </endEvent>
     </process>
     <ns4:BPMNDiagram>
-        <ns4:BPMNPlane bpmnElement="Process_UU2JUQDeAs">
+        <ns4:BPMNPlane bpmnElement="Process_F3F6O38U1y">
             <ns4:BPMNShape bpmnElement="id_start14" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="60.0" y="85.0" width="30.0" height="30.0"/>
             </ns4:BPMNShape>

@@ -36,7 +36,6 @@
             <actionId value="task_anamnese_status"/>
             <relationship value="before-start"/>
         </relatedAction>
-        <!-- TODO #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) how can we link the dmn -->
     </action>
     <action>
         <id value="task_anamnese_status"/>
@@ -66,8 +65,7 @@
                 <condition>
                     <kind value="applicability"/>
                     <expression>
-                        <language
-                                value="text/cql"/><!-- TODO #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                        <language value="text/cql"/>
                         <expression value="Yes"/>
                     </expression>
                 </condition>
@@ -101,8 +99,7 @@
                 <condition>
                     <kind value="applicability"/>
                     <expression>
-                        <language
-                                value="text/cql"/><!-- TODO #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                        <language value="text/cql"/>
                         <expression value="No"/>
                     </expression>
                 </condition>
@@ -128,8 +125,7 @@
             <condition>
                 <kind value="applicability"/>
                 <expression>
-                    <language
-                            value="text/cql"/><!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                    <language value="text/cql"/>
                     <expression value="No"/>
                 </expression>
             </condition>
@@ -234,8 +230,7 @@
                             <type value="named-event"/>
                             <name value="laboratory-results-transmitted"/>
                             <condition>
-                                <language
-                                        value="text/cql"/><!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                                <language value="text/cql"/>
                                 <expression value="Laboratory results transmitted"/>
                             </condition>
                         </trigger>
@@ -263,16 +258,7 @@
                         <relationship value="before-end"/>
                     </relatedAction>
                     <!-- Subprozess Kardiopulmonale Befundung -->
-                    <!--
-                    TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44)
-                     Missing Closed Swimlane: Kardiologie
-                     Question: How can we display this in Fhir (should we even display this)?
-                     Possible Solution:
-                       1) action as a placeholder for swimlane with specific annotation
-                       2) Define Message End Event, and a Message Start Event to have a message flow back into the process.
-                    -->
                     <action>
-                        <!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) How can we link the DMN -->
                         <id value="dmn_investigation_request"/>
                         <title value="What is the Investigation request?"/>
                         <input>
@@ -315,8 +301,7 @@
                             <type value="named-event"/>
                             <name value="cardiological-results-transmitted"/>
                             <condition>
-                                <language
-                                        value="text/cql"/><!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                                <language value="text/cql"/>
                                 <expression value="Cardiological results transitted"/>
                             </condition>
                         </trigger>
@@ -349,8 +334,7 @@
                     <condition>
                         <kind value="applicability"/>
                         <expression>
-                            <language
-                                    value="text/cql"/><!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                            <language value="text/cql"/>
                             <expression value="Yes"/>
                         </expression>
                     </condition>
@@ -386,8 +370,7 @@
             <condition>
                 <kind value="applicability"/>
                 <expression>
-                    <language
-                            value="text/cql"/><!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                    <language value="text/cql"/>
                     <expression value="therapy and medical care needed"/>
                 </expression>
             </condition>

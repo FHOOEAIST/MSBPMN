@@ -41,7 +41,7 @@
         <dependency>
             <groupId>science.aist.gtf</groupId>
             <artifactId>template</artifactId>
-            <version>${gtf.version}</version> <!-- TODO -->
+            <version>${gtf.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/joda-time/joda-time -->

@@ -25,26 +25,26 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <sequenceFlow sourceRef="id_start32" targetRef="id_xor_group" id="sf_start32_xor_group"/>
             <exclusiveGateway name="Xor_group" id="id_xor_group">
                 <incoming>sf_start32_xor_group</incoming>
-                <outgoing>sf_xor_group_ad_03</outgoing>
                 <outgoing>sf_xor_group_join_of_xor_group</outgoing>
+                <outgoing>sf_xor_group_ad_03</outgoing>
             </exclusiveGateway>
-            <sequenceFlow sourceRef="id_xor_group" targetRef="id_ad_03" name="Is First Contact" id="sf_xor_group_ad_03">
-                <conditionExpression id="sf_xor_group_ad_03_condition">Is First Contact</conditionExpression>
-            </sequenceFlow>
             <sequenceFlow sourceRef="id_xor_group" targetRef="id_join_of_xor_group" name="else" id="sf_xor_group_join_of_xor_group">
                 <conditionExpression id="sf_xor_group_join_of_xor_group_condition">else</conditionExpression>
             </sequenceFlow>
+            <sequenceFlow sourceRef="id_xor_group" targetRef="id_ad_03" name="Is First Contact" id="sf_xor_group_ad_03">
+                <conditionExpression id="sf_xor_group_ad_03_condition">Is First Contact</conditionExpression>
+            </sequenceFlow>
+            <exclusiveGateway name="join" id="id_join_of_xor_group">
+                <incoming>sf_xor_group_join_of_xor_group</incoming>
+                <incoming>sf_ad_03_join_of_xor_group</incoming>
+                <outgoing>sf_join_of_xor_group_ad_04</outgoing>
+            </exclusiveGateway>
+            <sequenceFlow sourceRef="id_join_of_xor_group" targetRef="id_ad_04" id="sf_join_of_xor_group_ad_04"/>
             <userTask name="Record first contact information" id="id_ad_03">
                 <incoming>sf_xor_group_ad_03</incoming>
                 <outgoing>sf_ad_03_join_of_xor_group</outgoing>
             </userTask>
             <sequenceFlow sourceRef="id_ad_03" targetRef="id_join_of_xor_group" id="sf_ad_03_join_of_xor_group"/>
-            <exclusiveGateway name="join" id="id_join_of_xor_group">
-                <incoming>sf_ad_03_join_of_xor_group</incoming>
-                <incoming>sf_xor_group_join_of_xor_group</incoming>
-                <outgoing>sf_join_of_xor_group_ad_04</outgoing>
-            </exclusiveGateway>
-            <sequenceFlow sourceRef="id_join_of_xor_group" targetRef="id_ad_04" id="sf_join_of_xor_group_ad_04"/>
             <userTask name="Record every contact information" id="id_ad_04">
                 <incoming>sf_join_of_xor_group_ad_04</incoming>
                 <outgoing>sf_ad_04_end33</outgoing>
@@ -87,11 +87,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_xor_group" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="460.0" y="239.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_ad_03" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="550.0" y="150.0" width="100.0" height="80.0"/>
-            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_join_of_xor_group" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="700.0" y="237.0" width="40.0" height="40.0"/>
+            </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_ad_03" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="550.0" y="150.0" width="100.0" height="80.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_ad_04" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="790.0" y="214.0" width="100.0" height="80.0"/>

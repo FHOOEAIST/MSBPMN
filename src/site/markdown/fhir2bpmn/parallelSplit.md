@@ -89,7 +89,7 @@ Usage: Mouse Click + Move: Scroll around. Ctrl + Mouse Wheel: Zoom.
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:ns2="http://www.omg.org/spec/DD/20100524/DI" xmlns:ns3="http://www.omg.org/spec/DD/20100524/DC" xmlns:ns4="http://www.omg.org/spec/BPMN/20100524/DI" targetNamespace="http://aist.fh-hagenberg.at/msbpmn">
-    <process isExecutable="false" name="Process_hifmeqg4aT" id="Process_hifmeqg4aT">
+    <process isExecutable="false" name="Process_h4sb4B7ALa" id="Process_h4sb4B7ALa">
         <startEvent isInterrupting="false" parallelMultiple="false" name="start" id="id_start3">
             <outgoing>sf_start3_ad_1</outgoing>
         </startEvent>
@@ -132,7 +132,7 @@ Usage: Mouse Click + Move: Scroll around. Ctrl + Mouse Wheel: Zoom.
         </endEvent>
     </process>
     <ns4:BPMNDiagram>
-        <ns4:BPMNPlane bpmnElement="Process_hifmeqg4aT">
+        <ns4:BPMNPlane bpmnElement="Process_h4sb4B7ALa">
             <ns4:BPMNShape bpmnElement="id_start3" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="60.0" y="175.0" width="30.0" height="30.0"/>
             </ns4:BPMNShape>

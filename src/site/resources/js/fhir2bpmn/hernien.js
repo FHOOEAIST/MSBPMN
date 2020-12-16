@@ -46,53 +46,48 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <sequenceFlow sourceRef="id_ultraschall_durchfuehren" targetRef="id_ultraschall_konklusiv_xor" id="sf_ultraschall_durchfuehren_ultraschall_konklusiv_xor"/>
             <exclusiveGateway name="Ultraschall konklusiv?" id="id_ultraschall_konklusiv_xor">
                 <incoming>sf_ultraschall_durchfuehren_ultraschall_konklusiv_xor</incoming>
-                <outgoing>sf_ultraschall_konklusiv_xor_ct_abdomen_oder_mri_durchfuehren</outgoing>
                 <outgoing>sf_ultraschall_konklusiv_xor_join_of_ultraschall_konklusiv_xor</outgoing>
+                <outgoing>sf_ultraschall_konklusiv_xor_ct_abdomen_oder_mri_durchfuehren</outgoing>
             </exclusiveGateway>
-            <sequenceFlow sourceRef="id_ultraschall_konklusiv_xor" targetRef="id_ct_abdomen_oder_mri_durchfuehren" name="Nein" id="sf_ultraschall_konklusiv_xor_ct_abdomen_oder_mri_durchfuehren">
-                <conditionExpression id="sf_ultraschall_konklusiv_xor_ct_abdomen_oder_mri_durchfuehren_condition">Nein</conditionExpression>
-            </sequenceFlow>
             <sequenceFlow sourceRef="id_ultraschall_konklusiv_xor" targetRef="id_join_of_ultraschall_konklusiv_xor" name="else" id="sf_ultraschall_konklusiv_xor_join_of_ultraschall_konklusiv_xor">
                 <conditionExpression id="sf_ultraschall_konklusiv_xor_join_of_ultraschall_konklusiv_xor_condition">else</conditionExpression>
             </sequenceFlow>
+            <sequenceFlow sourceRef="id_ultraschall_konklusiv_xor" targetRef="id_ct_abdomen_oder_mri_durchfuehren" name="Nein" id="sf_ultraschall_konklusiv_xor_ct_abdomen_oder_mri_durchfuehren">
+                <conditionExpression id="sf_ultraschall_konklusiv_xor_ct_abdomen_oder_mri_durchfuehren_condition">Nein</conditionExpression>
+            </sequenceFlow>
+            <exclusiveGateway name="join" id="id_join_of_ultraschall_konklusiv_xor">
+                <incoming>sf_ultraschall_konklusiv_xor_join_of_ultraschall_konklusiv_xor</incoming>
+                <incoming>sf_ct_abdomen_oder_mri_durchfuehren_join_of_ultraschall_konklusiv_xor</incoming>
+                <outgoing>sf_join_of_ultraschall_konklusiv_xor_end111</outgoing>
+            </exclusiveGateway>
+            <sequenceFlow sourceRef="id_join_of_ultraschall_konklusiv_xor" targetRef="id_end111" id="sf_join_of_ultraschall_konklusiv_xor_end111"/>
             <userTask name="CT Abdomen oder MRI durchfuehren" id="id_ct_abdomen_oder_mri_durchfuehren">
                 <incoming>sf_ultraschall_konklusiv_xor_ct_abdomen_oder_mri_durchfuehren</incoming>
                 <outgoing>sf_ct_abdomen_oder_mri_durchfuehren_join_of_ultraschall_konklusiv_xor</outgoing>
             </userTask>
             <sequenceFlow sourceRef="id_ct_abdomen_oder_mri_durchfuehren" targetRef="id_join_of_ultraschall_konklusiv_xor" id="sf_ct_abdomen_oder_mri_durchfuehren_join_of_ultraschall_konklusiv_xor"/>
-            <exclusiveGateway name="join" id="id_join_of_ultraschall_konklusiv_xor">
-                <incoming>sf_ct_abdomen_oder_mri_durchfuehren_join_of_ultraschall_konklusiv_xor</incoming>
-                <incoming>sf_ultraschall_konklusiv_xor_join_of_ultraschall_konklusiv_xor</incoming>
-                <outgoing>sf_join_of_ultraschall_konklusiv_xor_end111</outgoing>
-            </exclusiveGateway>
-            <sequenceFlow sourceRef="id_join_of_ultraschall_konklusiv_xor" targetRef="id_end111" id="sf_join_of_ultraschall_konklusiv_xor_end111"/>
             <endEvent name="end" id="id_end111">
                 <incoming>sf_join_of_ultraschall_konklusiv_xor_end111</incoming>
             </endEvent>
         </subProcess>
         <sequenceFlow sourceRef="id_diagnose_klar_nein_grouping" targetRef="id_join_of_diagnose_klar_xor" id="sf_diagnose_klar_nein_grouping_join_of_diagnose_klar_xor"/>
         <exclusiveGateway name="join" id="id_join_of_diagnose_klar_xor">
-            <incoming>sf_diagnose_klar_nein_grouping_join_of_diagnose_klar_xor</incoming>
             <incoming>sf_diagnose_klar_xor_join_of_diagnose_klar_xor</incoming>
+            <incoming>sf_diagnose_klar_nein_grouping_join_of_diagnose_klar_xor</incoming>
             <outgoing>sf_join_of_diagnose_klar_xor_hernie_diagnostiziert_xor</outgoing>
         </exclusiveGateway>
         <sequenceFlow sourceRef="id_join_of_diagnose_klar_xor" targetRef="id_hernie_diagnostiziert_xor" id="sf_join_of_diagnose_klar_xor_hernie_diagnostiziert_xor"/>
         <exclusiveGateway name="Hernie diagnostiziert?" id="id_hernie_diagnostiziert_xor">
             <incoming>sf_join_of_diagnose_klar_xor_hernie_diagnostiziert_xor</incoming>
-            <outgoing>sf_hernie_diagnostiziert_xor_andere_untersuchungen_durchfuehren</outgoing>
             <outgoing>sf_hernie_diagnostiziert_xor_hernie_diagnostiziert_ja_grouping</outgoing>
+            <outgoing>sf_hernie_diagnostiziert_xor_andere_untersuchungen_durchfuehren</outgoing>
         </exclusiveGateway>
-        <sequenceFlow sourceRef="id_hernie_diagnostiziert_xor" targetRef="id_andere_untersuchungen_durchfuehren" name="Nein" id="sf_hernie_diagnostiziert_xor_andere_untersuchungen_durchfuehren">
-            <conditionExpression id="sf_hernie_diagnostiziert_xor_andere_untersuchungen_durchfuehren_condition">Nein</conditionExpression>
-        </sequenceFlow>
         <sequenceFlow sourceRef="id_hernie_diagnostiziert_xor" targetRef="id_hernie_diagnostiziert_ja_grouping" name="Ja" id="sf_hernie_diagnostiziert_xor_hernie_diagnostiziert_ja_grouping">
             <conditionExpression id="sf_hernie_diagnostiziert_xor_hernie_diagnostiziert_ja_grouping_condition">Ja</conditionExpression>
         </sequenceFlow>
-        <userTask name="Andere Untersuchungen durchfuehren" id="id_andere_untersuchungen_durchfuehren">
-            <incoming>sf_hernie_diagnostiziert_xor_andere_untersuchungen_durchfuehren</incoming>
-            <outgoing>sf_andere_untersuchungen_durchfuehren_join_of_hernie_diagnostiziert_xor</outgoing>
-        </userTask>
-        <sequenceFlow sourceRef="id_andere_untersuchungen_durchfuehren" targetRef="id_join_of_hernie_diagnostiziert_xor" id="sf_andere_untersuchungen_durchfuehren_join_of_hernie_diagnostiziert_xor"/>
+        <sequenceFlow sourceRef="id_hernie_diagnostiziert_xor" targetRef="id_andere_untersuchungen_durchfuehren" name="Nein" id="sf_hernie_diagnostiziert_xor_andere_untersuchungen_durchfuehren">
+            <conditionExpression id="sf_hernie_diagnostiziert_xor_andere_untersuchungen_durchfuehren_condition">Nein</conditionExpression>
+        </sequenceFlow>
         <subProcess id="id_hernie_diagnostiziert_ja_grouping">
             <incoming>sf_hernie_diagnostiziert_xor_hernie_diagnostiziert_ja_grouping</incoming>
             <outgoing>sf_hernie_diagnostiziert_ja_grouping_join_of_hernie_diagnostiziert_xor</outgoing>
@@ -162,20 +157,15 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
                 <sequenceFlow sourceRef="id_operationsfreigabe_triggerAction" targetRef="id_operation_freigeben_xor" id="sf_operationsfreigabe_triggerAction_operation_freigeben_xor"/>
                 <exclusiveGateway name="Operation freigeben?" id="id_operation_freigeben_xor">
                     <incoming>sf_operationsfreigabe_triggerAction_operation_freigeben_xor</incoming>
-                    <outgoing>sf_operation_freigeben_xor_keine_operation_durchfuehren_2</outgoing>
                     <outgoing>sf_operation_freigeben_xor_operation_freigeben_ja_grouping</outgoing>
+                    <outgoing>sf_operation_freigeben_xor_keine_operation_durchfuehren_2</outgoing>
                 </exclusiveGateway>
-                <sequenceFlow sourceRef="id_operation_freigeben_xor" targetRef="id_keine_operation_durchfuehren_2" name="Nein" id="sf_operation_freigeben_xor_keine_operation_durchfuehren_2">
-                    <conditionExpression id="sf_operation_freigeben_xor_keine_operation_durchfuehren_2_condition">Nein</conditionExpression>
-                </sequenceFlow>
                 <sequenceFlow sourceRef="id_operation_freigeben_xor" targetRef="id_operation_freigeben_ja_grouping" name="Ja" id="sf_operation_freigeben_xor_operation_freigeben_ja_grouping">
                     <conditionExpression id="sf_operation_freigeben_xor_operation_freigeben_ja_grouping_condition">Ja</conditionExpression>
                 </sequenceFlow>
-                <userTask name="Keine Operation durchfuehren" id="id_keine_operation_durchfuehren_2">
-                    <incoming>sf_operation_freigeben_xor_keine_operation_durchfuehren_2</incoming>
-                    <outgoing>sf_keine_operation_durchfuehren_2_join_of_operation_freigeben_xor</outgoing>
-                </userTask>
-                <sequenceFlow sourceRef="id_keine_operation_durchfuehren_2" targetRef="id_join_of_operation_freigeben_xor" id="sf_keine_operation_durchfuehren_2_join_of_operation_freigeben_xor"/>
+                <sequenceFlow sourceRef="id_operation_freigeben_xor" targetRef="id_keine_operation_durchfuehren_2" name="Nein" id="sf_operation_freigeben_xor_keine_operation_durchfuehren_2">
+                    <conditionExpression id="sf_operation_freigeben_xor_keine_operation_durchfuehren_2_condition">Nein</conditionExpression>
+                </sequenceFlow>
                 <subProcess id="id_operation_freigeben_ja_grouping">
                     <incoming>sf_operation_freigeben_xor_operation_freigeben_ja_grouping</incoming>
                     <outgoing>sf_operation_freigeben_ja_grouping_join_of_operation_freigeben_xor</outgoing>
@@ -195,24 +185,24 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
                     <sequenceFlow sourceRef="id_hernienoperation_durchfuehren" targetRef="id_operation_tagesklinisch_xor" id="sf_hernienoperation_durchfuehren_operation_tagesklinisch_xor"/>
                     <exclusiveGateway name="Operation tagesklinisch?" id="id_operation_tagesklinisch_xor">
                         <incoming>sf_hernienoperation_durchfuehren_operation_tagesklinisch_xor</incoming>
-                        <outgoing>sf_operation_tagesklinisch_xor_erster_tag_nach_op</outgoing>
                         <outgoing>sf_operation_tagesklinisch_xor_vier_h_nach_op</outgoing>
+                        <outgoing>sf_operation_tagesklinisch_xor_erster_tag_nach_op</outgoing>
                     </exclusiveGateway>
-                    <sequenceFlow sourceRef="id_operation_tagesklinisch_xor" targetRef="id_erster_tag_nach_op" id="sf_operation_tagesklinisch_xor_erster_tag_nach_op"/>
                     <sequenceFlow sourceRef="id_operation_tagesklinisch_xor" targetRef="id_vier_h_nach_op" id="sf_operation_tagesklinisch_xor_vier_h_nach_op"/>
-                    <userTask name="am 1. post OP Tag" id="id_erster_tag_nach_op">
-                        <incoming>sf_operation_tagesklinisch_xor_erster_tag_nach_op</incoming>
-                        <outgoing>sf_erster_tag_nach_op_join_of_operation_tagesklinisch_xor</outgoing>
-                    </userTask>
-                    <sequenceFlow sourceRef="id_erster_tag_nach_op" targetRef="id_join_of_operation_tagesklinisch_xor" id="sf_erster_tag_nach_op_join_of_operation_tagesklinisch_xor"/>
+                    <sequenceFlow sourceRef="id_operation_tagesklinisch_xor" targetRef="id_erster_tag_nach_op" id="sf_operation_tagesklinisch_xor_erster_tag_nach_op"/>
                     <userTask name="4h nach OP" id="id_vier_h_nach_op">
                         <incoming>sf_operation_tagesklinisch_xor_vier_h_nach_op</incoming>
                         <outgoing>sf_vier_h_nach_op_join_of_operation_tagesklinisch_xor</outgoing>
                     </userTask>
                     <sequenceFlow sourceRef="id_vier_h_nach_op" targetRef="id_join_of_operation_tagesklinisch_xor" id="sf_vier_h_nach_op_join_of_operation_tagesklinisch_xor"/>
+                    <userTask name="am 1. post OP Tag" id="id_erster_tag_nach_op">
+                        <incoming>sf_operation_tagesklinisch_xor_erster_tag_nach_op</incoming>
+                        <outgoing>sf_erster_tag_nach_op_join_of_operation_tagesklinisch_xor</outgoing>
+                    </userTask>
+                    <sequenceFlow sourceRef="id_erster_tag_nach_op" targetRef="id_join_of_operation_tagesklinisch_xor" id="sf_erster_tag_nach_op_join_of_operation_tagesklinisch_xor"/>
                     <exclusiveGateway name="join" id="id_join_of_operation_tagesklinisch_xor">
-                        <incoming>sf_vier_h_nach_op_join_of_operation_tagesklinisch_xor</incoming>
                         <incoming>sf_erster_tag_nach_op_join_of_operation_tagesklinisch_xor</incoming>
+                        <incoming>sf_vier_h_nach_op_join_of_operation_tagesklinisch_xor</incoming>
                         <outgoing>sf_join_of_operation_tagesklinisch_xor_postoperative_wundinspektion_durchfuehren</outgoing>
                     </exclusiveGateway>
                     <sequenceFlow sourceRef="id_join_of_operation_tagesklinisch_xor" targetRef="id_postoperative_wundinspektion_durchfuehren" id="sf_join_of_operation_tagesklinisch_xor_postoperative_wundinspektion_durchfuehren"/>
@@ -239,9 +229,14 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
                     </endEvent>
                 </subProcess>
                 <sequenceFlow sourceRef="id_operation_freigeben_ja_grouping" targetRef="id_join_of_operation_freigeben_xor" id="sf_operation_freigeben_ja_grouping_join_of_operation_freigeben_xor"/>
+                <userTask name="Keine Operation durchfuehren" id="id_keine_operation_durchfuehren_2">
+                    <incoming>sf_operation_freigeben_xor_keine_operation_durchfuehren_2</incoming>
+                    <outgoing>sf_keine_operation_durchfuehren_2_join_of_operation_freigeben_xor</outgoing>
+                </userTask>
+                <sequenceFlow sourceRef="id_keine_operation_durchfuehren_2" targetRef="id_join_of_operation_freigeben_xor" id="sf_keine_operation_durchfuehren_2_join_of_operation_freigeben_xor"/>
                 <exclusiveGateway name="join" id="id_join_of_operation_freigeben_xor">
-                    <incoming>sf_keine_operation_durchfuehren_2_join_of_operation_freigeben_xor</incoming>
                     <incoming>sf_operation_freigeben_ja_grouping_join_of_operation_freigeben_xor</incoming>
+                    <incoming>sf_keine_operation_durchfuehren_2_join_of_operation_freigeben_xor</incoming>
                     <outgoing>sf_join_of_operation_freigeben_xor_end115</outgoing>
                 </exclusiveGateway>
                 <sequenceFlow sourceRef="id_join_of_operation_freigeben_xor" targetRef="id_end115" id="sf_join_of_operation_freigeben_xor_end115"/>
@@ -261,6 +256,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             </endEvent>
         </subProcess>
         <sequenceFlow sourceRef="id_hernie_diagnostiziert_ja_grouping" targetRef="id_join_of_hernie_diagnostiziert_xor" id="sf_hernie_diagnostiziert_ja_grouping_join_of_hernie_diagnostiziert_xor"/>
+        <userTask name="Andere Untersuchungen durchfuehren" id="id_andere_untersuchungen_durchfuehren">
+            <incoming>sf_hernie_diagnostiziert_xor_andere_untersuchungen_durchfuehren</incoming>
+            <outgoing>sf_andere_untersuchungen_durchfuehren_join_of_hernie_diagnostiziert_xor</outgoing>
+        </userTask>
+        <sequenceFlow sourceRef="id_andere_untersuchungen_durchfuehren" targetRef="id_join_of_hernie_diagnostiziert_xor" id="sf_andere_untersuchungen_durchfuehren_join_of_hernie_diagnostiziert_xor"/>
         <exclusiveGateway name="join" id="id_join_of_hernie_diagnostiziert_xor">
             <incoming>sf_andere_untersuchungen_durchfuehren_join_of_hernie_diagnostiziert_xor</incoming>
             <incoming>sf_hernie_diagnostiziert_ja_grouping_join_of_hernie_diagnostiziert_xor</incoming>
@@ -285,11 +285,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_operation_tagesklinisch_xor" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="3020.0" y="679.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_erster_tag_nach_op" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="3110.0" y="749.0" width="100.0" height="80.0"/>
-            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_vier_h_nach_op" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="3110.0" y="569.0" width="100.0" height="80.0"/>
+            </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_erster_tag_nach_op" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="3110.0" y="749.0" width="100.0" height="80.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_join_of_operation_tagesklinisch_xor" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="3260.0" y="679.0" width="40.0" height="40.0"/>
@@ -329,15 +329,15 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
                 <ns2:waypoint x="3450.0" y="699.041015625"/>
                 <ns2:waypoint x="3500.0" y="699.041015625"/>
             </ns4:BPMNEdge>
-            <ns4:BPMNEdge bpmnElement="sf_erster_tag_nach_op_join_of_operation_tagesklinisch_xor">
-                <ns2:waypoint x="3210.0" y="789.041015625"/>
-                <ns2:waypoint x="3235.0" y="789.041015625"/>
-                <ns2:waypoint x="3235.0" y="699.041015625"/>
-                <ns2:waypoint x="3260.0" y="699.041015625"/>
-            </ns4:BPMNEdge>
             <ns4:BPMNEdge bpmnElement="sf_vier_h_nach_op_join_of_operation_tagesklinisch_xor">
                 <ns2:waypoint x="3210.0" y="609.041015625"/>
                 <ns2:waypoint x="3235.0" y="609.041015625"/>
+                <ns2:waypoint x="3235.0" y="699.041015625"/>
+                <ns2:waypoint x="3260.0" y="699.041015625"/>
+            </ns4:BPMNEdge>
+            <ns4:BPMNEdge bpmnElement="sf_erster_tag_nach_op_join_of_operation_tagesklinisch_xor">
+                <ns2:waypoint x="3210.0" y="789.041015625"/>
+                <ns2:waypoint x="3235.0" y="789.041015625"/>
                 <ns2:waypoint x="3235.0" y="699.041015625"/>
                 <ns2:waypoint x="3260.0" y="699.041015625"/>
             </ns4:BPMNEdge>
@@ -376,11 +376,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_operation_freigeben_xor" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="2460.0" y="860.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_keine_operation_durchfuehren_2" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="3095.0" y="1029.0" width="100.0" height="80.0"/>
-            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_operation_freigeben_ja_grouping" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="2550.0" y="479.0" width="1190.0" height="450.0"/>
+            </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_keine_operation_durchfuehren_2" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="3095.0" y="1029.0" width="100.0" height="80.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_join_of_operation_freigeben_xor" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="3790.0" y="864.0" width="40.0" height="40.0"/>
@@ -523,11 +523,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_ultraschall_konklusiv_xor" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="850.0" y="824.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_ct_abdomen_oder_mri_durchfuehren" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="940.0" y="737.0" width="100.0" height="80.0"/>
-            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_join_of_ultraschall_konklusiv_xor" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="1090.0" y="826.0" width="40.0" height="40.0"/>
+            </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_ct_abdomen_oder_mri_durchfuehren" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="940.0" y="737.0" width="100.0" height="80.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_end111" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="1180.0" y="831.0" width="30.0" height="30.0"/>
@@ -591,11 +591,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_hernie_diagnostiziert_xor" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="1410.0" y="912.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_andere_untersuchungen_durchfuehren" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="2801.0" y="1348.0" width="100.0" height="80.0"/>
-            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_hernie_diagnostiziert_ja_grouping" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="1500.0" y="60.0" width="2703.0" height="1188.0"/>
+            </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_andere_untersuchungen_durchfuehren" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="2801.0" y="1348.0" width="100.0" height="80.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_join_of_hernie_diagnostiziert_xor" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="4253.0" y="999.0" width="40.0" height="40.0"/>
