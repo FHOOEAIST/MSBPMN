@@ -1,0 +1,86 @@
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<PlanDefinition xmlns='http://hl7.org/fhir'>
+    <id value='protocol-example'/>
+
+    <text>
+        <status value='generated'/>
+    </text>
+
+    <!--  The status of the protocol.draft | active | retired  -->
+    <status value='draft'/>
+
+    <action>
+        <id value='ad_1'/>
+        <title value='Take Pizza from freezer'/>
+
+        <!-- related action definition -->
+        <relatedAction>
+            <actionId value='ad_2'/>
+            <relationship value='before-start'/>
+        </relatedAction>
+
+        <trigger>
+            <type value="named-event"/>
+            <name value="frozen-pizza-desired"/>
+
+            <condition>
+                <language value="text/cql"/>
+                <expression value="Frozen Pizza desired"/>
+            </condition>
+        </trigger>
+    </action>
+
+    <action>
+        <id value='ad_2'/>
+        <title value='Switch on Oven'/>
+
+        <!-- related action definition -->
+        <relatedAction>
+            <actionId value='ad_3'/>
+            <relationship value='before-start'/>
+        </relatedAction>
+    </action>
+
+    <action>
+        <id value='ad_3'/>
+        <title value='Put Pizza in Oven'/>
+
+        <!-- related action definition -->
+        <relatedAction>
+            <actionId value='ad_4'/>
+            <relationship value='before-start'/>
+        </relatedAction>
+
+        <trigger>
+            <type value="named-event"/>
+            <name value="oven-to-180"/>
+            <condition>
+                <language value="text/cql"/>
+                <expression value="Oven to 180°"/>
+            </condition>
+        </trigger>
+    </action>
+
+    <action>
+        <id value='ad_4'/>
+        <title value='Eat Pizza'/>
+
+        <trigger>
+            <type value="named-event"/>
+            <name value="pizza-ready"/>
+            <condition>
+                <language value="text/cql"/>
+                <expression value="Pizza Ready"/>
+            </condition>
+        </trigger>
+    </action>
+
+</PlanDefinition>

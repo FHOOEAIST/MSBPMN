@@ -1,0 +1,63 @@
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<PlanDefinition xmlns='http://hl7.org/fhir'>
+    <id value='multiple-example'/>
+
+    <text>
+        <status value='generated'/>
+    </text>
+
+    <!--  The status of the protocol.draft | active | retired  -->
+    <status value='draft'/>
+
+    <action>
+        <id value='start_1'/>
+        <title value='Start 1'/>
+
+        <!-- related action definition -->
+        <relatedAction>
+            <actionId value='ad_1'/>
+            <relationship value='before-start'/>
+        </relatedAction>
+
+        <trigger>
+            <type value="periodic"/>
+            <name value="trigger1"/>
+            <timingTiming>
+                <event value="2020-06-17T09:30:00"/>
+            </timingTiming>
+        </trigger>
+    </action>
+
+    <action>
+        <id value='start_2'/>
+        <title value='Start 2'/>
+
+        <!-- related action definition -->
+        <relatedAction>
+            <actionId value='ad_1'/>
+            <relationship value='before-start'/>
+        </relatedAction>
+
+        <trigger>
+            <type value="periodic"/>
+            <name value="trigger2"/>
+            <timingTiming>
+                <event value="2020-06-17T10:30:00"/>
+            </timingTiming>
+        </trigger>
+    </action>
+
+    <action>
+        <id value="ad_1"/>
+        <title value="Task 1"/>
+    </action>
+
+</PlanDefinition>

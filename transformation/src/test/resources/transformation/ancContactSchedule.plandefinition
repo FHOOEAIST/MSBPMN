@@ -1,0 +1,486 @@
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<PlanDefinition xmlns="http://hl7.org/fhir">
+    <id value="anc-contact-schedule"/>
+    <text>
+        <status value="generated"/>
+        <div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: anc-contact-schedule</p><p><b>url</b>: <a href="http://fhir.org/guides/who/anc-cds/PlanDefinition/anc-contact-schedule">http://fhir.org/guides/who/anc-cds/PlanDefinition/anc-contact-schedule</a></p><p><b>identifier</b>: PlanDefinition_ANC_Contact_Schedule (OFFICIAL)</p><p><b>version</b>: 0.1.0</p><p><b>name</b>: PlanDefinition_ANC_Contact_Schedule</p><p><b>title</b>: PlanDefinition - WHO ANC Guideline Contact Schedule</p><p><b>type</b>: Clinical Protocol <span style="background: LightGoldenRodYellow">(Details : {http://terminology.hl7.org/CodeSystem/plan-definition-type code 'clinical-protocol' = 'Clinical Protocol', given as 'Clinical Protocol'})</span></p><p><b>status</b>: draft</p><p><b>experimental</b>: true</p><p><b>date</b>: May 15, 2019 12:00:00 AM</p><p><b>useContext</b>: </p><p><b>jurisdiction</b>: World <span style="background: LightGoldenRodYellow">(Details : {http://unstats.un.org/unsd/methods/m49/m49.htm code '001' = 'World', given as 'World'})</span></p><p><b>copyright</b>: © WHO 2019+.</p><p><b>library</b>: <a href="Library/anc-common">Library/anc-common</a></p><blockquote><p><b>action</b></p><p><b>title</b>: Contact 1</p><p><b>description</b>: ANC Contact 1: up to 12 weeks</p><p><b>code</b>: Guideline-based Care <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process code 'guideline-based-care' = 'Guideline-based Care)</span></p><h3>Conditions</h3><table class="grid"><tr><td>-</td><td><b>Kind</b></td><td><b>Expression</b></td></tr><tr><td>*</td><td>applicability</td><td/></tr></table><blockquote><p><b>participant</b></p><p><b>type</b>: patient</p><p><b>role</b>: Patient <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code 'C000' = 'Patient', given as 'Patient'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery associate professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '3222' = 'Midwifery associate professional', given as 'Midwifery associate professional'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '2222' = 'Midwifery professional', given as 'Midwifery professional'})</span></p></blockquote></blockquote><blockquote><p><b>action</b></p><p><b>title</b>: Contact 2</p><p><b>description</b>: ANC Contact 2: 20 weeks</p><p><b>code</b>: Guideline-based Care <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process code 'guideline-based-care' = 'Guideline-based Care)</span></p><h3>Conditions</h3><table class="grid"><tr><td>-</td><td><b>Kind</b></td><td><b>Expression</b></td></tr><tr><td>*</td><td>applicability</td><td/></tr></table><blockquote><p><b>participant</b></p><p><b>type</b>: patient</p><p><b>role</b>: Patient <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code 'C000' = 'Patient', given as 'Patient'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery associate professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '3222' = 'Midwifery associate professional', given as 'Midwifery associate professional'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '2222' = 'Midwifery professional', given as 'Midwifery professional'})</span></p></blockquote></blockquote><blockquote><p><b>action</b></p><p><b>title</b>: Contact 3</p><p><b>description</b>: ANC Contact 3: 26 weeks</p><p><b>code</b>: Guideline-based Care <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process code 'guideline-based-care' = 'Guideline-based Care)</span></p><h3>Conditions</h3><table class="grid"><tr><td>-</td><td><b>Kind</b></td><td><b>Expression</b></td></tr><tr><td>*</td><td>applicability</td><td/></tr></table><blockquote><p><b>participant</b></p><p><b>type</b>: patient</p><p><b>role</b>: Patient <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code 'C000' = 'Patient', given as 'Patient'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery associate professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '3222' = 'Midwifery associate professional', given as 'Midwifery associate professional'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '2222' = 'Midwifery professional', given as 'Midwifery professional'})</span></p></blockquote></blockquote><blockquote><p><b>action</b></p><p><b>title</b>: Contact 4</p><p><b>description</b>: ANC Contact 4: 30 weeks</p><p><b>code</b>: Guideline-based Care <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process code 'guideline-based-care' = 'Guideline-based Care)</span></p><h3>Conditions</h3><table class="grid"><tr><td>-</td><td><b>Kind</b></td><td><b>Expression</b></td></tr><tr><td>*</td><td>applicability</td><td/></tr></table><blockquote><p><b>participant</b></p><p><b>type</b>: patient</p><p><b>role</b>: Patient <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code 'C000' = 'Patient', given as 'Patient'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery associate professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '3222' = 'Midwifery associate professional', given as 'Midwifery associate professional'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '2222' = 'Midwifery professional', given as 'Midwifery professional'})</span></p></blockquote></blockquote><blockquote><p><b>action</b></p><p><b>title</b>: Contact 5</p><p><b>description</b>: ANC Contact 5: 34 weeks</p><p><b>code</b>: Guideline-based Care <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process code 'guideline-based-care' = 'Guideline-based Care)</span></p><h3>Conditions</h3><table class="grid"><tr><td>-</td><td><b>Kind</b></td><td><b>Expression</b></td></tr><tr><td>*</td><td>applicability</td><td/></tr></table><blockquote><p><b>participant</b></p><p><b>type</b>: patient</p><p><b>role</b>: Patient <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code 'C000' = 'Patient', given as 'Patient'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery associate professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '3222' = 'Midwifery associate professional', given as 'Midwifery associate professional'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '2222' = 'Midwifery professional', given as 'Midwifery professional'})</span></p></blockquote></blockquote><blockquote><p><b>action</b></p><p><b>title</b>: Contact 6</p><p><b>description</b>: ANC Contact 6: 36 weeks</p><p><b>code</b>: Guideline-based Care <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process code 'guideline-based-care' = 'Guideline-based Care)</span></p><h3>Conditions</h3><table class="grid"><tr><td>-</td><td><b>Kind</b></td><td><b>Expression</b></td></tr><tr><td>*</td><td>applicability</td><td/></tr></table><blockquote><p><b>participant</b></p><p><b>type</b>: patient</p><p><b>role</b>: Patient <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code 'C000' = 'Patient', given as 'Patient'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery associate professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '3222' = 'Midwifery associate professional', given as 'Midwifery associate professional'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '2222' = 'Midwifery professional', given as 'Midwifery professional'})</span></p></blockquote></blockquote><blockquote><p><b>action</b></p><p><b>title</b>: Contact 7</p><p><b>description</b>: ANC Contact 7: 38 weeks</p><p><b>code</b>: Guideline-based Care <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process code 'guideline-based-care' = 'Guideline-based Care)</span></p><h3>Conditions</h3><table class="grid"><tr><td>-</td><td><b>Kind</b></td><td><b>Expression</b></td></tr><tr><td>*</td><td>applicability</td><td/></tr></table><blockquote><p><b>participant</b></p><p><b>type</b>: patient</p><p><b>role</b>: Patient <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code 'C000' = 'Patient', given as 'Patient'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery associate professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '3222' = 'Midwifery associate professional', given as 'Midwifery associate professional'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '2222' = 'Midwifery professional', given as 'Midwifery professional'})</span></p></blockquote></blockquote><blockquote><p><b>action</b></p><p><b>title</b>: Contact 8</p><p><b>description</b>: ANC Contact 8: 40 weeks</p><p><b>code</b>: Guideline-based Care <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process code 'guideline-based-care' = 'Guideline-based Care)</span></p><h3>Conditions</h3><table class="grid"><tr><td>-</td><td><b>Kind</b></td><td><b>Expression</b></td></tr><tr><td>*</td><td>applicability</td><td/></tr></table><blockquote><p><b>participant</b></p><p><b>type</b>: patient</p><p><b>role</b>: Patient <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code 'C000' = 'Patient', given as 'Patient'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery associate professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '3222' = 'Midwifery associate professional', given as 'Midwifery associate professional'})</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Midwifery professional <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code '2222' = 'Midwifery professional', given as 'Midwifery professional'})</span></p></blockquote></blockquote><blockquote><p><b>action</b></p><p><b>title</b>: Delivery</p><p><b>description</b>: ANC Delivery: 41+ weeks</p></blockquote></div>
+    </text>
+    <url
+            value="http://fhir.org/guides/who/anc-cds/PlanDefinition/anc-contact-schedule"/>
+    <identifier>
+        <use value="official"/>
+        <value value="PlanDefinition_ANC_Contact_Schedule"/>
+    </identifier>
+    <version value="0.1.0"/>
+    <name value="PlanDefinition_ANC_Contact_Schedule"/>
+    <title value="PlanDefinition - WHO ANC Guideline Contact Schedule"/>
+    <type>
+        <coding>
+            <system value="http://terminology.hl7.org/CodeSystem/plan-definition-type"/>
+            <code value="clinical-protocol"/>
+            <display value="Clinical Protocol"/>
+        </coding>
+    </type>
+    <status value="draft"/>
+    <experimental value="true"/>
+    <date value="2019-05-15T00:00:00-04:00"/>
+    <useContext>
+        <code>
+            <system value="http://terminology.hl7.org/CodeSystem/usage-context-type"/>
+            <code value="focus"/>
+        </code>
+        <valueCodeableConcept>
+            <coding>
+                <system value="http://snomed.info/sct"/>
+                <code value="77386006"/>
+                <display value="Pregnant (finding)"/>
+            </coding>
+        </valueCodeableConcept>
+    </useContext>
+    <jurisdiction>
+        <coding>
+            <system value="http://unstats.un.org/unsd/methods/m49/m49.htm"/>
+            <code value="001"/>
+            <display value="World"/>
+        </coding>
+    </jurisdiction>
+    <copyright value="© WHO 2019+."/>
+    <library value="Library/anc-common"/>
+    <action>
+        <id value="ad_01"/> <!-- added -->
+        <title value="Contact 1"/>
+        <description value="ANC Contact 1: up to 12 weeks"/>
+        <code>
+            <coding>
+                <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process"/>
+                <code value="guideline-based-care"/>
+            </coding>
+        </code>
+        <trigger> <!-- added -->
+            <type value="periodic"/> <!-- added -->
+            <condition> <!-- changed moved to trigger -->
+                <language value="text/cql"/>
+                <expression value="Up to 12 weeks gestation"/>
+            </condition>
+        </trigger> <!-- added -->
+        <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--        <participant>-->
+<!--            <type value="patient"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="C000"/>-->
+<!--                    <display value="Patient"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="3222"/>-->
+<!--                    <display value="Midwifery associate professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="2222"/>-->
+<!--                    <display value="Midwifery professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+        <relatedAction> <!-- added -->
+            <actionId value="ad_02"/> <!-- added -->
+            <relationship value="before-start"/> <!-- added -->
+        </relatedAction> <!-- added -->
+    </action>
+    <action>
+        <id value="ad_02"/> <!-- added -->
+        <title value="Contact 2"/>
+        <description value="ANC Contact 2: 20 weeks"/>
+        <code>
+            <coding>
+                <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process"/>
+                <code value="guideline-based-care"/>
+            </coding>
+        </code>
+        <trigger> <!-- added -->
+            <type value="periodic"/> <!-- added -->
+            <condition> <!-- changed moved to trigger -->
+                <language value="text/cql"/>
+                <expression value="20 weeks gestation"/>
+            </condition>
+        </trigger> <!-- added -->
+        <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--        <participant>-->
+<!--            <type value="patient"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="C000"/>-->
+<!--                    <display value="Patient"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="3222"/>-->
+<!--                    <display value="Midwifery associate professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="2222"/>-->
+<!--                    <display value="Midwifery professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+        <relatedAction> <!-- added -->
+            <actionId value="ad_03"/> <!-- added -->
+            <relationship value="before-start"/> <!-- added -->
+        </relatedAction> <!-- added -->
+    </action>
+    <action>
+        <id value="ad_03"/> <!-- added -->
+        <title value="Contact 3"/>
+        <description value="ANC Contact 3: 26 weeks"/>
+        <code>
+            <coding>
+                <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process"/>
+                <code value="guideline-based-care"/>
+            </coding>
+        </code>
+        <trigger> <!-- added -->
+            <type value="periodic"/> <!-- added -->
+            <condition> <!-- changed moved to trigger -->
+                <language value="text/cql"/>
+                <expression value="26 weeks gestation"/>
+            </condition>
+        </trigger> <!-- added -->
+        <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--        <participant>-->
+<!--            <type value="patient"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="C000"/>-->
+<!--                    <display value="Patient"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="3222"/>-->
+<!--                    <display value="Midwifery associate professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="2222"/>-->
+<!--                    <display value="Midwifery professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+        <relatedAction> <!-- added -->
+            <actionId value="ad_04"/> <!-- added -->
+            <relationship value="before-start"/> <!-- added -->
+        </relatedAction> <!-- added -->
+    </action>
+    <action>
+        <id value="ad_04"/> <!-- added -->
+        <title value="Contact 4"/>
+        <description value="ANC Contact 4: 30 weeks"/>
+        <code>
+            <coding>
+                <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process"/>
+                <code value="guideline-based-care"/>
+            </coding>
+        </code>
+        <trigger> <!-- added -->
+            <type value="periodic"/> <!-- added -->
+            <condition> <!-- changed moved to trigger -->
+                <language value="text/cql"/>
+                <expression value="30 weeks gestation"/>
+            </condition>
+        </trigger> <!-- added -->
+        <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--        <participant>-->
+<!--            <type value="patient"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="C000"/>-->
+<!--                    <display value="Patient"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="3222"/>-->
+<!--                    <display value="Midwifery associate professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="2222"/>-->
+<!--                    <display value="Midwifery professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+        <relatedAction> <!-- added -->
+            <actionId value="ad_05"/> <!-- added -->
+            <relationship value="before-start"/> <!-- added -->
+        </relatedAction> <!-- added -->
+    </action>
+    <action>
+        <id value="ad_05"/> <!-- added -->
+        <title value="Contact 5"/>
+        <description value="ANC Contact 5: 34 weeks"/>
+        <code>
+            <coding>
+                <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process"/>
+                <code value="guideline-based-care"/>
+            </coding>
+        </code>
+        <trigger> <!-- added -->
+            <type value="periodic"/> <!-- added -->
+            <condition> <!-- changed moved to trigger -->
+                <language value="text/cql"/>
+                <expression value="34 weeks gestation"/>
+            </condition>
+        </trigger> <!-- added -->
+        <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--        <participant>-->
+<!--            <type value="patient"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="C000"/>-->
+<!--                    <display value="Patient"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="3222"/>-->
+<!--                    <display value="Midwifery associate professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="2222"/>-->
+<!--                    <display value="Midwifery professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+        <relatedAction> <!-- added -->
+            <actionId value="ad_06"/> <!-- added -->
+            <relationship value="before-start"/> <!-- added -->
+        </relatedAction> <!-- added -->
+    </action>
+    <action>
+        <id value="ad_06"/> <!-- added -->
+        <title value="Contact 6"/>
+        <description value="ANC Contact 6: 36 weeks"/>
+        <code>
+            <coding>
+                <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process"/>
+                <code value="guideline-based-care"/>
+            </coding>
+        </code>
+        <trigger> <!-- added -->
+            <type value="periodic"/> <!-- added -->
+            <condition> <!-- changed moved to trigger -->
+                <language value="text/cql"/>
+                <expression value="36 weeks gestation"/>
+            </condition>
+        </trigger> <!-- added -->
+        <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--        <participant>-->
+<!--            <type value="patient"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="C000"/>-->
+<!--                    <display value="Patient"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="3222"/>-->
+<!--                    <display value="Midwifery associate professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="2222"/>-->
+<!--                    <display value="Midwifery professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+        <relatedAction> <!-- added -->
+            <actionId value="ad_07"/> <!-- added -->
+            <relationship value="before-start"/> <!-- added -->
+        </relatedAction> <!-- added -->
+    </action>
+    <action>
+        <id value="ad_07"/> <!-- added -->
+        <title value="Contact 7"/>
+        <description value="ANC Contact 7: 38 weeks"/>
+        <code>
+            <coding>
+                <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process"/>
+                <code value="guideline-based-care"/>
+            </coding>
+        </code>
+        <trigger> <!-- added -->
+            <type value="periodic"/> <!-- added -->
+            <condition> <!-- changed moved to trigger -->
+                <language value="text/cql"/>
+                <expression value="38 weeks gestation"/>
+            </condition>
+        </trigger> <!-- added -->
+        <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--        <participant>-->
+<!--            <type value="patient"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="C000"/>-->
+<!--                    <display value="Patient"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="3222"/>-->
+<!--                    <display value="Midwifery associate professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="2222"/>-->
+<!--                    <display value="Midwifery professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+        <relatedAction> <!-- added -->
+            <actionId value="ad_08"/> <!-- added -->
+            <relationship value="before-start"/> <!-- added -->
+        </relatedAction> <!-- added -->
+    </action>
+    <action>
+        <id value="ad_08"/> <!-- added -->
+        <title value="Contact 8"/>
+        <description value="ANC Contact 8: 40 weeks"/>
+        <code>
+            <coding>
+                <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process"/>
+                <code value="guideline-based-care"/>
+            </coding>
+        </code>
+        <trigger> <!-- added -->
+            <type value="periodic"/> <!-- added -->
+            <condition> <!-- changed moved to trigger -->
+                <language value="text/cql"/>
+                <expression value="40 weeks gestation"/>
+            </condition>
+        </trigger> <!-- added -->
+        <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--        <participant>-->
+<!--            <type value="patient"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="C000"/>-->
+<!--                    <display value="Patient"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="3222"/>-->
+<!--                    <display value="Midwifery associate professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="2222"/>-->
+<!--                    <display value="Midwifery professional"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+        <relatedAction> <!-- added -->
+            <actionId value="ad_09"/> <!-- added -->
+            <relationship value="before-start"/> <!-- added -->
+        </relatedAction> <!-- added -->
+    </action>
+    <action>
+        <id value="ad_09"/> <!-- added -->
+        <title value="Delivery"/>
+        <description value="ANC Delivery: 41+ weeks"/>
+    </action>
+</PlanDefinition>

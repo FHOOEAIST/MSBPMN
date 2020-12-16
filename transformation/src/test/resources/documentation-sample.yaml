@@ -1,0 +1,96 @@
+documentationSamples:
+  - name: Sequence Flow
+    filename: sequenceFlow
+    description: In this section the transformation from Fhir->BPMN for an plain example is shown.
+
+  - name: Parallel Split
+    filename: parallelSplit
+    description: In this section the transformation from Fhir->BPMN for an parallel split is shown.
+
+  - name: Exclusive Split
+    filename: exclusiveSplit
+    description: In this section the transformation from Fhir->BPMN for an exclusive split is shown.
+
+  - name: Timed Start
+    filename: timedStart
+    description: In this section the transformation from Fhir->BPMN for an timed start is shown.
+
+  - name: Timed Start Duration
+    filename: timedStartDuration
+    description: In this section the transformation from Fhir->BPMN for an timed start duration is shown.
+
+  - name: Timed Start Repeat
+    filename: timedStartRepeat
+    description: In this section the transformation from Fhir->BPMN for an timed start repeat is shown.
+
+  - name: Conditional Event
+    filename: pizza
+    description: In this section the transformation from Fhir->BPMN for conditional events is shown.
+
+  - name: Multiple Start
+    filename: multipleStartAndEnd
+    description: In this section the transformation form Fhir->BPMN for multiple start events is shown.
+
+  - name: Actors
+    filename: actors
+    description: Transformation of the new actor concept, which can be found [here](https://jira.hl7.org/browse/FHIR-20825).
+
+  - name: CPG Common Registration
+    filename: cpgCommonRegistration
+    description: Transformation of an adapted version of the common registration process as defined [here](http://hl7.org/fhir/uv/cpg/2019Sep/PlanDefinition-cpg-common-registration.xml.html).
+
+  - name: CPG Common Pathway
+    filename: cpgCommonPathway
+    description: Transformation of an adapted version of the common pathway process as defined [here](http://hl7.org/fhir/uv/cpg/2019Sep/PlanDefinition-cpg-common-pathway.xml.html).
+    discussions:
+      - Is the idea of this plan definition to just have all actions as a sequence, where one is execute after the other?
+
+  - name: ANC Contact
+    filename: ancContact
+    description: Transformation of an adapted version of the ANC Contact process as defined [here](http://hl7.org/fhir/uv/cpg/2019Sep/PlanDefinition-anc-contact.xml.html).
+    discussions:
+      - An adaption was made to the "Recrod first contact information" action to be surrounded by an xor? Is this how it was supposed to be?
+
+  - name: ANC Contact Schedule
+    filename: ancContactSchedule
+    description: Transformation of an adapted version of the ANC Contact Schedule process as defined [here](http://hl7.org/fhir/uv/cpg/2019Sep/PlanDefinition-anc-contact-schedule.xml.html).
+    discussions:
+      - Each of the concats was modified to have the correct trigger definition according to the defined conditions.
+      - There maybe a missing trigger of the last action?
+
+  - name: Chronic Kidney Disease - Ambulatory
+    filename: chronicKidneyDiseaseAmbulatory
+    description: Transformation of an adapted version of the Chronic Kidney Disease - Ambulatory process as defined [here](http://hl7.org/fhir/uv/cpg/2019Sep/PlanDefinition-cc-cpg-plan-ckd.xml.html).
+    discussions:
+      - What is the general idea of this PlanDefinition?
+      - Does this show a process sequence or just different departments and how they are organized?
+
+  - name: VA CKD Protocol
+    filename: vaCkdProtocol
+    description: Transformation of an adapted version of the VA CKD Protocol process as defined [here](http://hl7.org/fhir/uv/cpg/2019Sep/PlanDefinition-va-ckd-protocol.xml.html).
+    discussions:
+      - Action 3 / 3.1 "Refer to emergency department" are probably not modelled correctly. They should be surrounded by an xor and a condition, rather than defining a action with a subaction which results in a subprocess to perform a check.
+
+  - name: PraeOp BQLL
+    filename: praeoperativeDiagnostic
+    description: Transformation of the PräOp BQLL process as defined [here](https://www.sozialministerium.at/Themen/Gesundheit/Gesundheitssystem/Gesundheitssystem-und-Qualitaetssicherung/Qualitaetsstandards/Bundesqualitaetsleitlinie-zur-integrierten-Versorgung-von-erwachsenen-Patientinnen-und-Patienten-fuer-die-praeoperative-Diagnostik-bei-elektiven-Eingriffen---BQLL-PRAEOP.html).
+    discussions:
+      - How to link a DMN in a PlanDefinition?
+      - How to define in an expression that is human readable (e.g. anamnesis feasible yes/no)? What is the correct condition expression language in that case?
+      - How to model a closed BPMN Swimlane in a Fhir PlanDefinition? (maybe by defining a sending and a receiving action)
+      - Atm. the transformation does not support loop. Also, the xor does not really support a relation to a previous action, as the branches are modelled via nested actions.
+
+  - name: HTEP
+    filename: htep
+    description: Transformation for the Medizinische SOPHTEP – Totalendoprothetik des Hueftgelenks
+    discussions:
+      - As of yet there is no support for nested gateway in the transformation. This leads to a partially invalid result.
+      - This is due to, that our decision logic for xor-gateways is tree-based, meaning that all action must be nested actions of the gateway. This does not allow "jumps" to actions that are in other gateways.
+      - As the transformation of nested xor elements may become its own subprocess, it causes problems with participants. This can then not be transformed into BPMN, because expanded subprocesses do not allow having BPMN-Pools.
+
+  - name: Hernien
+    filename: hernien
+    description: Transformation for the Klinische SOP - K40 Hernia inguinalis
+    discussions:
+      - The transformation does not yet support triggers for actions, that are nested inside a XOR. This could be bypassed by nesting the action into a subprocess where it would be processed correct again.
+      - Message flow to external "Participants" is not yet supported.

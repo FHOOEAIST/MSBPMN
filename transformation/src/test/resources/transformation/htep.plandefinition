@@ -1,0 +1,894 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<PlanDefinition xmlns="http://hl7.org/fhir">
+    <id value="htep"/>
+    <version value="1.0"/>
+    <name value="HTEP"/>
+    <title value="Totalendoprothetik des Hüftgelenks"/>
+    <type>
+        <coding>
+            <system value="http://terminology.hl7.org/CodeSystem/plan-definition-type"/>
+            <code value="clinical-protocol"/>
+            <display value="Clinical Protocol"/>
+        </coding>
+    </type>
+    <status value="draft"/>
+
+    <actor>
+        <id value="chirurgie"/>
+        <label value="Chirurgie"/>
+        <options>
+            <type value="practitioner"/>
+        </options>
+    </actor>
+    <actor>
+        <id value="aufnahmemangement"/>
+        <label value="Aufnahmemangement"/>
+        <options>
+            <type value="practitioner"/>
+        </options>
+    </actor>
+    <actor>
+        <id value="anaesthesie"/>
+        <label value="Anaesthesie"/>
+        <options>
+            <type value="practitioner"/>
+        </options>
+    </actor>
+    <actor>
+        <id value="radiologie"/>
+        <label value="Radiologie"/>
+        <options>
+            <type value="practitioner"/>
+        </options>
+    </actor>
+    <actor>
+        <id value="labor"/>
+        <label value="Labor"/>
+        <options>
+            <type value="practitioner"/>
+        </options>
+    </actor>
+    <actor>
+        <id value="orthopaedie"/>
+        <label value="Orthopaedie"/>
+        <options>
+            <type value="practitioner"/>
+        </options>
+    </actor>
+    <actor>
+        <id value="entlassungsmanagement"/>
+        <label value="Entlassungsmanagement"/>
+        <options>
+            <type value="practitioner"/>
+        </options>
+    </actor>
+
+    <action>
+        <id value="orthopaedische_anamnese_durchfuehren"/>
+        <title value="Orthopaedische Anamnese durchfuehren"/>
+        <participant>
+            <actor value="orthopaedie"/>
+        </participant>
+        <relatedAction>
+            <actionId value="klinische_untersuchung"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+    </action>
+    <action>
+        <id value="klinische_untersuchung"/>
+        <title value="Klinische Untersuchung entsprechend HHS durchfuehren"/>
+        <participant>
+            <actor value="orthopaedie"/>
+        </participant>
+        <relatedAction>
+            <actionId value="radiologische_befunde_erheben"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+    </action>
+    <action>
+        <id value="radiologische_befunde_erheben"/>
+        <title value="radiologische Befunde erheben"/>
+        <participant>
+            <actor value="radiologie"/>
+        </participant>
+        <relatedAction>
+            <actionId value="laborbefunde_erheben"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+        <action>
+            <id value="standardroentgen_durchfuehren"/>
+            <title value="Standardroentgen durchfuehren"/>
+            <participant>
+                <actor value="radiologie"/>
+            </participant>
+            <relatedAction>
+                <actionId value="ganzbeinroentgen_durchfuehren"/>
+                <relationship value="before-start"/>
+            </relatedAction>
+        </action>
+        <action>
+            <id value="ganzbeinroentgen_durchfuehren"/>
+            <title value="Ganzbeingoentgen durchfuehren"/>
+            <participant>
+                <actor value="radiologie"/>
+            </participant>
+            <relatedAction>
+                <actionId value="par_szinitigraphie_xor_ct_mir"/>
+                <relationship value="before-start"/>
+            </relatedAction>
+        </action>
+        <action>
+            <id value="par_szinitigraphie_xor_ct_mir"/>
+            <groupingBehavior value="logical-group"/>
+            <selectionBehavior value="all"/>
+            <participant>
+                <actor value="radiologie"/>
+            </participant>
+            <action>
+                <id value="szintigraphie_durchfuehren"/>
+                <title value="Szintigraphie durchfuehren"/>
+                <participant>
+                    <actor value="radiologie"/>
+                </participant>
+                <relatedAction>
+                    <actionId value="par_szinitigraphie_xor_ct_mir"/>
+                    <relationship value="before-end"/>
+                </relatedAction>
+            </action>
+            <action>
+                <id value="xor_ct_mri"/>
+                <groupingBehavior value="logical-group"/>
+                <selectionBehavior value="exactly-one"/>
+                <participant>
+                    <actor value="radiologie"/>
+                </participant>
+                <relatedAction>
+                    <actionId value="par_szinitigraphie_xor_ct_mir"/>
+                    <relationship value="before-end"/>
+                </relatedAction>
+                <action>
+                    <id value="ct_durchfuehren"/>
+                    <title value="CT durchfuehren"/>
+                    <participant>
+                        <actor value="radiologie"/>
+                    </participant>
+                    <!-- nested gatesways not implemented in transformation-->
+                    <!-- <relatedAction>-->
+                    <!--     <actionId value="xor_ct_mri"/>-->
+                    <!--     <relationship value="before-end"/>-->
+                    <!-- </relatedAction>-->
+                </action>
+                <action>
+                    <id value="mri_durchfuehren"/>
+                    <title value="MRI durchfuehren"/>
+                    <participant>
+                        <actor value="radiologie"/>
+                    </participant>
+                    <!-- nested gatesways not implemented in transformation-->
+                    <!-- <relatedAction>-->
+                    <!--     <actionId value="xor_ct_mri"/>-->
+                    <!--     <relationship value="before-end"/>-->
+                    <!-- </relatedAction>-->
+                </action>
+            </action>
+        </action>
+
+    </action>
+    <action>
+        <id value="laborbefunde_erheben"/>
+        <title value="Laborbefunde erheben"/>
+        <participant>
+            <actor value="labor"/>
+        </participant>
+        <relatedAction>
+            <actionId value="konservative_therapie_and_no_arthrose_xor"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+        <groupingBehavior value="logical-group"/>
+        <selectionBehavior value="all"/>
+        <action>
+            <id value="blutbild_erheben"/>
+            <title value="Blutbild erheben"/>
+            <participant>
+                <actor value="labor"/>
+            </participant>
+            <relatedAction>
+                <actionId value="laborbefunde_erheben"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+        </action>
+        <action>
+            <id value="crp_erheben"/>
+            <title value="CRP erheben"/>
+            <participant>
+                <actor value="labor"/>
+            </participant>
+            <relatedAction>
+                <actionId value="laborbefunde_erheben"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+        </action>
+        <action>
+            <id value="nierenfunktionsparameter_erheben"/>
+            <title value="Nierenfunktionsparameter erheben"/>
+            <participant>
+                <actor value="labor"/>
+            </participant>
+            <relatedAction>
+                <actionId value="laborbefunde_erheben"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+        </action>
+        <action>
+            <id value="gerinnung_erheben"/>
+            <title value="Gerinnung erheben"/>
+            <participant>
+                <actor value="labor"/>
+            </participant>
+            <relatedAction>
+                <actionId value="laborbefunde_erheben"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+        </action>
+    </action>
+    <action>
+        <id value="konservative_therapie_and_no_arthrose_xor"/>
+        <title value=""/>
+        <participant>
+            <actor value="orthopaedie"/>
+        </participant>
+        <groupingBehavior value="logical-group"/>
+        <selectionBehavior value="exactly-one"/>
+        <!--
+            Note:
+            XOR Sprung ist mit aktuellem Konzept nicht abbildbar -> Unterteilung zwischen konservative Therapie
+            und therapieresistente Arthose ist deshalb zusammengefasst zu einem XOR, darüber hinaus fehlt, ob die
+            konservative Therapie erfolgreich war.
+        -->
+        <action>
+            <id value="konservative_therapie_veranlassen"/>
+            <title value="konservative Therapie veranlassen"/>
+            <participant>
+                <actor value="orthopaedie"/>
+            </participant>
+            <relatedAction>
+                <actionId value="konservative_therapie_and_no_arthrose_xor"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language value="text/cql"/>
+                    <expression value="konservative Therapie moeglich und keine therapieresistente Arthose"/>
+                </expression>
+            </condition>
+            <action>
+                <id value="konservative_therapie_veranlassen_par"/>
+                <groupingBehavior value="logical-group"/>
+                <selectionBehavior value="all"/>
+                <participant>
+                    <actor value="orthopaedie"/>
+                </participant>
+                <action>
+                    <id value="entsprechende_medikation_veranlassen"/>
+                    <title value="Entsprechende Medikation veranlassen"/>
+                    <relatedAction>
+                        <actionId value="konservative_therapie_veranlassen_par"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <participant>
+                        <actor value="orthopaedie"/>
+                    </participant>
+                </action>
+                <action>
+                    <id value="muskelkraeftigung_veranlassen"/>
+                    <title value="Muskelkraeftigung veranlassen"/>
+                    <relatedAction>
+                        <actionId value="konservative_therapie_veranlassen_par"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <participant>
+                        <actor value="orthopaedie"/>
+                    </participant>
+                </action>
+                <action>
+                    <id value="beinachsentraining_veranlassen"/>
+                    <title value="Beinachsentraining veranlassen"/>
+                    <relatedAction>
+                        <actionId value="konservative_therapie_veranlassen_par"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <participant>
+                        <actor value="orthopaedie"/>
+                    </participant>
+                </action>
+                <action>
+                    <id value="patellazentrierung_durchfuehren"/>
+                    <title value="Patellazentrierung durchfuehren"/>
+                    <relatedAction>
+                        <actionId value="konservative_therapie_veranlassen_par"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <participant>
+                        <actor value="orthopaedie"/>
+                    </participant>
+                </action>
+                <action>
+                    <id value="gewichtsreduktion_des_patienten_veranlassen"/>
+                    <title value="Gewichtsreduktion des Patienten veranlassen"/>
+                    <relatedAction>
+                        <actionId value="konservative_therapie_veranlassen_par"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <participant>
+                        <actor value="orthopaedie"/>
+                    </participant>
+                </action>
+            </action>
+        </action>
+        <action>
+            <!-- Grouping Action: Diese bildet den anderen Bereich im XOR ab -->
+            <!-- Note: Dies ergibt einen Subprozess wodurch die Participants keine wirklich mehr "haben". -->
+            <id value="operation_grouping"/>
+            <title value=""/>
+            <participant>
+                <actor value="orthopaedie"/>
+            </participant>
+            <relatedAction>
+                <actionId value="konservative_therapie_and_no_arthrose_xor"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language value="text/cql"/>
+                    <expression value="else"/>
+                </expression>
+            </condition>
+            <action>
+                <id value="operations_indikation_erstellen"/>
+                <title value="Operations indikation erstellen"/>
+                <participant>
+                    <actor value="orthopaedie"/>
+                </participant>
+                <relatedAction>
+                    <actionId value="aufnahme_des_patienten"/>
+                    <relationship value="before-start"/>
+                </relatedAction>
+            </action>
+            <action>
+                <id value="aufnahme_des_patienten"/>
+                <title value="Aufnahme des Patienten"/>
+                <participant>
+                    <actor value="aufnahmemangement"/>
+                </participant>
+                <relatedAction>
+                    <actionId value="einwilligung_des_patienten_xor"/>
+                    <relationship value="before-start"/>
+                </relatedAction>
+                <output>
+                    <id value="data_operationseinwilligung"/>
+                    <name value="Operationseinwilligung"/>
+                    <dataRequirement>
+                        <type value="Operationseinwilligung"/>
+                    </dataRequirement>
+                </output>
+                <action>
+                    <id value="patient_administrativ_aufnehmen"/>
+                    <title value="Patient administrativ aufnehmen"/>
+                    <participant>
+                        <actor value="aufnahmemangement"/>
+                    </participant>
+                    <relatedAction>
+                        <actionId value="pflegerische_aufnahme_veranlassen"/>
+                        <relationship value="before-start"/>
+                    </relatedAction>
+                </action>
+                <action>
+                    <id value="pflegerische_aufnahme_veranlassen"/>
+                    <title value="Pflegerische Aufnahme veranlassen"/>
+                    <participant>
+                        <actor value="aufnahmemangement"/>
+                    </participant>
+                    <relatedAction>
+                        <actionId value="medizinische_aufnahme_veranlassen"/>
+                        <relationship value="before-start"/>
+                    </relatedAction>
+                </action>
+                <action>
+                    <id value="medizinische_aufnahme_veranlassen"/>
+                    <title value="Medizinische Aufnahme veranlassen"/>
+                    <participant>
+                        <actor value="aufnahmemangement"/>
+                    </participant>
+                    <relatedAction>
+                        <actionId value="op_aufklaerung_durchfuehren"/>
+                        <relationship value="before-start"/>
+                    </relatedAction>
+                </action>
+                <action>
+                    <id value="op_aufklaerung_durchfuehren"/>
+                    <title value="OP-Aufklaerung durchfuehren"/>
+                    <participant>
+                        <actor value="aufnahmemangement"/>
+                    </participant>
+                    <relatedAction>
+                        <actionId value="einwilligung_des_patienten_einholen"/>
+                        <relationship value="before-start"/>
+                    </relatedAction>
+                </action>
+                <action>
+                    <id value="einwilligung_des_patienten_einholen"/>
+                    <title value="Einwilligung des Patienten einholen"/>
+                    <participant>
+                        <actor value="aufnahmemangement"/>
+                    </participant>
+                    <output>
+                        <id value="data_operationseinwilligung_2"/>
+                        <name value="Operationseinwilligung"/>
+                        <dataRequirement>
+                            <type value="Operationseinwilligung"/>
+                        </dataRequirement>
+                    </output>
+                </action>
+            </action>
+            <action>
+                <id value="einwilligung_des_patienten_xor"/>
+                <title value="Einwilligung des Patienten erhalten?"/>
+                <participant>
+                    <actor value="aufnahmemangement"/>
+                </participant>
+                <groupingBehavior value="logical-group"/>
+                <selectionBehavior value="exactly-one"/>
+                <action>
+                    <id value="keine_operation_durchfuehren_1"/>
+                    <title value="Keine Operation durchfuehren"/>
+                    <participant>
+                        <actor value="entlassungsmanagement"/>
+                    </participant>
+                    <relatedAction>
+                        <actionId value="einwilligung_des_patienten_xor"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <condition>
+                        <kind value="applicability"/>
+                        <expression>
+                            <language value="text/cql"/>
+                            <expression value="Nein"/>
+                        </expression>
+                    </condition>
+                </action>
+                <action>
+                    <id value="patient_einwilligung_erhalten_group"/>
+                    <title value=""/>
+                    <participant>
+                        <actor value="aufnahmemangement"/>
+                    </participant>
+                    <relatedAction>
+                        <actionId value="einwilligung_des_patienten_xor"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <condition>
+                        <kind value="applicability"/>
+                        <expression>
+                            <language value="text/cql"/>
+                            <expression value="ja"/>
+                        </expression>
+                    </condition>
+                    <action>
+                        <id value="bb_crp_par"/>
+                        <title value=""/>
+                        <participant>
+                            <actor value="labor"/>
+                        </participant>
+                        <groupingBehavior value="logical-group"/>
+                        <selectionBehavior value="all"/>
+                        <!-- There is a transformation error, we do not process a logical-group inside a logical-group correctly. -->
+                        <action>
+                            <id value="bb_aelter_als_7_tage_xor"/>
+                            <title value="BB aelter als 7 Tage?"/>
+                            <participant>
+                                <actor value="labor"/>
+                            </participant>
+                            <groupingBehavior value="logical-group"/>
+                            <selectionBehavior value="at-most-one"/>
+                            <!-- bb älter als 7 tage xor -->
+                            <relatedAction>
+                                <actionId value="bb_crp_par"/>
+                                <relationship value="before-end"/>
+                            </relatedAction>
+                            <action>
+                                <id value="bb_erheben"/>
+                                <title value="BB erheben"/>
+                                <!-- This would be correct, but needs to be commented due to the transformation error state above. -->
+<!--                                <relatedAction>-->
+<!--                                    <actionId value="bb_aelter_als_7_tage_xor"/>-->
+<!--                                    <relationship value="before-end"/>-->
+<!--                                </relatedAction>-->
+                                <condition>
+                                    <kind value="applicability"/>
+                                    <expression>
+                                        <language value="text/cql"/>
+                                        <expression value="ja"/>
+                                    </expression>
+                                </condition>
+                                <participant>
+                                    <actor value="labor"/>
+                                </participant>
+                            </action>
+                        </action>
+                        <!-- There is a transformation error, we do not process a logical-group inside a logical-group correctly. -->
+                        <action>
+                            <id value="cpr_aelter_als_7_tage_xor"/>
+                            <title value="CPR aelter als 7 Tage?"/>
+                            <participant>
+                                <actor value="labor"/>
+                            </participant>
+                            <groupingBehavior value="logical-group"/>
+                            <selectionBehavior value="at-most-one"/>
+                            <!-- bb älter als 7 tage xor -->
+                            <relatedAction>
+                                <actionId value="bb_crp_par"/>
+                                <relationship value="before-end"/>
+                            </relatedAction>
+                            <action>
+                                <id value="cpr_erheben"/>
+                                <title value="CPR erheben"/>
+                                <!-- This would be correct, but needs to be commented due to the transformation error state above. -->
+                                <!-- <relatedAction>-->
+                                <!--     <actionId value="cpr_aelter_als_7_tage_xor"/>-->
+                                <!--     <relationship value="before-end"/>-->
+                                <!-- </relatedAction>-->
+                                <condition>
+                                    <kind value="applicability"/>
+                                    <expression>
+                                        <language value="text/cql"/>
+                                        <expression value="ja"/>
+                                    </expression>
+                                </condition>
+                                <participant>
+                                    <actor value="labor"/>
+                                </participant>
+                            </action>
+                        </action>
+                        <relatedAction>
+                            <actionId value="kugelroentgen_durchfuehren" />
+                            <relationship value="before-start" />
+                        </relatedAction>
+                    </action>
+                    <action>
+                        <id value="kugelroentgen_durchfuehren"/>
+                        <title value="Kugelroentgen durchfuehren"/>
+                        <participant>
+                            <actor value="radiologie"/>
+                        </participant>
+                        <relatedAction>
+                            <actionId value="operationsfreigabe_moeglich_xor"/>
+                            <relationship value="before-start"/>
+                        </relatedAction>
+                    </action>
+                    <action>
+                        <id value="operationsfreigabe_moeglich_xor"/>
+                        <title value="Operationsfreigabe moeglich?"/>
+                        <participant>
+                            <actor value="anaesthesie"/>
+                        </participant>
+                        <groupingBehavior value="logical-group"/>
+                        <selectionBehavior value="exactly-one"/>
+                        <action>
+                            <id value="keine_operation_durchfuehren"/>
+                            <title value="Keine Operation durchfuehren"/>
+                            <relatedAction>
+                                <actionId value="operationsfreigabe_moeglich_xor"/>
+                                <relationship value="before-end"/>
+                            </relatedAction>
+                            <condition>
+                                <kind value="applicability"/>
+                                <expression>
+                                    <language value="text/cql"/>
+                                    <expression value="Nein"/>
+                                </expression>
+                            </condition>
+                        </action>
+                        <action>
+                            <id value="operation_freigeben_und_durchfuehren_grouping"/>
+                            <participant>
+                                <actor value="anaesthesie"/>
+                            </participant>
+                            <relatedAction>
+                                <actionId value="operationsfreigabe_moeglich_xor"/>
+                                <relationship value="before-end"/>
+                            </relatedAction>
+                            <condition>
+                                <kind value="applicability"/>
+                                <expression>
+                                    <language value="text/cql"/>
+                                    <expression value="Ja"/>
+                                </expression>
+                            </condition>
+                            <action>
+                                <id value="operation_freigeben"/>
+                                <title value="Operation freigeben"/>
+                                <participant>
+                                    <actor value="anaesthesie"/>
+                                </participant>
+                                <relatedAction>
+                                    <actionId value="operation_durchfuehren"/>
+                                    <relationship value="before-start"/>
+                                </relatedAction>
+                            </action>
+                            <action>
+                                <id value="operation_durchfuehren"/>
+                                <title value="Operation durchfuehren"/>
+                                <participant>
+                                    <actor value="chirurgie"/>
+                                </participant>
+                                <relatedAction>
+                                    <actionId value="hueftvergleich_durchfuehren"/>
+                                    <relationship value="before-start"/>
+                                </relatedAction>
+                            </action>
+                            <action>
+                                <id value="hueftvergleich_durchfuehren"/>
+                                <title value="Hueftvergleich durchfuehren"/>
+                                <participant>
+                                    <actor value="radiologie"/>
+                                </participant>
+                                <trigger>
+                                    <type value="periodic"/>
+                                    <name value="erster_post_op_tag"/>
+                                    <timingTiming>
+                                        <repeat>
+                                            <frequency value="1"/>
+                                            <periodUnit value="d"/>
+                                            <count value="1"/>
+                                        </repeat>
+                                    </timingTiming>
+                                </trigger>
+                                <relatedAction>
+                                    <actionId value="postoperative_laborbefundung_2"/>
+                                    <relationship value="before-start"/>
+                                </relatedAction>
+                            </action>
+                            <action>
+                                <id value="postoperative_laborbefundung_2"/>
+                                <title value="postoperative Laborbefunde 2 Tag post Op erhaben"/>
+                                <participant>
+                                    <actor value="labor"/>
+                                </participant>
+                                <trigger>
+                                    <type value="periodic"/>
+                                    <name value="zweiter_post_op_tag"/>
+                                    <timingTiming>
+                                        <repeat>
+                                            <frequency value="2"/>
+                                            <periodUnit value="d"/>
+                                            <count value="1"/>
+                                        </repeat>
+                                    </timingTiming>
+                                </trigger>
+                                <relatedAction>
+                                    <actionId value="postoperative_laborbefundung_4"/>
+                                    <relationship value="before-start"/>
+                                </relatedAction>
+                            </action>
+                            <action>
+                                <id value="postoperative_laborbefundung_4"/>
+                                <title value="postoperative Laborbefunde 4. Tag postOp erheben"/>
+                                <participant>
+                                    <actor value="labor"/>
+                                </participant>
+                                <trigger>
+                                    <type value="periodic"/>
+                                    <name value="vierter_post_op_tag"/>
+                                    <timingTiming>
+                                        <repeat>
+                                            <frequency value="4"/>
+                                            <periodUnit value="d"/>
+                                            <count value="1"/>
+                                        </repeat>
+                                    </timingTiming>
+                                </trigger>
+                                <relatedAction>
+                                    <actionId value="weitere_laborbefunde_notwendig_xor"/>
+                                    <relationship value="before-start"/>
+                                </relatedAction>
+                            </action>
+                            <action>
+                                <id value="weitere_laborbefunde_notwendig_xor"/>
+                                <title value="weitere Laborbefunde notwendig?"/>
+                                <groupingBehavior value="logical-group"/>
+                                <selectionBehavior value="at-most-one"/>
+                                <participant>
+                                    <actor value="labor"/>
+                                </participant>
+                                <action>
+                                    <id value="weitere_post_op_laborbefunde_erheben"/>
+                                    <title value="weitere postOP Laborbefunde erheben"/>
+                                    <participant>
+                                        <actor value="labor"/>
+                                    </participant>
+                                    <relatedAction>
+                                        <actionId value="weitere_laborbefunde_notwendig_xor"/>
+                                        <relationship value="before-end"/>
+                                    </relatedAction>
+                                </action>
+                                <relatedAction>
+                                    <actionId value="durchleuchtungsgezielte_lauensteinaufnahme_durchfuehren"/>
+                                    <relationship value="before-start"/>
+                                </relatedAction>
+                            </action>
+                            <action>
+                                <id value="durchleuchtungsgezielte_lauensteinaufnahme_durchfuehren"/>
+                                <title value="Durchleuchtungsgezielte Lauensteinaufnahme durchfuehren"/>
+                                <participant>
+                                    <actor value="radiologie"/>
+                                </participant>
+                            </action>
+                        </action>
+                    </action>
+                </action>
+            </action>
+        </action>
+        <relatedAction>
+            <actionId value="entlassung_nach_hause_moeglich"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+    </action>
+    <action>
+        <id value="entlassung_nach_hause_moeglich"/>
+        <title value="Entlassung nach Hause möglich?"/>
+        <participant>
+            <actor value="entlassungsmanagement"/>
+        </participant>
+        <groupingBehavior value="logical-group"/>
+        <selectionBehavior value="exactly-one"/>
+        <action>
+            <id value="patient_wird_entlassen"/>
+            <title value="Patient wird entlassen"/>
+            <participant>
+                <actor value="entlassungsmanagement"/>
+            </participant>
+            <relatedAction>
+                <actionId value="entlassung_nach_hause_moeglich"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language value="text/cql"/>
+                    <expression value="Ja"/>
+                </expression>
+            </condition>
+            <output>
+                <id value="data_entlassungspapiere"/>
+                <name value="Entlassungspapiere"/>
+                <dataRequirement>
+                    <type value="Entlassungspapiere"/>
+                </dataRequirement>
+            </output>
+        </action>
+        <action>
+            <id value="patient_wird_nicht_entlassen_grouping"/>
+            <title value=""/>
+            <participant>
+                <actor value="entlassungsmanagement"/>
+            </participant>
+            <relatedAction>
+                <actionId value="entlassung_nach_hause_moeglich"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language value="text/cql"/>
+                    <expression value="Nein"/>
+                </expression>
+            </condition>
+            <action>
+                <id value="anschlussheilverfahren_einleiten"/>
+                <title value="Anschlussheilverfahren einleiten"/>
+                <participant>
+                    <actor value="entlassungsmanagement"/>
+                </participant>
+                <relatedAction>
+                    <actionId value="patient_in_remob_abteilung_verlegen_xor"/>
+                    <relationship value="before-start"/>
+                </relatedAction>
+            </action>
+            <action>
+                <id value="patient_in_remob_abteilung_verlegen_xor"/>
+                <title value="Patient in Remob-Abteilung verlegen?"/>
+                <groupingBehavior value="logical-group"/>
+                <selectionBehavior value="exactly-one"/>
+                <participant>
+                    <actor value="entlassungsmanagement"/>
+                </participant>
+                <relatedAction>
+                    <actionId value="post_op_genesungsprozess_erfolgreich"/>
+                    <relationship value="before-start"/>
+                </relatedAction>
+                <action>
+                    <id value="patient_in_remobilisierungsabteilung_verlegen"/>
+                    <title value="Patient in Remobilisierungsabteilung verlegen"/>
+                    <participant>
+                        <actor value="entlassungsmanagement"/>
+                    </participant>
+                    <relatedAction>
+                        <actionId value="patient_in_remob_abteilung_verlegen_xor"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <condition>
+                        <kind value="applicability"/>
+                        <expression>
+                            <language value="text/cql"/>
+                            <expression value="Ja"/>
+                        </expression>
+                    </condition>
+                </action>
+                <action>
+                    <id value="patient_in_andere_abteilung_verlegen"/>
+                    <title value="Patient in andere Abteilung verlegen"/>
+                    <participant>
+                        <actor value="entlassungsmanagement"/>
+                    </participant>
+                    <relatedAction>
+                        <actionId value="patient_in_remob_abteilung_verlegen_xor"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <condition>
+                        <kind value="applicability"/>
+                        <expression>
+                            <language value="text/cql"/>
+                            <expression value="Nein"/>
+                        </expression>
+                    </condition>
+                </action>
+            </action>
+            <action>
+                <id value="post_op_genesungsprozess_erfolgreich"/>
+                <title value="post OP Genesungsprozess erfolgreich?"/>
+                <groupingBehavior value="logical-group"/>
+                <selectionBehavior value="at-most-one"/>
+                <participant>
+                    <actor value="entlassungsmanagement"/>
+                </participant>
+                <!-- Note: This action needs to be copied, because we cannot link to the other one. -->
+                <action>
+                    <id value="patient_wird_entlassen_2"/>
+                    <title value="Patient wird entlassen"/>
+                    <participant>
+                        <actor value="entlassungsmanagement"/>
+                    </participant>
+                    <relatedAction>
+                        <actionId value="post_op_genesungsprozess_erfolgreich"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <condition>
+                        <kind value="applicability"/>
+                        <expression>
+                            <language value="text/cql"/>
+                            <expression value="Ja"/>
+                        </expression>
+                    </condition>
+                    <output>
+                        <id value="data_entlassungspapiere_2"/>
+                        <name value="Entlassungspapiere"/>
+                        <dataRequirement>
+                            <type value="Entlassungspapiere"/>
+                        </dataRequirement>
+                    </output>
+                </action>
+            </action>
+        </action>
+    </action>
+</PlanDefinition>
