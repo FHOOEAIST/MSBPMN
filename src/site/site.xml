@@ -1,0 +1,34 @@
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<project name="MSBPMN"
+         xmlns="http://maven.apache.org/DECORATION/1.8.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 http://maven.apache.org/xsd/decoration-1.8.0.xsd">
+    <bannerLeft>
+        <src>images/bannerLeft.png</src>
+    </bannerLeft>
+    <bannerRight>
+        <src>images/bannerRight.png</src>
+    </bannerRight>
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>1.9</version>
+    </skin>
+    <body>
+        <menu name="MSBPMN">
+            <item name="Overview" href="index.html"/>
+            <item name="FAQ" href="faq.html"/>
+            <item name="Fhir2BPMN" href="fhir2bpmn.html"/>
+            <item name="Transformation" href="transformation.html"/>
+        </menu>
+        <menu ref="reports"/>
+    </body>
+</project>

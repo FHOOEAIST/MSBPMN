@@ -1,0 +1,12 @@
+templateName: generateDocumentationOverview
+templateTasks:
+  - name: createMarkdownDir
+    type: createDirectory
+    properties:
+      path: ${project}/src/site/markdown/
+
+  - name: createOverview
+    type: instantiateTemplate
+    properties:
+        template: classpath:/template/fhir2bpmnoverview.ftl
+        dest: ${project}/src/site/markdown/fhir2bpmn.md

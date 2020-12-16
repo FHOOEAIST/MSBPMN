@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<PlanDefinition xmlns="http://hl7.org/fhir">
+    <id value="hernien"/>
+    <version value="1.0"/>
+    <name value="hernien"/>
+    <title value="klinische SOP - K40 Hernia inguinalis"/>
+    <type>
+        <coding>
+            <system value="http://terminology.hl7.org/CodeSystem/plan-definition-type"/>
+            <code value="clinical-protocol"/>
+            <display value="Clinical Protocol"/>
+        </coding>
+    </type>
+    <status value="draft"/>
+
+    <action>
+        <id value="chirurgische_anamnese_durchfuehren"/>
+        <title value="Chirurgische Anamnese durchfuehren"/>
+        <relatedAction>
+            <actionId value="koerperliche_untersuchung_durchfuehren"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+    </action>
+    <action>
+        <id value="koerperliche_untersuchung_durchfuehren"/>
+        <title value="Koerperliche Untersuchung durchfuehren"/>
+        <relatedAction>
+            <actionId value="diagnose_klar_xor"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+    </action>
+    <action>
+        <id value="diagnose_klar_xor"/>
+        <title value="Diagnose klar?"/>
+        <groupingBehavior value="logical-group"/>
+        <selectionBehavior value="at-most-one"/>
+        <relatedAction>
+            <actionId value="hernie_diagnostiziert_xor"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+        <action>
+            <id value="diagnose_klar_nein_grouping"/>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language value="text/cql"/>
+                    <expression value="Nein"/>
+                </expression>
+            </condition>
+            <relatedAction>
+                <actionId value="diagnose_klar_xor"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+            <action>
+                <id value="ultraschall_durchfuehren"/>
+                <title value="Ultraschall durchfuehren"/>
+                <relatedAction>
+                    <actionId value="ultraschall_konklusiv_xor"/>
+                    <relationship value="before-start"/>
+                </relatedAction>
+            </action>
+            <action>
+                <id value="ultraschall_konklusiv_xor"/>
+                <title value="Ultraschall konklusiv?"/>
+                <groupingBehavior value="logical-group"/>
+                <selectionBehavior value="at-most-one"/>
+                <action>
+                    <id value="ct_abdomen_oder_mri_durchfuehren"/>
+                    <title value="CT Abdomen oder MRI durchfuehren"/>
+                    <condition>
+                        <kind value="applicability"/>
+                        <expression>
+                            <language value="text/cql"/>
+                            <expression value="Nein"/>
+                        </expression>
+                    </condition>
+                    <relatedAction>
+                        <actionId value="ultraschall_konklusiv_xor"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                </action>
+            </action>
+        </action>
+    </action>
+
+    <action>
+        <id value="hernie_diagnostiziert_xor"/>
+        <title value="Hernie diagnostiziert?"/>
+        <groupingBehavior value="logical-group"/>
+        <selectionBehavior value="exactly-one"/>
+        <action>
+            <id value="andere_untersuchungen_durchfuehren"/>
+            <title value="Andere Untersuchungen durchfuehren"/>
+            <relatedAction>
+                <actionId value="hernie_diagnostiziert_xor"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language value="text/cql"/>
+                    <expression value="Nein"/>
+                </expression>
+            </condition>
+        </action>
+        <action>
+            <id value="hernie_diagnostiziert_ja_grouping"/>
+            <relatedAction>
+                <actionId value="hernie_diagnostiziert_xor"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language value="text/cql"/>
+                    <expression value="Ja"/>
+                </expression>
+            </condition>
+            <action>
+                <id value="einwilligung_des_patienten_einholen"/>
+                <title value="Einwilligung des Patienten einholen"/>
+                <output>
+                    <id value="data_patienteneinwilligung"/>
+                    <name value="Patienteneinwilligung"/>
+                    <dataRequirement>
+                        <type value="Patienteneinwilligung"/>
+                    </dataRequirement>
+                </output>
+                <relatedAction>
+                    <actionId value="patient_zu_op_eingewillig_xor"/>
+                    <relationship value="before-start"/>
+                </relatedAction>
+            </action>
+            <action>
+                <id value="patient_zu_op_eingewillig_xor"/>
+                <title value="Patient zu OP eingewilligt?"/>
+                <groupingBehavior value="logical-group"/>
+                <selectionBehavior value="exactly-one"/>
+                <action>
+                    <id value="patient_zu_op_eingewilligt_yes_grouping"/>
+                    <relatedAction>
+                        <actionId value="patient_zu_op_eingewillig_xor"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <action>
+                        <id value="operationsfreigabe_einholen"/>
+                        <title value="Operationsfreigabe einholen"/>
+                        <relatedAction>
+                            <actionId value="operationsfreigabe"/>
+                            <relationship value="before-start"/>
+                        </relatedAction>
+                    </action>
+                    <action>
+                        <id value="operationsfreigabe"/>
+                        <title value="Operationsfreigabe"/>
+                        <trigger>
+                            <type value="named-event"/>
+                            <name value="operationsfreigabe"/>
+                            <condition>
+                                <language value="text/cql"/>
+                                <expression value="Operationsfreigabe"/>
+                            </condition>
+                        </trigger>
+                        <input>
+                            <id value="data_operationsfreigabe" />
+                            <name value="Operationsfreigabe"/>
+                            <dataRequirement>
+                                <type value="Operationsfreigabe"/>
+                            </dataRequirement>
+                        </input>
+                        <relatedAction>
+                            <actionId value="operation_freigeben_xor"/>
+                            <relationship value="before-start"/>
+                        </relatedAction>
+                    </action>
+                    <action>
+                        <id value="operation_freigeben_xor"/>
+                        <title value="Operation freigeben?"/>
+                        <groupingBehavior value="logical-group"/>
+                        <selectionBehavior value="exactly-one"/>
+                        <action>
+                            <id value="keine_operation_durchfuehren_2"/>
+                            <title value="Keine Operation durchfuehren"/>
+                            <relatedAction>
+                                <actionId value="operation_freigeben_xor"/>
+                                <relationship value="before-end"/>
+                            </relatedAction>
+                            <condition>
+                                <kind value="applicability"/>
+                                <expression>
+                                    <language value="text/cql"/>
+                                    <expression value="Nein"/>
+                                </expression>
+                            </condition>
+                        </action>
+                        <action>
+                            <id value="operation_freigeben_ja_grouping"/>
+                            <relatedAction>
+                                <actionId value="operation_freigeben_xor"/>
+                                <relationship value="before-end"/>
+                            </relatedAction>
+                            <condition>
+                                <kind value="applicability"/>
+                                <expression>
+                                    <language value="text/cql"/>
+                                    <expression value="Ja"/>
+                                </expression>
+                            </condition>
+                            <action>
+                                <id value="kann_die_operation_tk_durchgefuehrt_werden"/>
+                                <title value="Kann die Operation TK durchgefuehrt werden?"/>
+                                <relatedAction>
+                                    <actionId value="hernienoperation_durchfuehren"/>
+                                    <relationship value="before-start"/>
+                                </relatedAction>
+                            </action>
+                            <action>
+                                <id value="hernienoperation_durchfuehren"/>
+                                <title value="Hernienoperation durchfuehren"/>
+                                <relatedAction>
+                                    <actionId value="operation_tagesklinisch_xor"/>
+                                    <relationship value="before-start"/>
+                                </relatedAction>
+                            </action>
+                            <action>
+                                <id value="operation_tagesklinisch_xor"/>
+                                <title value="Operation tagesklinisch?"/>
+                                <groupingBehavior value="logical-group"/>
+                                <selectionBehavior value="exactly-one"/>
+                                <relatedAction>
+                                    <actionId value="postoperative_wundinspektion_durchfuehren"/>
+                                    <relationship value="before-start"/>
+                                </relatedAction>
+                                <action>
+                                    <id value="vier_h_nach_op"/>
+                                    <title value="4h nach OP"/>
+                                    <condition>
+                                        <kind value="applicability"/>
+                                        <expression>
+                                            <language value="text/cql"/>
+                                            <expression value="Ja"/>
+                                        </expression>
+                                    </condition>
+                                    <relatedAction>
+                                        <actionId value="operation_tagesklinisch_xor"/>
+                                        <relationship value="before-end"/>
+                                    </relatedAction>
+                                    <trigger>
+                                        <type value="periodic"/>
+                                        <name value="vier_h_nach_op"/>
+                                        <timingTiming>
+                                            <repeat>
+                                                <frequency value="4"/>
+                                                <periodUnit value="h"/>
+                                                <count value="1"/>
+                                            </repeat>
+                                        </timingTiming>
+                                    </trigger>
+                                </action>
+                                <action>
+                                    <id value="erster_tag_nach_op"/>
+                                    <title value="am 1. post OP Tag"/>
+                                    <condition>
+                                        <kind value="applicability"/>
+                                        <expression>
+                                            <language value="text/cql"/>
+                                            <expression value="Nein"/>
+                                        </expression>
+                                    </condition>
+                                    <relatedAction>
+                                        <actionId value="operation_tagesklinisch_xor"/>
+                                        <relationship value="before-end"/>
+                                    </relatedAction>
+                                    <trigger>
+                                        <type value="periodic"/>
+                                        <name value="ein_tag_nach_op"/>
+                                        <timingTiming>
+                                            <repeat>
+                                                <frequency value="1"/>
+                                                <periodUnit value="d"/>
+                                                <count value="1"/>
+                                            </repeat>
+                                        </timingTiming>
+                                    </trigger>
+                                </action>
+                            </action>
+                            <action>
+                                <id value="postoperative_wundinspektion_durchfuehren"/>
+                                <title value="postoperative Wundinspektion durchfuehren"/>
+                                <relatedAction>
+                                    <actionId value="patient_entlassen"/>
+                                    <relationship value="before-start"/>
+                                </relatedAction>
+                            </action>
+                            <action>
+                                <id value="patient_entlassen"/>
+                                <title value="Patient entlassen"/>
+                                <output>
+                                    <id value="data_entlassungspapiere"/>
+                                    <name value="Entlassungspapiere"/>
+                                    <dataRequirement>
+                                        <type value="Entlassungspapiere"/>
+                                    </dataRequirement>
+                                </output>
+                            </action>
+                        </action>
+                    </action>
+                </action>
+                <action>
+                    <id value="keine_operation_durchfuehren"/>
+                    <title value="Keine Operation durchfuehren"/>
+                    <relatedAction>
+                        <actionId value="patient_zu_op_eingewillig_xor"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                </action>
+            </action>
+        </action>
+    </action>
+
+</PlanDefinition>

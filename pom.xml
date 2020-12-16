@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>at.fh.hagenberg.aist.msbpmn</groupId>
+    <artifactId>msbpmn</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <scm>
+        <url>https://github.com/FHOOEAIST/MSBPMN</url>
+        <connection>scm:git:git@github.com:FHOOEAIST/MSBPMN.git</connection>
+        <developerConnection>scm:git:git@github.com:FHOOEAIST/MSBPMN.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+    <distributionManagement>
+        <repository>
+            <id>maven-releases</id>
+            <url>https://aist.fh-hagenberg.at/nexus/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven-snapshots</id>
+            <url>https://aist.fh-hagenberg.at/nexus/repository/maven-snapshots/</url>
+        </snapshotRepository>
+        <site>
+            <id>javadoc</id>
+            <url>scm:git:ssh://git@github.com/FHOOEAIST/msbpmn.git</url>
+        </site>
+    </distributionManagement>
+
+    <!-- variables -->
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- aist dependencies -->
+        <jack.version>2.0.0</jack.version>
+        <modelling.version>2.2.2</modelling.version>
+
+        <!-- project specific dependencies -->
+        <hapi.fhir.version>5.1.0</hapi.fhir.version>
+        <swagger.ui.version>2.9.2</swagger.ui.version>
+        <javax-servlet.version>4.0.1</javax-servlet.version>
+        <spring.version>5.2.3.RELEASE</spring.version>
+        <hibernate.version>5.4.8.Final</hibernate.version>
+        <hibernate-jpa.version>1.0.2.Final</hibernate-jpa.version>
+        <hamcrest.version>1.3</hamcrest.version>
+        <testng.version>7.0.0</testng.version>
+        <mockito.version>3.3.3</mockito.version>
+        <lombok.version>1.18.10</lombok.version>
+        <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
+        <jaxb-runtime.version>2.3.2</jaxb-runtime.version>
+        <validation-api.version>2.0.1.Final</validation-api.version>
+        <hibernate-validator.version>6.1.0.Final</hibernate-validator.version>
+        <javax.el-api.version>3.0.0</javax.el-api.version>
+        <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
+        <bpmn-viz.version>1.0.0</bpmn-viz.version>
+        <seshat-api.version>1.0.1</seshat-api.version>
+        <gtf.version>1.0.0</gtf.version>
+
+        <!-- maven stuff -->
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+        <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
+        <wagon-webdav-jackrabbit.version>3.3.4</wagon-webdav-jackrabbit.version>
+        <maven-scm-publish-plugin.version>3.0.0</maven-scm-publish-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+
+        <!-- sonar variables -->
+        <sonar-jacoco-listeners.version>5.14.0.18788</sonar-jacoco-listeners.version>
+        <jacoco.plugin.version>0.8.6</jacoco.plugin.version>
+        <sonar.coverage.jacoco.xmlReportPaths>${user.dir}/target/site/jacoco-aggregate/**/jacoco.xml,
+            target/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+        <joda-time.version>2.10.5</joda-time.version>
+        <!-- Ignore our extensions to Plan Definition from sonar analyse -->
+        <sonar.exclusions>**/org/hl7/fhir/r4/model/*, **/ca/uhn/fhir/**/*</sonar.exclusions>
+
+        <webjars-locator.version>0.40</webjars-locator.version>
+        <webjars-swagger-ui.version>3.25.5</webjars-swagger-ui.version>
+        <stax2-api.version>3.1.4</stax2-api.version>
+        <woodstox-core-asl.version>4.4.1</woodstox-core-asl.version>
+    </properties>
+    <dependencies>
+        <!-- because java 11: -->
+        <!-- https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api -->
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>${javax.annotation-api.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${jaxb-api.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>${jaxb-runtime.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.validation/validation-api -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${validation-api.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax-servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- logging -->
+        <dependency>
+            <groupId>science.aist.seshat</groupId>
+            <artifactId>api</artifactId>
+            <version>${seshat-api.version}</version>
+        </dependency>
+        <!-- testng -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- mockito -->
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <version>${hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- jack-->
+        <dependency>
+            <groupId>science.aist</groupId>
+            <artifactId>jack</artifactId>
+            <version>${jack.version}</version>
+            <exclusions>
+                <!-- Remove what ever version comes with jack as we import 1.0.1 ourselves -->
+                <exclusion>
+                    <groupId>science.aist.seshat</groupId>
+                    <artifactId>api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+    <name>msbpmn</name>
+    <description>The fancy MSBPMN project for bi-direction transformation between BPMN and Fhir</description>
+    <url>https://github.com/FHOOEAIST/msbpmn</url>
+    <organization>
+        <name>Advanced Information Systems and Technology</name>
+        <url>http://aist.science</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>Mozilla Public License (MPL) version 2.0</name>
+            <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/FHOOEAIST/msbpmn/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <system>Jenkins</system>
+        <url>https://aist-intern.fh-hagenberg.at/jenkins/job/msbpmn/</url>
+    </ciManagement>
+    <developers>
+        <developer>
+            <id>AIST</id>
+            <name>Advanced Information Systems and Technology</name>
+            <email>contact@aist.science</email>
+            <roles>
+                <role>Research Group</role>
+            </roles>
+            <url>http://aist.science</url>
+            <organization>University of Applied Sciences Upper Austria</organization>
+            <organizationUrl>https://www.fh-ooe.at/</organizationUrl>
+        </developer>
+    </developers>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <configuration>
+                    <doclint>all</doclint>
+                    <additionalJOptions>
+                        <additionalJOption>--no-module-directories</additionalJOption>
+                    </additionalJOptions>
+                    <excludePackageNames>ca.uhn.fhir.*,org.hl7.fhir.*</excludePackageNames>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <!-- by default, id = "default" -->
+                        <reports>
+                            <!-- select non-aggregate reports -->
+                            <report>javadoc</report>
+                            <report>test-javadoc</report>
+                        </reports>
+                    </reportSet>
+                    <reportSet>
+                        <!-- aggregate reportSet, to define in poms having modules -->
+                        <id>aggregate</id>
+                        <inherited>false</inherited>
+                        <!-- don't run aggregate in child modules -->
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-publish-plugin</artifactId>
+                <version>${maven-scm-publish-plugin.version}</version>
+                <configuration>
+                    <scmBranch>site</scmBranch>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <seshat.loglevel>WARN</seshat.loglevel>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <configuration>
+                    <doclint>all</doclint>
+                    <additionalJOptions>
+                        <additionalJOption>--no-module-directories</additionalJOption>
+                    </additionalJOptions>
+                    <excludePackageNames>ca.uhn.fhir.*,org.hl7.fhir.*</excludePackageNames>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven-site-plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.wagon</groupId>
+                        <artifactId>wagon-webdav-jackrabbit</artifactId>
+                        <version>${wagon-webdav-jackrabbit.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven-release-plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>sonar-coverage</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jacoco</groupId>
+                            <artifactId>jacoco-maven-plugin</artifactId>
+                            <version>${jacoco.plugin.version}</version>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-and-report</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report-aggregate</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report-aggregate</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${user.dir}/target/site/jacoco-aggregate/${artifactId}
+                                    </outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <modules>
+        <module>transformation</module>
+        <module>hapi-fhir</module>
+    </modules>
+</project>

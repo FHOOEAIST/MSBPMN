@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<PlanDefinition xmlns="http://hl7.org/fhir">
+    <id value="cpg-common-registration"/>
+    <text>
+        <status value="generated"/>
+        <div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: cpg-common-registration</p><p><b>url</b>: <a href="http://hl7.org/fhir/uv/cpg/PlanDefinition/cpg-common-registration">http://hl7.org/fhir/uv/cpg/PlanDefinition/cpg-common-registration</a></p><p><b>version</b>: 0.1.0</p><p><b>name</b>: PlanDefinition_CPG_Common_Registration</p><p><b>title</b>: PlanDefinition - CPG Common Registration</p><p><b>type</b>: Workflow Definition <span style="background: LightGoldenRodYellow">(Details : {http://terminology.hl7.org/CodeSystem/plan-definition-type code 'workflow-definition' = 'Workflow Definition', given as 'Workflow Definition'})</span></p><p><b>status</b>: draft</p><p><b>date</b>: May 15, 2019 12:00:00 AM</p><p><b>jurisdiction</b>: World <span style="background: LightGoldenRodYellow">(Details : {http://unstats.un.org/unsd/methods/m49/m49.htm code '001' = 'World', given as 'World'})</span></p><p><b>copyright</b>: © WHO 2019+.</p><blockquote><p><b>action</b></p><p><b>title</b>: Registration</p><p><b>code</b>: Registration <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process code 'registration' = 'Registration)</span></p><blockquote><p><b>participant</b></p><p><b>type</b>: patient</p><p><b>role</b>: Patient <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code 'C000' = 'Patient)</span></p></blockquote><blockquote><p><b>participant</b></p><p><b>type</b>: practitioner</p><p><b>role</b>: Clerical support worker <span style="background: LightGoldenRodYellow">(Details : {http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona code 'W000' = 'Clerical support worker', given as 'Clerical support worker'})</span></p></blockquote><h3>Actions</h3><table class="grid"><tr><td>-</td></tr><tr><td>*</td></tr><tr><td>*</td></tr><tr><td>*</td></tr><tr><td>*</td></tr><tr><td>*</td></tr><tr><td>*</td></tr></table></blockquote></div>
+    </text>
+    <url value="http://hl7.org/fhir/uv/cpg/PlanDefinition/cpg-common-registration"/>
+    <version value="0.1.0"/>
+    <name value="PlanDefinition_CPG_Common_Registration"/>
+    <title value="PlanDefinition - CPG Common Registration"/>
+    <type>
+        <coding>
+            <system value="http://terminology.hl7.org/CodeSystem/plan-definition-type"/>
+            <code value="workflow-definition"/>
+            <display value="Workflow Definition"/>
+        </coding>
+    </type>
+    <status value="draft"/>
+    <date value="2019-05-15T00:00:00-04:00"/>
+    <jurisdiction>
+        <coding>
+            <system value="http://unstats.un.org/unsd/methods/m49/m49.htm"/>
+            <code value="001"/>
+            <display value="World"/>
+        </coding>
+    </jurisdiction>
+    <copyright value="© WHO 2019+."/>
+    <action>
+        <id value="ad_1" /> <!-- added -->
+        <title value="Registration"/>
+        <output> <!-- this is our custom type --> <!-- added -->
+            <id value="data_18" /> <!-- added -->
+            <name value="Bundle" /> <!-- added -->
+            <dataRequirement> <!-- added -->
+                <type value="Bundle"/> <!-- added -->
+            </dataRequirement> <!-- added -->
+            <relatedRequirement> <!-- added -->
+                <requirementId value="data_17"/> <!-- added -->
+            </relatedRequirement> <!-- added -->
+        </output>
+        <code>
+            <coding>
+                <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-process"/>
+                <code value="registration"/>
+            </coding>
+        </code>
+        <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--        <participant>-->
+<!--            <type value="patient"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="C000"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+<!--        <participant>-->
+<!--            <type value="practitioner"/>-->
+<!--            <role>-->
+<!--                <coding>-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                    <code value="W000"/>-->
+<!--                    <display value="Clerical support worker"/>-->
+<!--                </coding>-->
+<!--            </role>-->
+<!--        </participant>-->
+        <action>
+            <id value="ad_2" /> <!-- added -->
+            <relatedAction> <!-- added -->
+                <actionId value="ad_3"/> <!-- added -->
+                <relationship value="before-start"/> <!-- added -->
+            </relatedAction> <!-- added -->
+            <title value="Gather identifying information"/>
+            <output> <!-- this is our custom type -->
+                <id value="data_1" /> <!-- added -->
+                <name value="Questionnaire Response" /> <!-- added -->
+                <dataRequirement>
+                    <type value="QuestionnaireResponse"/>
+                </dataRequirement>
+            </output>
+<!--            <participant>-->
+<!--                <type value="patient"/>-->
+<!--                <role>-->
+<!--                    <coding>-->
+<!--                        <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                        <code value="C000"/>-->
+<!--                    </coding>-->
+<!--                </role>-->
+<!--            </participant>-->
+        </action>
+        <action>
+            <id value="ad_3" /> <!-- added -->
+            <relatedAction> <!-- added -->
+                <actionId value="ad_4"/> <!-- added -->
+                <relationship value="before-start"/> <!-- added -->
+            </relatedAction> <!-- added -->
+            <title value="Patient match"/>
+            <input> <!-- this is our custom type -->
+                <id value="data_2" /> <!-- added -->
+                <dataRequirement>
+                    <type value="QuestionnaireResponse"/>
+                    <codeFilter>
+                        <path value="questionnaire"/>
+                        <code>
+                            <code value="http://hl7.org/fhir/uv/cpg/Questionnaire/cpg-common-identity"/>
+                        </code>
+                    </codeFilter>
+                </dataRequirement>
+                <relatedRequirement> <!-- added -->
+                    <requirementId value="data_1"/> <!-- added -->
+                </relatedRequirement> <!-- added -->
+            </input>
+            <output> <!-- this is our custom type -->
+                <id value="data_3" /> <!-- added -->
+                <name value="Bundle" /> <!-- added -->
+                <dataRequirement>
+                    <type value="Bundle"/>
+                </dataRequirement>
+            </output>
+            <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--            <participant>-->
+<!--                <coding> &lt;!&ndash; added &ndash;&gt;-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/> &lt;!&ndash; added &ndash;&gt;-->
+<!--                    <code value="device"/> &lt;!&ndash; added &ndash;&gt;-->
+<!--                </coding> &lt;!&ndash; added &ndash;&gt;-->
+<!--                <extension url="http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-participantCapabilityStatement">-->
+<!--                    <valueCanonical value="http://hl7.org/fhir/uv/cpg/CapabilityStatement/cpg-patient-registry"/>-->
+<!--                </extension>-->
+<!--                <type value="device"/>-->
+<!--            </participant>-->
+        </action>
+        <action>
+            <id value="ad_4" /> <!-- added -->
+            <relatedAction> <!-- added -->
+                <actionId value="xor_group"/> <!-- added -->
+                <relationship value="before-start"/> <!-- added -->
+            </relatedAction> <!-- added -->
+            <title value="Resolve patient match results"/>
+            <input> <!-- this is our custom type -->
+                <id value="data_4" /> <!-- added -->
+                <dataRequirement>
+                    <type value="Bundle"/>
+                </dataRequirement>
+                <relatedRequirement> <!-- added -->
+                    <requirementId value="data_3"/> <!-- added -->
+                </relatedRequirement> <!-- added -->
+            </input>
+            <output> <!-- this is our custom type -->
+                <id value="data_5" /> <!-- added -->
+                <name value="Patient" /> <!-- added -->
+                <dataRequirement>
+                    <type value="Patient"/>
+                </dataRequirement>
+            </output>
+            <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--            <participant>-->
+<!--                <type value="practitioner"/>-->
+<!--                <role>-->
+<!--                    <coding>-->
+<!--                        <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/>-->
+<!--                        <code value="W000"/>-->
+<!--                        <display value="Clerical support worker"/>-->
+<!--                    </coding>-->
+<!--                </role>-->
+<!--            </participant>-->
+        </action>
+        <action> <!-- added -->
+            <id value="xor_group"/> <!-- added -->
+            <title value="xor_group"/> <!-- added -->
+            <groupingBehavior value="logical-group"/> <!-- added -->
+            <selectionBehavior value="exactly-one"/> <!-- added -->
+            <relatedAction> <!-- added -->
+                <actionId value="ad_11"/> <!-- added -->
+                <relationship value="before-start"/> <!-- added -->
+            </relatedAction> <!-- added -->
+            <action>
+                <id value="ad_5" /> <!-- added -->
+                <relatedAction> <!-- added -->
+                    <actionId value="xor_group"/> <!-- added -->
+                    <relationship value="before-end"/> <!-- added -->
+                </relatedAction> <!-- added -->
+                <title value="New patient"/>
+                <condition>
+                    <kind value="applicability"/>
+                    <expression>
+                        <language value="text/cql"/>
+                        <expression value="not exists %input i where i is Patient"/>
+                    </expression>
+                </condition>
+                <input> <!-- this is our custom type -->
+                    <id value="data_6" /> <!-- added -->
+                    <dataRequirement>
+                        <type value="Patient"/>
+                    </dataRequirement>
+                    <relatedRequirement> <!-- added -->
+                        <requirementId value="data_5"/> <!-- added -->
+                    </relatedRequirement> <!-- added -->
+                </input>
+                <input> <!-- this is our custom type --> <!-- added -->
+                    <id value="data_21" /> <!-- added -->
+                    <relatedRequirement> <!-- added -->
+                        <requirementId value="data_1"/> <!-- added -->
+                    </relatedRequirement> <!-- added -->
+                </input>
+                <output> <!-- this is our custom type --> <!-- added -->
+                    <id value="data_19" /> <!-- added -->
+                    <name value="Patient" /> <!-- added -->
+                    <dataRequirement> <!-- added -->
+                        <type value="Patient"/> <!-- added -->
+                    </dataRequirement> <!-- added -->
+                    <relatedRequirement> <!-- added -->
+                        <requirementId value="data_10"/> <!-- added -->
+                    </relatedRequirement> <!-- added -->
+                </output>
+                <action>
+                    <id value="ad_6" /> <!-- added -->
+                    <relatedAction> <!-- added -->
+                        <actionId value="ad_7"/> <!-- added -->
+                        <relationship value="before-start"/> <!-- added -->
+                    </relatedAction> <!-- added -->
+                    <title value="Gather patient information"/>
+                    <input> <!-- this is our custom type -->
+                        <id value="data_7" /> <!-- added -->
+                        <name value="Questionnaire Response"/> <!-- added -->
+                        <dataRequirement>
+                            <type value="QuestionnaireResponse"/>
+                            <codeFilter>
+                                <path value="questionnaire"/>
+                                <code>
+                                    <code value="http://hl7.org/fhir/uv/cpg/Questionnaire/cpg-common-identity"/>
+                                </code>
+                            </codeFilter>
+                        </dataRequirement>
+                    </input>
+                    <output> <!-- this is our custom type -->
+                        <id value="data_8" /> <!-- added -->
+                        <name value="Questionnaire Response filled" /> <!-- added -->
+                        <dataRequirement>
+                            <type value="QuestionnaireResponse"/>
+                        </dataRequirement>
+                    </output>
+                </action>
+                <action>
+                    <id value="ad_7" /> <!-- added -->
+                    <title value="Record patient data"/>
+                    <input> <!-- this is our custom type -->
+                        <id value="data_9" /> <!-- added -->
+                        <dataRequirement>
+                            <type value="QuestionnaireResponse"/>
+                            <codeFilter>
+                                <path value="questionnaire"/>
+                                <code>
+                                    <code value="http://hl7.org/fhir/uv/cpg/Questionnaire/cpg-common-patient-profile"/>
+                                </code>
+                            </codeFilter>
+                        </dataRequirement>
+                        <relatedRequirement> <!-- added -->
+                            <requirementId value="data_8"/> <!-- added -->
+                        </relatedRequirement> <!-- added -->
+                    </input>
+                    <output> <!-- this is our custom type -->
+                        <id value="data_10" /> <!-- added -->
+                        <name value="Patient" /> <!-- added -->
+                        <dataRequirement>
+                            <type value="Patient"/>
+                        </dataRequirement>
+                    </output>
+                    <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--                    <participant>-->
+<!--                        <coding> &lt;!&ndash; added &ndash;&gt;-->
+<!--                            <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/> &lt;!&ndash; added &ndash;&gt;-->
+<!--                            <code value="device"/> &lt;!&ndash; added &ndash;&gt;-->
+<!--                        </coding> &lt;!&ndash; added &ndash;&gt;-->
+<!--                        <extension url="http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-participantCapabilityStatement">-->
+<!--                            <valueCanonical value="http://hl7.org/fhir/uv/cpg/CapabilityStatement/cpg-patient-registry"/>-->
+<!--                        </extension>-->
+<!--                        <type value="device"/>-->
+<!--                    </participant>-->
+                </action>
+            </action>
+            <action>
+                <id value="ad_8" /> <!-- added -->
+                <relatedAction> <!-- added -->
+                    <actionId value="xor_group"/> <!-- added -->
+                    <relationship value="before-end"/> <!-- added -->
+                </relatedAction> <!-- added -->
+                <title value="Existing patient"/>
+                <condition>
+                    <kind value="applicability"/>
+                    <expression>
+                        <language value="text/cql"/>
+                        <expression value="exists %input i where i is Patient"/>
+                    </expression>
+                </condition>
+                <input> <!-- this is our custom type -->
+                    <id value="data_11" /> <!-- added -->
+                    <dataRequirement>
+                        <type value="Patient"/>
+                    </dataRequirement>
+                    <relatedRequirement> <!-- added -->
+                        <requirementId value="data_5"/> <!-- added -->
+                    </relatedRequirement> <!-- added -->
+                </input>
+                <input> <!-- this is our custom type --> <!-- added -->
+                    <id value="data_22" /> <!-- added -->
+                    <relatedRequirement> <!-- added -->
+                        <requirementId value="data_1"/> <!-- added -->
+                    </relatedRequirement> <!-- added -->
+                </input>
+                <output> <!-- this is our custom type --> <!-- added -->
+                    <id value="data_20" /> <!-- added -->
+                    <name value="Patient" /> <!-- added -->
+                    <dataRequirement> <!-- added -->
+                        <type value="Patient"/> <!-- added -->
+                    </dataRequirement> <!-- added -->
+                    <relatedRequirement> <!-- added -->
+                        <requirementId value="data_15"/> <!-- added -->
+                    </relatedRequirement> <!-- added -->
+                </output>
+                <action>
+                    <id value="ad_9" /> <!-- added -->
+                    <relatedAction> <!-- added -->
+                        <actionId value="ad_10"/> <!-- added -->
+                        <relationship value="before-start"/> <!-- added -->
+                    </relatedAction> <!-- added -->
+                    <title value="Ensure patient information is up to date"/>
+                    <input> <!-- this is our custom type -->
+                        <id value="data_12" /> <!-- added -->
+                        <name value="Questionnaire Response"/> <!-- added -->
+                        <dataRequirement>
+                            <type value="QuestionnaireResponse"/>
+                            <codeFilter>
+                                <path value="questionnaire"/>
+                                <code>
+                                    <code value="http://hl7.org/fhir/uv/cpg/Questionnaire/cpg-common-identity"/>
+                                </code>
+                            </codeFilter>
+                        </dataRequirement>
+                    </input>
+                    <output> <!-- this is our custom type -->
+                        <id value="data_13" /> <!-- added -->
+                        <name value="Questionnaire Response filled" /> <!-- added -->
+                        <dataRequirement>
+                            <type value="QuestionnaireResponse"/>
+                        </dataRequirement>
+                    </output>
+                </action>
+                <action>
+                    <id value="ad_10" /> <!-- added -->
+                    <title value="Record patient data"/>
+                    <input> <!-- this is our custom type -->
+                        <id value="data_14" /> <!-- added -->
+                        <dataRequirement>
+                            <type value="QuestionnaireResponse"/>
+                            <codeFilter>
+                                <path value="questionnaire"/>
+                                <code>
+                                    <code value="http://hl7.org/fhir/uv/cpg/Questionnaire/cpg-common-patient-profile"/>
+                                </code>
+                            </codeFilter>
+                        </dataRequirement>
+                        <relatedRequirement> <!-- added -->
+                            <requirementId value="data_13"/> <!-- added -->
+                        </relatedRequirement> <!-- added -->
+                    </input>
+                    <output> <!-- this is our custom type -->
+                        <id value="data_15" /> <!-- added -->
+                        <name value="Patient" /> <!-- added -->
+                        <dataRequirement>
+                            <type value="Patient"/>
+                        </dataRequirement>
+                    </output>
+                    <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--                    <participant>-->
+<!--                        <coding> &lt;!&ndash; added &ndash;&gt;-->
+<!--                            <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/> &lt;!&ndash; added &ndash;&gt;-->
+<!--                            <code value="device"/> &lt;!&ndash; added &ndash;&gt;-->
+<!--                        </coding> &lt;!&ndash; added &ndash;&gt;-->
+<!--                        <extension url="http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-participantCapabilityStatement">-->
+<!--                            <valueCanonical value="http://hl7.org/fhir/uv/cpg/CapabilityStatement/cpg-patient-registry"/>-->
+<!--                        </extension>-->
+<!--                        <type value="device"/>-->
+<!--                    </participant>-->
+                </action>
+            </action>
+        </action> <!-- added -->
+        <action>
+            <id value="ad_11" /> <!-- added -->
+            <title value="Patient summary lookup"/>
+            <input> <!-- this is our custom type -->
+                <id value="data_16" /> <!-- added -->
+                <dataRequirement>
+                    <type value="Patient"/>
+                </dataRequirement>
+                <relatedRequirement>  <!-- added -->
+                    <requirementId value="data_19"/> <!-- added -->
+                </relatedRequirement> <!-- added -->
+                <relatedRequirement> <!-- added -->
+                    <requirementId value="data_20"/> <!-- added -->
+                </relatedRequirement> <!-- added -->
+            </input>
+            <output> <!-- this is our custom type -->
+                <id value="data_17" /> <!-- added -->
+                <name value="Bundle" /> <!-- added -->
+                <dataRequirement>
+                    <type value="Bundle"/>
+                </dataRequirement>
+            </output>
+            <!-- not supported in this way anymore see: https://jira.hl7.org/browse/FHIR-20825 -->
+<!--            <participant>-->
+<!--                <coding> &lt;!&ndash; added &ndash;&gt;-->
+<!--                    <system value="http://hl7.org/fhir/uv/cpg/CodeSystem/cpg-common-persona"/> &lt;!&ndash; added &ndash;&gt;-->
+<!--                    <code value="device"/> &lt;!&ndash; added &ndash;&gt;-->
+<!--                </coding> &lt;!&ndash; added &ndash;&gt;-->
+<!--                <extension url="http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-participantCapabilityStatement">-->
+<!--                    <valueCanonical value="http://hl7.org/fhir/uv/cpg/CapabilityStatement/cpg-patient-registry"/>-->
+<!--                </extension>-->
+<!--                <type value="device"/>-->
+<!--            </participant>-->
+        </action>
+    </action>
+</PlanDefinition>

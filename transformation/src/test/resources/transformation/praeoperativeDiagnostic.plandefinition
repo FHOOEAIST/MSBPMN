@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<PlanDefinition xmlns="http://hl7.org/fhir">
+    <id value="praeoperative-diagnostik"/>
+    <url value="https://www.sozialministerium.at/Themen/Gesundheit/Gesundheitssystem/Gesundheitssystem-und-Qualitaetssicherung/Qualitaetsstandards/Bundesqualitaetsleitlinie-zur-integrierten-Versorgung-von-erwachsenen-Patientinnen-und-Patienten-fuer-die-praeoperative-Diagnostik-bei-elektiven-Eingriffen---BQLL-PRAEOP.html"/>
+    <version value="1.0"/>
+    <name value="Preoperative_Diagnosis"/>
+    <title value="Bundesqualitätsleitlinie zur integrierten Versorgung von erwachsenen Patientinnen und Patienten für die präoperative Diagnostik bei elektiven Eingriffen - BQLL PRÄOP"/>
+    <type>
+        <coding>
+            <system value="http://terminology.hl7.org/CodeSystem/plan-definition-type"/>
+            <code value="workflow-definition"/>
+            <display value="Workflow Definition"/>
+        </coding>
+    </type>
+    <status value="draft"/>
+    <action>
+        <id value="dmn_operation_category"/>
+        <title value="Which intervention category?"/>
+        <output>
+            <id value="data_operation_category"/>
+            <name value="Intervention category"/>
+            <dataRequirement>
+                <type value="intervention_category"/>
+            </dataRequirement>
+        </output>
+        <relatedAction>
+            <actionId value="task_anamnese_status"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+        <!-- TODO #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) how can we link the dmn -->
+    </action>
+    <action>
+        <id value="task_anamnese_status"/>
+        <title value="Perform anamnesis and medical state"/>
+        <output>
+            <id value="data_anamnesis_report"/>
+            <name value="Anamnesis report"/>
+            <dataRequirement>
+                <type value="anamnesis_report"/>
+            </dataRequirement>
+        </output>
+        <relatedAction>
+            <actionId value="xor_anamnesis_unobtrusive"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+        <!-- subprocess -->
+        <action>
+            <id value="xor_anamnesis_feasible"/>
+            <title value="Anamnesis feasible"/>
+            <groupingBehavior value="logical-group"/>
+            <selectionBehavior value="exactly-one"/>
+            <!-- currently our implementation does not support to have more than one action
+            per xor-branch. I will put the two action in a subprocess to fix that issue -->
+            <action>
+                <id value="anamnesis_medical_check_group"/>
+                <title value=""/>
+                <condition>
+                    <kind value="applicability"/>
+                    <expression>
+                        <language
+                                value="text/cql"/><!-- TODO #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                        <expression value="Yes"/>
+                    </expression>
+                </condition>
+                <relatedAction>
+                    <actionId value="xor_anamnesis_feasible"/>
+                    <relationship value="before-end"/>
+                </relatedAction>
+                <action>
+                    <id value="task_perform_anamnesis"/>
+                    <title value="Perform anamnesis"/>
+                    <relatedAction>
+                        <actionId value="task_perform_medical_check"/>
+                        <relationship value="before-start"/>
+                    </relatedAction>
+                    <output>
+                        <id value="data_ogari"/>
+                        <name value="Filled Ögari questionaire"/>
+                        <dataRequirement>
+                            <type value="FilledOegariQuestionaire"/>
+                        </dataRequirement>
+                    </output>
+                </action>
+                <action>
+                    <id value="task_perform_medical_check"/>
+                    <title value="Perform medical check"/>
+                </action>
+            </action>
+            <action>
+                <id value="anamnesis_not_feasible"/>
+                <title value="Medical check not feasible"/>
+                <condition>
+                    <kind value="applicability"/>
+                    <expression>
+                        <language
+                                value="text/cql"/><!-- TODO #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                        <expression value="No"/>
+                    </expression>
+                </condition>
+                <relatedAction>
+                    <actionId value="xor_anamnesis_feasible"/>
+                    <relationship value="before-end"/>
+                </relatedAction>
+            </action>
+        </action>
+    </action>
+    <action>
+        <id value="xor_anamnesis_unobtrusive"/>
+        <title value="Anamnesis unobtrusive?"/>
+        <groupingBehavior value="logical-group"/>
+        <selectionBehavior value="at-most-one"/>
+        <relatedAction>
+            <actionId value="xor_therapy_necessary"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+        <action>
+            <id value="task_survey_medical_reports"/>
+            <title value="Survey medical reports"/>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language
+                            value="text/cql"/><!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                    <expression value="No"/>
+                </expression>
+            </condition>
+            <relatedAction>
+                <actionId value="xor_anamnesis_unobtrusive"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+            <input>
+                <id value="data_input_1"/>
+                <relatedRequirement>
+                    <requirementId value="data_operation_category"/>
+                </relatedRequirement>
+                <relatedRequirement>
+                    <requirementId value="data_anamnesis_report"/>
+                </relatedRequirement>
+            </input>
+            <action>
+                <id value="par_further_diagnosis"/>
+                <title value="Further diagnosis"/>
+
+                <!-- We are going to use a parallel task here, as a subprocess with no flow
+                is the same as modelling the tasks as "parallel". -->
+                <groupingBehavior value="logical-group"/>
+                <selectionBehavior value="all"/>
+                <relatedAction>
+                    <actionId value="xor_interdisciplinary_optimisation"/>
+                    <relationship value="before-start"/>
+                </relatedAction>
+                <action>
+                    <id value="task_labor"/>
+                    <title value="Perform laboratory tests"/>
+                    <output>
+                        <id value="data_lab"/>
+                        <name value="Laboratory results"/>
+                        <dataRequirement>
+                            <type value="laboratory_results"/>
+                        </dataRequirement>
+                    </output>
+                    <relatedAction>
+                        <actionId value="par_further_diagnosis"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <!-- subprozess labor -->
+                    <action>
+                        <id value="par_investigation_request_take_blood"/>
+                        <title value=""/>
+                        <groupingBehavior value="logical-group"/>
+                        <selectionBehavior value="all"/>
+                        <relatedAction>
+                            <actionId value="task_request_laboratory_results"/>
+                            <relationship value="before-start"/>
+                        </relatedAction>
+                        <action>
+                            <id value="dmn_investigation_request_lab"/>
+                            <title value="What is the investigation request?"/>
+                            <input>
+                                <id value="data_anamnesis_report_1"/>
+                                <name value="Anamnesis report"/>
+                                <dataRequirement>
+                                    <type value="anamnesis_report"/>
+                                </dataRequirement>
+                            </input>
+                            <output>
+                                <id value="data_investigation_request_1"/>
+                                <name value="Investigation request"/>
+                                <dataRequirement>
+                                    <type value="investigation_request"/>
+                                </dataRequirement>
+                            </output>
+                            <relatedAction>
+                                <actionId value="par_investigation_request_take_blood"/>
+                                <relationship value="before-end"/>
+                            </relatedAction>
+                        </action>
+                        <action>
+                            <id value="task_take_blood_sample"/>
+                            <title value="Take blood sample"/>
+                            <relatedAction>
+                                <actionId value="par_investigation_request_take_blood"/>
+                                <relationship value="before-end"/>
+                            </relatedAction>
+                        </action>
+                    </action>
+                    <action>
+                        <id value="task_request_laboratory_results"/>
+                        <title value="Request laboratory results"/>
+                        <input>
+                            <id value="data_input_6"/>
+                            <relatedRequirement>
+                                <requirementId value="data_investigation_request_1"/>
+                            </relatedRequirement>
+                        </input>
+                        <relatedAction>
+                            <actionId value="task_laboratory_results_transmitted"/>
+                            <relationship value="before-start"/>
+                        </relatedAction>
+                    </action>
+                    <action>
+                        <id value="task_laboratory_results_transmitted"/>
+                        <title value="Laboratory results transmitted"/>
+                        <trigger>
+                            <type value="named-event"/>
+                            <name value="laboratory-results-transmitted"/>
+                            <condition>
+                                <language
+                                        value="text/cql"/><!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                                <expression value="Laboratory results transmitted"/>
+                            </condition>
+                        </trigger>
+                        <output>
+                            <id value="data_laboratory_results"/>
+                            <name value="Laboratory results"/>
+                            <dataRequirement>
+                                <type value="laboratory_results"/>
+                            </dataRequirement>
+                        </output>
+                    </action>
+                </action>
+                <action>
+                    <id value="task_cardio"/>
+                    <title value="Perform cardioplumonary test"/>
+                    <output>
+                        <id value="data_cardio"/>
+                        <name value="Cardiopulmonary results"/>
+                        <dataRequirement>
+                            <type value="cardio_pulmonary_results"/>
+                        </dataRequirement>
+                    </output>
+                    <relatedAction>
+                        <actionId value="par_further_diagnosis"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <!-- Subprozess Kardiopulmonale Befundung -->
+                    <!--
+                    TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44)
+                     Missing Closed Swimlane: Kardiologie
+                     Question: How can we display this in Fhir (should we even display this)?
+                     Possible Solution:
+                       1) action as a placeholder for swimlane with specific annotation
+                       2) Define Message End Event, and a Message Start Event to have a message flow back into the process.
+                    -->
+                    <action>
+                        <!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) How can we link the DMN -->
+                        <id value="dmn_investigation_request"/>
+                        <title value="What is the Investigation request?"/>
+                        <input>
+                            <id value="data_anamnesis"/>
+                            <name value="Anamnesis report"/>
+                            <dataRequirement>
+                                <type value="anamnesis_report"/>
+                            </dataRequirement>
+                        </input>
+                        <output>
+                            <id value="data_examination_request"/>
+                            <name value="Investigation request"/>
+                            <dataRequirement>
+                                <type value="Investigation request"/>
+                            </dataRequirement>
+                        </output>
+                        <relatedAction>
+                            <actionId value="task_request_cardiological_results"/>
+                            <relationship value="before-start"/>
+                        </relatedAction>
+                    </action>
+                    <action>
+                        <id value="task_request_cardiological_results"/>
+                        <title value="Request cardiological results"/>
+                        <input>
+                            <id value="data_input_5"/>
+                            <relatedRequirement>
+                                <requirementId value="data_examination_request"/>
+                            </relatedRequirement>
+                        </input>
+                        <relatedAction>
+                            <actionId value="task_cardiological_results_transmitted"/>
+                            <relationship value="before-start"/>
+                        </relatedAction>
+                    </action>
+                    <action>
+                        <id value="task_cardiological_results_transmitted"/>
+                        <title value="Cardiological results transitted"/>
+                        <trigger>
+                            <type value="named-event"/>
+                            <name value="cardiological-results-transmitted"/>
+                            <condition>
+                                <language
+                                        value="text/cql"/><!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                                <expression value="Cardiological results transitted"/>
+                            </condition>
+                        </trigger>
+                        <output>
+                            <id value="data_cardiopulmonary_results"/>
+                            <name value="Cardiopulmonary results"/>
+                            <dataRequirement>
+                                <type value="cardiopulmonary_results"/>
+                            </dataRequirement>
+                        </output>
+                    </action>
+                </action>
+                <action>
+                    <id value="task_other_medical_reports"/>
+                    <title value="Other medical reports"/>
+                    <relatedAction>
+                        <actionId value="par_further_diagnosis"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                </action>
+            </action>
+            <action>
+                <id value="xor_interdisciplinary_optimisation"/>
+                <title value="interdisciplinary optimisation needed?"/>
+                <groupingBehavior value="logical-group"/>
+                <selectionBehavior value="at-most-one"/>
+                <action>
+                    <id value="task_interdis_opt"/>
+                    <title value="Perform interdisciplinary optimisation"/>
+                    <condition>
+                        <kind value="applicability"/>
+                        <expression>
+                            <language
+                                    value="text/cql"/><!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                            <expression value="Yes"/>
+                        </expression>
+                    </condition>
+                    <relatedAction>
+                        <actionId value="xor_interdisciplinary_optimisation"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                    <input>
+                        <id value="data_input_1"/>
+                        <relatedRequirement>
+                            <requirementId value="data_lab"/>
+                        </relatedRequirement>
+                        <relatedRequirement>
+                            <requirementId value="data_cardio"/>
+                        </relatedRequirement>
+                    </input>
+                </action>
+            </action>
+        </action>
+    </action>
+    <action>
+        <id value="xor_therapy_necessary"/>
+        <title value=""/> <!-- This xor needs no title -->
+        <groupingBehavior value="logical-group"/>
+        <selectionBehavior value="at-most-one"/>
+        <relatedAction>
+            <actionId value="xor_surgery_feasible"/>
+            <relationship value="before-start"/>
+        </relatedAction>
+        <action>
+            <id value="task_therapy"/>
+            <title value="Initiate therapy and medical care"/>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language
+                            value="text/cql"/><!-- TODO: #44 (https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/44) what is the correct one -->
+                    <expression value="therapy and medical care needed"/>
+                </expression>
+            </condition>
+            <relatedAction>
+                <actionId value="xor_therapy_necessary"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+        </action>
+    </action>
+    <action>
+        <id value="xor_surgery_feasible"/>
+        <title value="Surgery feasible?"/>
+        <groupingBehavior value="logical-group"/>
+        <selectionBehavior value="exactly-one"/>
+        <action>
+            <id value="task_approve_surgery"/>
+            <title value="Approve surgery"/>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language value="text/cql"/>
+                    <expression value="Yes"/>
+                </expression>
+            </condition>
+            <relatedAction>
+                <actionId value="xor_surgery_feasible"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+            <!-- subprozess approve surgery: -->
+            <action>
+                <id value="par_airway_control"/>
+                <title value="Airway control"/>
+                <!-- We are going to use a parallel task here, as a subprocess with no flow
+                is the same as modelling the tasks as "parallel". -->
+                <groupingBehavior value="logical-group"/>
+                <selectionBehavior value="all"/>
+                <relatedAction>
+                    <actionId value="task_survey_tooth_status"/>
+                    <relationship value="before-start"/>
+                </relatedAction>
+                <action>
+                    <id value="task_survey_tyromental_distance"/>
+                    <title value="Survey tyromental distance"/>
+                    <relatedAction>
+                        <actionId value="par_airway_control"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                </action>
+                <action>
+                    <id value="task_survey_mellampati_score"/>
+                    <title value="Survey Mellampati-Score"/>
+                    <relatedAction>
+                        <actionId value="par_airway_control"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                </action>
+                <action>
+                    <id value="task_perform_lower_jaw_protrusion_test"/>
+                    <title value="Perform lower jaw protrusion test"/>
+                    <relatedAction>
+                        <actionId value="par_airway_control"/>
+                        <relationship value="before-end"/>
+                    </relatedAction>
+                </action>
+            </action>
+            <action>
+                <id value="task_survey_tooth_status"/>
+                <title value="Survey tooth status"/>
+                <relatedAction>
+                    <actionId value="task_inspection_of_the_corresponding_anatomic_region"/>
+                    <relationship value="before-start"/>
+                </relatedAction>
+            </action>
+            <action>
+                <id value="task_inspection_of_the_corresponding_anatomic_region"/>
+                <title value="Inspection of the corresponding anatomic region"/>
+            </action>
+        </action>
+        <action>
+            <id value="task_refuse_surgery"/>
+            <title value="Refuse surgery"/>
+            <condition>
+                <kind value="applicability"/>
+                <expression>
+                    <language value="text/cql"/>
+                    <expression value="No"/>
+                </expression>
+            </condition>
+            <relatedAction>
+                <actionId value="xor_surgery_feasible"/>
+                <relationship value="before-end"/>
+            </relatedAction>
+        </action>
+    </action>
+</PlanDefinition>

@@ -1,0 +1,23 @@
+templateName: generateDocumentation
+templateTasks:
+  - name: createGraphWizDir
+    type: createDirectory
+    properties:
+      path: ${project}/src/site/resources/js/fhir2bpmn
+
+  - name: createMarkdownDir
+    type: createDirectory
+    properties:
+      path: ${project}/src/site/markdown/fhir2bpmn/
+
+  - name: createMarkdown
+    type: instantiateTemplate
+    properties:
+      template: classpath:/template/fhir2bpmndoc.ftl
+      dest: ${project}/src/site/markdown/fhir2bpmn/${filename}.md
+
+  - name: createBpmnJS
+    type: instantiateTemplate
+    properties:
+      template: classpath:/template/bpmnjs.ftl
+      dest: ${project}/src/site/resources/js/fhir2bpmn/${filename}.js

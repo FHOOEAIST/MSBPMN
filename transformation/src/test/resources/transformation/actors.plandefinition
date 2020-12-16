@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<PlanDefinition xmlns="http://hl7.org/fhir">
+    <id value="participant"/>
+
+    <actor>
+        <id value="actor_1"/>
+        <label value="Max Mustermann"/>
+        <description value="Spezialist für eh alles"/>
+        <options>
+            <type value="patient"/>
+        </options>
+        <options>
+            <type value="patient"/>
+            <role>
+                <coding>
+                    <system value="some_system"/>
+                    <code value="some_code"/>
+                </coding>
+            </role>
+        </options>
+    </actor>
+
+    <actor>
+        <id value="actor_2"/>
+        <label value="Maxine Musterfrau"/>
+        <description value="Spezialistin für noch viel mehr"/>
+        <options>
+            <type value="patient"/>
+        </options>
+        <options>
+            <type value="patient"/>
+            <role>
+                <coding>
+                    <system value="some_system"/>
+                    <code value="some_code"/>
+                </coding>
+            </role>
+        </options>
+    </actor>
+
+    <action>
+        <id value="ad_1" />
+        <title value="Action 1"/>
+        <participant>
+            <actor value="actor_1"/>
+            <function>
+                <coding>
+                    <system value="some_system"/>
+                    <code value="some_code"/>
+                </coding>
+            </function>
+        </participant>
+        <relatedAction>
+            <actionId value='ad_2'/>
+            <relationship value='before-start'/>
+        </relatedAction>
+    </action>
+
+    <action>
+        <id value="ad_2" />
+        <title value="Action 2"/>
+        <participant>
+            <actor value="actor_2"/>
+        </participant>
+    </action>
+</PlanDefinition>

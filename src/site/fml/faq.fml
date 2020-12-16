@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2020 the original author or authors.
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<faqs xmlns="http://maven.apache.org/FML/1.0.1"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/FML/1.0.1 http://maven.apache.org/xsd/fml-1.0.1.xsd"
+>
+    <part id="General">
+        <faq id="What is MSBPMN">
+            <question>What is MSBPMN?</question>
+            <answer>
+                <p>
+                    In MSBPMN (Model and Standards-Based Process-simulation in MediciNe) a standards-based model
+                    transformation between BPMN 2.0 and HL7® FHIR® is developed.
+                    The goal is to define clinical guidelines and treatment plans in HL7® FHIR® and to automatically
+                    generate BPMN models, which are then used in the IT systems for process control and documentation.
+                    The implementation of the model transformation provides a reference how a transformation between the
+                    two standards can look. It is closely coordinated with the HL7 Workflow Project. This project aims to
+                    make a significant contribution to the digitisation (of processes) of evidence-based medicine.
+                </p>
+            </answer>
+        </faq>
+    </part>
+</faqs>
