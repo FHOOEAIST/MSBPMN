@@ -6,7 +6,7 @@ const originalViewer = new BpmnJS({
 
 originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:ns2="http://www.omg.org/spec/DD/20100524/DI" xmlns:ns3="http://www.omg.org/spec/DD/20100524/DC" xmlns:ns4="http://www.omg.org/spec/BPMN/20100524/DI" targetNamespace="http://aist.fh-hagenberg.at/msbpmn">
-    <process isExecutable="false" name="Process_mRJTyG0yRB" id="Process_mRJTyG0yRB">
+    <process isExecutable="false" name="Process_67T9TdYD6C" id="Process_67T9TdYD6C">
         <startEvent isInterrupting="false" parallelMultiple="false" name="start" id="id_start1">
             <outgoing>sf_start1_ad_1</outgoing>
         </startEvent>
@@ -31,7 +31,7 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
         </endEvent>
     </process>
     <ns4:BPMNDiagram>
-        <ns4:BPMNPlane bpmnElement="Process_mRJTyG0yRB">
+        <ns4:BPMNPlane bpmnElement="Process_67T9TdYD6C">
             <ns4:BPMNShape bpmnElement="id_start1" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="60.0" y="85.0" width="30.0" height="30.0"/>
             </ns4:BPMNShape>

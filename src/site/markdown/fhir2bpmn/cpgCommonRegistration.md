@@ -537,15 +537,15 @@ Usage: Mouse Click + Move: Scroll around. Ctrl + Mouse Wheel: Zoom.
             <subProcess name="Existing patient" id="id_ad_8">
                 <incoming>sf_xor_group_ad_8</incoming>
                 <outgoing>sf_ad_8_join_of_xor_group</outgoing>
-                <property name="prop_Questionnaire Response" id="prop_ad_8_data_1"/>
                 <property name="prop_Patient" id="prop_ad_8_data_5"/>
-                <dataInputAssociation id="df_id_ad_8_data_1">
-                    <sourceRef>id_data_1</sourceRef>
-                    <targetRef>prop_ad_8_data_1</targetRef>
-                </dataInputAssociation>
+                <property name="prop_Questionnaire Response" id="prop_ad_8_data_1"/>
                 <dataInputAssociation id="df_id_ad_8_data_5">
                     <sourceRef>id_data_5</sourceRef>
                     <targetRef>prop_ad_8_data_5</targetRef>
+                </dataInputAssociation>
+                <dataInputAssociation id="df_id_ad_8_data_1">
+                    <sourceRef>id_data_1</sourceRef>
+                    <targetRef>prop_ad_8_data_1</targetRef>
                 </dataInputAssociation>
                 <dataOutputAssociation id="df_id_ad_8_data_20">
                     <targetRef>id_data_20</targetRef>
@@ -953,13 +953,13 @@ Usage: Mouse Click + Move: Scroll around. Ctrl + Mouse Wheel: Zoom.
                 <ns2:waypoint x="516.0975609756098" y="1220.0"/>
                 <ns2:waypoint x="650.2439024390244" y="670.0"/>
             </ns4:BPMNEdge>
-            <ns4:BPMNEdge bpmnElement="df_id_ad_8_data_1">
-                <ns2:waypoint x="378.0" y="1158.6883116883116"/>
-                <ns2:waypoint x="850.0" y="993.1818181818181"/>
-            </ns4:BPMNEdge>
             <ns4:BPMNEdge bpmnElement="df_id_ad_8_data_5">
                 <ns2:waypoint x="678.0" y="1308.531914893617"/>
                 <ns2:waypoint x="895.0" y="1110.0"/>
+            </ns4:BPMNEdge>
+            <ns4:BPMNEdge bpmnElement="df_id_ad_8_data_1">
+                <ns2:waypoint x="378.0" y="1158.6883116883116"/>
+                <ns2:waypoint x="850.0" y="993.1818181818181"/>
             </ns4:BPMNEdge>
             <ns4:BPMNEdge bpmnElement="df_id_ad_5_data_1">
                 <ns2:waypoint x="378.0" y="1146.2987012987012"/>

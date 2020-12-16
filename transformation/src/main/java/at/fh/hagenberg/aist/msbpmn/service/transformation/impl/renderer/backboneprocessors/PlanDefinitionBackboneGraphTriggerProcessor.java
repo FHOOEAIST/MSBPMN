@@ -39,8 +39,7 @@ public class PlanDefinitionBackboneGraphTriggerProcessor implements PlanDefiniti
                         TriggerDefinition.TriggerType.NAMEDEVENT == actionDefinition.getTriggerFirstRep().getType()
                                 || TriggerDefinition.TriggerType.PERIODIC == actionDefinition.getTriggerFirstRep().getType())
                 .forEach(actionDefinition -> {
-                    // TODO (#43 https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/43) there is a problem if
-                    //  the trigger has an in/output because it is added to both elements
+                    // there is a problem if the trigger has an in/output because it is added to both elements
                     PlanDefinition.PlanDefinitionActionComponent trigger = actionDefinition.copy();
                     graphBuilder.getOrAddVertex(trigger).addMetaTag(new MetaTagImpl<>(EVENT_META_TAG, BpmnEventTypes.getByTriggerType(actionDefinition.getTriggerFirstRep().getType())));
 
