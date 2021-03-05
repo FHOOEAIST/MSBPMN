@@ -10,10 +10,6 @@ make a significant contribution to the digitisation (of processes) of evidence-b
 
 Detailed Documentation can be found [here](https://fhooeaist.github.io/msbpmn).
 
-## Known issues
-
- - mxgraph dependency not available on maven central: (https://github.com/FHOOEAIST/bpmn-viz/issues/4)
-
 ## Getting Started
 
 A transformation from an adapted version of a Fhir PlanDefinition to the BPMN specification is provided. The transformation
@@ -110,7 +106,6 @@ The following files and packages are licensed under different conditions:
 | Licence | Filepaths |
 |-|-|
 | **Apache 2.0**<br>see hapi-fhir/LICENSE | module hapi-fhir (hapi-fhir/*)<br>package &ast;&ast;/org/hl7/fhir/r4/&ast;&ast;<br>package &ast;&ast;/ca/uhn/fhir/util/&ast;&ast; |
-| **jgraph mxgraph**<br>see LICENSE_JGRAPH_MXGRAPH | dependency: com.mxgraph:mxgraph-all:3.7.4 |
 
 ## Research
 
