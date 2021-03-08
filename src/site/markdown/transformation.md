@@ -352,19 +352,18 @@ so some assumptions and restrictions were defined. These can be found in the res
 
 Each action that is not the last action in the process needs to define the next related action.
 
-The relationship must be before-start for normal sequence flow. There is no support to define addition flow behaviour 
-by defining `before-end` (except gateways) or similar relation ship values.
+The relationship must be before-start for normal sequence flow. There is no support to define additional flow behaviour 
+by defining `before-end` (except gateways) or other relationship types.
 
 The only exception to that rule are parallel or xor gateways, this can be found in the according section.
 
 ### XOR Gateways
 
-Currently, there is no support to define action with condition without them being surrounded by a xor action. There are
-also some restriction to the xor-group as well. The groupingBehaviour is fixed to `logical-group`. In addition to that 
-selectionBehavior is mandatory and restricted to `exactly-one` or `at-most-one`. As a finale restriction it is defined,
-that every child action of a xor_group must have a condition (with a defined expression.expression value) and in 
-addition to that, must have a relatedAction to the xor-group itself, with a relationship-value: `before-end`.
-The transformation will ignore any condition that is defined by an action that is outside a xor-scope. 
+Currently, there is no support to define action with condition without them being surrounded by an xor action. There are
+also some restriction to the xor-group. 
+
+The groupingBehaviour is fixed to `logical-group`. In addition to that, selectionBehavior is mandatory and restricted to `exactly-one` or `at-most-one`. As a final restriction it is defined that every child action of a xor_group must have a condition (with a defined expression.expression value) and must have a relatedAction to the xor-group with a relationship-value: `before-end`.
+The transformation will ignore all conditions defined by actions outside an xor-scope. 
 
 ### Parallel Gateway
 
@@ -372,32 +371,30 @@ A parallel gateway is similar to an xor-gateway. The only difference is, that th
 
 ### ID
 
-Every action must have an id assign. In general, it makes sense to assign an id to every element, to make them unique.
-In addition to that BPMN has the restriction, that an ID must start with a letter. To avoid redirecting that restriction
-to the PlanDefinition the transformation prefixes every id that is reused from the PlanDefinition with "id_".  
+Every action must have an id. In general, it makes sense to assign an id to every element to make them unique.
+In addition to that, BPMN has the restriction that an ID must start with a letter. To avoid redirecting that restriction
+to the PlanDefinition, the transformation prefixes every id that is reused from the PlanDefinition with "id_".  
 
 ### Data Flow
 
-Data Flow Elements are a custom defined extensions that are not part of the HL7® FHIR® Model. Thus means, that the normal
+Data Flow Elements are a custom defined extensions that are not part of the HL7® FHIR® Model. Thus, the normal
 HL7® FHIR® Specification will fail the validation of Data Flow on Action elements, when they are adapted for our transformation.
 Both input and output can have relatedRequirements, although for input they are mandatory whereas for output the value
 of the relatedRequirement is ignored. Each output or input element again must have an ID. Every input element must have
-at least one but possibly multiple related requirement. Whereas it is defined, that this related requirement to an output
-element has to exist. This mean, that if an input element reference an id, that an action which has an output with this
-ID must exist.
+at least one relatedRequirement. If an input element references an id, an action with this ID (on output) must exist.
 
 ### Events
 
-Action can define triggers to start them at a specific time or on a specific condition. This concept is restricted to
-the behaviour that only a single trigger is allowed per action. In addition to that it is defined, that the trigger
-type `periodic` is for timed events, whereas the trigger type `namedevent` is for conditional events. For condition
-events it is also defined, that hey must have a condition inside the trigger.
+Action can define triggers to start at a specific time or on a specific condition. This concept is restricted to
+the behaviour that only a single trigger is allowed per action. In addition to that, the trigger
+type `periodic` is for timed events, whereas the trigger type `namedevent` is for conditional events. Conditional
+events must have a condition inside the trigger.
 
 ### Participants
 
-Participants are getting transformed into BPMN lines. To re-identify the same participant the role of the participant is 
-used. Thus means, that every participant in the process must have a role defined. As an identification the first coding
-of a role is used. Therefore, system and code element will be concatenated and are the unique identifier for the participant.
-Note: Only the process child activities in BPMN can be in different lanes. That means that if a subprocess (or a action
-with sub actions in HL7® FHIR®) has assigned a participant all child elements/actions will be inside the same lane. No matter
+Participants are transformed into BPMN swimlanes. To re-identify the same participant, the role of the participant is 
+used. Thus, every participant in the process must have a role. For identification the first coding of a role is used. 
+Therefore, system and code element will be concatenated and are the unique identifier for the participant.
+Note: Only the process child activities in BPMN can be in different lanes. That means that if a subprocess (or an action
+with subactions in HL7® FHIR®) has assigned a participant, all child elements/actions will be inside the same lane. No matter
 if they have participants defined or not.       
