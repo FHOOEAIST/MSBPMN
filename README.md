@@ -110,4 +110,6 @@ The following files and packages are licensed under different conditions:
 ## Research
 
 If you are going to use this project as part of a research paper, we would ask you to reference this project by citing
-it. DOI: [![DOI](https://zenodo.org/badge/303987872.svg)](https://zenodo.org/badge/latestdoi/303987872)
+it. 
+
+[![DOI](https://zenodo.org/badge/303987872.svg)](https://zenodo.org/badge/latestdoi/303987872)
