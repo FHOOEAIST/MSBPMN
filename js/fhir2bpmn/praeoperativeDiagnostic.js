@@ -36,20 +36,15 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <sequenceFlow sourceRef="id_start72" targetRef="id_xor_anamnesis_feasible" id="sf_start72_xor_anamnesis_feasible"/>
             <exclusiveGateway name="Anamnesis feasible" id="id_xor_anamnesis_feasible">
                 <incoming>sf_start72_xor_anamnesis_feasible</incoming>
-                <outgoing>sf_xor_anamnesis_feasible_anamnesis_not_feasible</outgoing>
                 <outgoing>sf_xor_anamnesis_feasible_anamnesis_medical_check_group</outgoing>
+                <outgoing>sf_xor_anamnesis_feasible_anamnesis_not_feasible</outgoing>
             </exclusiveGateway>
-            <sequenceFlow sourceRef="id_xor_anamnesis_feasible" targetRef="id_anamnesis_not_feasible" name="No" id="sf_xor_anamnesis_feasible_anamnesis_not_feasible">
-                <conditionExpression id="sf_xor_anamnesis_feasible_anamnesis_not_feasible_condition">No</conditionExpression>
-            </sequenceFlow>
             <sequenceFlow sourceRef="id_xor_anamnesis_feasible" targetRef="id_anamnesis_medical_check_group" name="Yes" id="sf_xor_anamnesis_feasible_anamnesis_medical_check_group">
                 <conditionExpression id="sf_xor_anamnesis_feasible_anamnesis_medical_check_group_condition">Yes</conditionExpression>
             </sequenceFlow>
-            <userTask name="Medical check not feasible" id="id_anamnesis_not_feasible">
-                <incoming>sf_xor_anamnesis_feasible_anamnesis_not_feasible</incoming>
-                <outgoing>sf_anamnesis_not_feasible_join_of_xor_anamnesis_feasible</outgoing>
-            </userTask>
-            <sequenceFlow sourceRef="id_anamnesis_not_feasible" targetRef="id_join_of_xor_anamnesis_feasible" id="sf_anamnesis_not_feasible_join_of_xor_anamnesis_feasible"/>
+            <sequenceFlow sourceRef="id_xor_anamnesis_feasible" targetRef="id_anamnesis_not_feasible" name="No" id="sf_xor_anamnesis_feasible_anamnesis_not_feasible">
+                <conditionExpression id="sf_xor_anamnesis_feasible_anamnesis_not_feasible_condition">No</conditionExpression>
+            </sequenceFlow>
             <subProcess id="id_anamnesis_medical_check_group">
                 <incoming>sf_xor_anamnesis_feasible_anamnesis_medical_check_group</incoming>
                 <outgoing>sf_anamnesis_medical_check_group_join_of_xor_anamnesis_feasible</outgoing>
@@ -80,6 +75,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
                 </endEvent>
             </subProcess>
             <sequenceFlow sourceRef="id_anamnesis_medical_check_group" targetRef="id_join_of_xor_anamnesis_feasible" id="sf_anamnesis_medical_check_group_join_of_xor_anamnesis_feasible"/>
+            <userTask name="Medical check not feasible" id="id_anamnesis_not_feasible">
+                <incoming>sf_xor_anamnesis_feasible_anamnesis_not_feasible</incoming>
+                <outgoing>sf_anamnesis_not_feasible_join_of_xor_anamnesis_feasible</outgoing>
+            </userTask>
+            <sequenceFlow sourceRef="id_anamnesis_not_feasible" targetRef="id_join_of_xor_anamnesis_feasible" id="sf_anamnesis_not_feasible_join_of_xor_anamnesis_feasible"/>
             <exclusiveGateway name="join" id="id_join_of_xor_anamnesis_feasible">
                 <incoming>sf_anamnesis_medical_check_group_join_of_xor_anamnesis_feasible</incoming>
                 <incoming>sf_anamnesis_not_feasible_join_of_xor_anamnesis_feasible</incoming>
@@ -132,13 +132,105 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <sequenceFlow sourceRef="id_start76" targetRef="id_par_further_diagnosis" id="sf_start76_par_further_diagnosis"/>
             <parallelGateway name="Further diagnosis" id="id_par_further_diagnosis">
                 <incoming>sf_start76_par_further_diagnosis</incoming>
+                <outgoing>sf_par_further_diagnosis_task_labor</outgoing>
                 <outgoing>sf_par_further_diagnosis_task_other_medical_reports</outgoing>
                 <outgoing>sf_par_further_diagnosis_task_cardio</outgoing>
-                <outgoing>sf_par_further_diagnosis_task_labor</outgoing>
             </parallelGateway>
+            <sequenceFlow sourceRef="id_par_further_diagnosis" targetRef="id_task_labor" id="sf_par_further_diagnosis_task_labor"/>
             <sequenceFlow sourceRef="id_par_further_diagnosis" targetRef="id_task_other_medical_reports" id="sf_par_further_diagnosis_task_other_medical_reports"/>
             <sequenceFlow sourceRef="id_par_further_diagnosis" targetRef="id_task_cardio" id="sf_par_further_diagnosis_task_cardio"/>
-            <sequenceFlow sourceRef="id_par_further_diagnosis" targetRef="id_task_labor" id="sf_par_further_diagnosis_task_labor"/>
+            <subProcess name="Perform laboratory tests" id="id_task_labor">
+                <incoming>sf_par_further_diagnosis_task_labor</incoming>
+                <outgoing>sf_task_labor_join_of_par_further_diagnosis</outgoing>
+                <dataOutputAssociation id="df_id_task_labor_data_lab">
+                    <targetRef>id_data_lab</targetRef>
+                </dataOutputAssociation>
+                <startEvent isInterrupting="false" parallelMultiple="false" name="start" id="id_start78">
+                    <outgoing>sf_start78_par_investigation_request_take_blood</outgoing>
+                </startEvent>
+                <sequenceFlow sourceRef="id_start78" targetRef="id_par_investigation_request_take_blood" id="sf_start78_par_investigation_request_take_blood"/>
+                <parallelGateway id="id_par_investigation_request_take_blood">
+                    <incoming>sf_start78_par_investigation_request_take_blood</incoming>
+                    <outgoing>sf_par_investigation_request_take_blood_task_take_blood_sample</outgoing>
+                    <outgoing>sf_par_investigation_request_take_blood_dmn_investigation_request_lab</outgoing>
+                </parallelGateway>
+                <sequenceFlow sourceRef="id_par_investigation_request_take_blood" targetRef="id_task_take_blood_sample" id="sf_par_investigation_request_take_blood_task_take_blood_sample"/>
+                <sequenceFlow sourceRef="id_par_investigation_request_take_blood" targetRef="id_dmn_investigation_request_lab" id="sf_par_investigation_request_take_blood_dmn_investigation_request_lab"/>
+                <userTask name="Take blood sample" id="id_task_take_blood_sample">
+                    <incoming>sf_par_investigation_request_take_blood_task_take_blood_sample</incoming>
+                    <outgoing>sf_task_take_blood_sample_join_of_par_investigation_request_take_blood</outgoing>
+                </userTask>
+                <sequenceFlow sourceRef="id_task_take_blood_sample" targetRef="id_join_of_par_investigation_request_take_blood" id="sf_task_take_blood_sample_join_of_par_investigation_request_take_blood"/>
+                <userTask name="What is the investigation request?" id="id_dmn_investigation_request_lab">
+                    <incoming>sf_par_investigation_request_take_blood_dmn_investigation_request_lab</incoming>
+                    <outgoing>sf_dmn_investigation_request_lab_join_of_par_investigation_request_take_blood</outgoing>
+                    <property name="prop_Anamnesis report" id="prop_dmn_investigation_request_lab_data_anamnesis_report_1"/>
+                    <dataInputAssociation id="df_id_dmn_investigation_request_lab_data_anamnesis_report_1">
+                        <sourceRef>id_data_anamnesis_report_1</sourceRef>
+                        <targetRef>prop_dmn_investigation_request_lab_data_anamnesis_report_1</targetRef>
+                    </dataInputAssociation>
+                    <dataOutputAssociation id="df_id_dmn_investigation_request_lab_data_investigation_request_1">
+                        <targetRef>id_data_investigation_request_1</targetRef>
+                    </dataOutputAssociation>
+                </userTask>
+                <sequenceFlow sourceRef="id_dmn_investigation_request_lab" targetRef="id_join_of_par_investigation_request_take_blood" id="sf_dmn_investigation_request_lab_join_of_par_investigation_request_take_blood"/>
+                <dataObjectReference name="Investigation request" id="id_data_investigation_request_1">
+                    <extensionElements>
+                        <ns5:type xmlns:ns5="http://aist.fh-hagenberg.at/msbpmn/bpmn-extension/fhir">investigation_request</ns5:type>
+                    </extensionElements>
+                </dataObjectReference>
+                <dataObjectReference name="Anamnesis report" id="id_data_anamnesis_report_1">
+                    <extensionElements>
+                        <ns5:type xmlns:ns5="http://aist.fh-hagenberg.at/msbpmn/bpmn-extension/fhir">anamnesis_report</ns5:type>
+                    </extensionElements>
+                </dataObjectReference>
+                <parallelGateway name="join" id="id_join_of_par_investigation_request_take_blood">
+                    <incoming>sf_dmn_investigation_request_lab_join_of_par_investigation_request_take_blood</incoming>
+                    <incoming>sf_task_take_blood_sample_join_of_par_investigation_request_take_blood</incoming>
+                    <outgoing>sf_join_of_par_investigation_request_take_blood_task_request_laboratory_results</outgoing>
+                </parallelGateway>
+                <sequenceFlow sourceRef="id_join_of_par_investigation_request_take_blood" targetRef="id_task_request_laboratory_results" id="sf_join_of_par_investigation_request_take_blood_task_request_laboratory_results"/>
+                <userTask name="Request laboratory results" id="id_task_request_laboratory_results">
+                    <incoming>sf_join_of_par_investigation_request_take_blood_task_request_laboratory_results</incoming>
+                    <outgoing>sf_task_request_laboratory_results_task_laboratory_results_transmitted</outgoing>
+                    <property name="prop_Investigation request" id="prop_task_request_laboratory_results_data_investigation_request_1"/>
+                    <dataInputAssociation id="df_id_task_request_laboratory_results_data_investigation_request_1">
+                        <sourceRef>id_data_investigation_request_1</sourceRef>
+                        <targetRef>prop_task_request_laboratory_results_data_investigation_request_1</targetRef>
+                    </dataInputAssociation>
+                </userTask>
+                <sequenceFlow sourceRef="id_task_request_laboratory_results" targetRef="id_task_laboratory_results_transmitted" id="sf_task_request_laboratory_results_task_laboratory_results_transmitted"/>
+                <intermediateCatchEvent name="Laboratory results transmitted" id="id_task_laboratory_results_transmitted">
+                    <incoming>sf_task_request_laboratory_results_task_laboratory_results_transmitted</incoming>
+                    <outgoing>sf_task_laboratory_results_transmitted_task_laboratory_results_transmitted_triggerAction</outgoing>
+                    <conditionalEventDefinition id="event_task_laboratory_results_transmitted">
+                        <condition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="tFormalExpression" language="text/cql">Laboratory results transmitted</condition>
+                    </conditionalEventDefinition>
+                </intermediateCatchEvent>
+                <sequenceFlow sourceRef="id_task_laboratory_results_transmitted" targetRef="id_task_laboratory_results_transmitted_triggerAction" id="sf_task_laboratory_results_transmitted_task_laboratory_results_transmitted_triggerAction"/>
+                <dataObjectReference name="Laboratory results" id="id_data_laboratory_results">
+                    <extensionElements>
+                        <ns5:type xmlns:ns5="http://aist.fh-hagenberg.at/msbpmn/bpmn-extension/fhir">laboratory_results</ns5:type>
+                    </extensionElements>
+                </dataObjectReference>
+                <userTask name="Laboratory results transmitted" id="id_task_laboratory_results_transmitted_triggerAction">
+                    <incoming>sf_task_laboratory_results_transmitted_task_laboratory_results_transmitted_triggerAction</incoming>
+                    <outgoing>sf_task_laboratory_results_transmitted_triggerAction_end79</outgoing>
+                    <dataOutputAssociation id="df_id_task_laboratory_results_transmitted_triggerAction_data_laboratory_results">
+                        <targetRef>id_data_laboratory_results</targetRef>
+                    </dataOutputAssociation>
+                </userTask>
+                <sequenceFlow sourceRef="id_task_laboratory_results_transmitted_triggerAction" targetRef="id_end79" id="sf_task_laboratory_results_transmitted_triggerAction_end79"/>
+                <endEvent name="end" id="id_end79">
+                    <incoming>sf_task_laboratory_results_transmitted_triggerAction_end79</incoming>
+                </endEvent>
+            </subProcess>
+            <sequenceFlow sourceRef="id_task_labor" targetRef="id_join_of_par_further_diagnosis" id="sf_task_labor_join_of_par_further_diagnosis"/>
+            <dataObjectReference name="Laboratory results" id="id_data_lab">
+                <extensionElements>
+                    <ns5:type xmlns:ns5="http://aist.fh-hagenberg.at/msbpmn/bpmn-extension/fhir">laboratory_results</ns5:type>
+                </extensionElements>
+            </dataObjectReference>
             <userTask name="Other medical reports" id="id_task_other_medical_reports">
                 <incoming>sf_par_further_diagnosis_task_other_medical_reports</incoming>
                 <outgoing>sf_task_other_medical_reports_join_of_par_further_diagnosis</outgoing>
@@ -218,98 +310,6 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
                     <ns5:type xmlns:ns5="http://aist.fh-hagenberg.at/msbpmn/bpmn-extension/fhir">cardio_pulmonary_results</ns5:type>
                 </extensionElements>
             </dataObjectReference>
-            <subProcess name="Perform laboratory tests" id="id_task_labor">
-                <incoming>sf_par_further_diagnosis_task_labor</incoming>
-                <outgoing>sf_task_labor_join_of_par_further_diagnosis</outgoing>
-                <dataOutputAssociation id="df_id_task_labor_data_lab">
-                    <targetRef>id_data_lab</targetRef>
-                </dataOutputAssociation>
-                <startEvent isInterrupting="false" parallelMultiple="false" name="start" id="id_start78">
-                    <outgoing>sf_start78_par_investigation_request_take_blood</outgoing>
-                </startEvent>
-                <sequenceFlow sourceRef="id_start78" targetRef="id_par_investigation_request_take_blood" id="sf_start78_par_investigation_request_take_blood"/>
-                <parallelGateway id="id_par_investigation_request_take_blood">
-                    <incoming>sf_start78_par_investigation_request_take_blood</incoming>
-                    <outgoing>sf_par_investigation_request_take_blood_dmn_investigation_request_lab</outgoing>
-                    <outgoing>sf_par_investigation_request_take_blood_task_take_blood_sample</outgoing>
-                </parallelGateway>
-                <sequenceFlow sourceRef="id_par_investigation_request_take_blood" targetRef="id_dmn_investigation_request_lab" id="sf_par_investigation_request_take_blood_dmn_investigation_request_lab"/>
-                <sequenceFlow sourceRef="id_par_investigation_request_take_blood" targetRef="id_task_take_blood_sample" id="sf_par_investigation_request_take_blood_task_take_blood_sample"/>
-                <userTask name="What is the investigation request?" id="id_dmn_investigation_request_lab">
-                    <incoming>sf_par_investigation_request_take_blood_dmn_investigation_request_lab</incoming>
-                    <outgoing>sf_dmn_investigation_request_lab_join_of_par_investigation_request_take_blood</outgoing>
-                    <property name="prop_Anamnesis report" id="prop_dmn_investigation_request_lab_data_anamnesis_report_1"/>
-                    <dataInputAssociation id="df_id_dmn_investigation_request_lab_data_anamnesis_report_1">
-                        <sourceRef>id_data_anamnesis_report_1</sourceRef>
-                        <targetRef>prop_dmn_investigation_request_lab_data_anamnesis_report_1</targetRef>
-                    </dataInputAssociation>
-                    <dataOutputAssociation id="df_id_dmn_investigation_request_lab_data_investigation_request_1">
-                        <targetRef>id_data_investigation_request_1</targetRef>
-                    </dataOutputAssociation>
-                </userTask>
-                <sequenceFlow sourceRef="id_dmn_investigation_request_lab" targetRef="id_join_of_par_investigation_request_take_blood" id="sf_dmn_investigation_request_lab_join_of_par_investigation_request_take_blood"/>
-                <dataObjectReference name="Investigation request" id="id_data_investigation_request_1">
-                    <extensionElements>
-                        <ns5:type xmlns:ns5="http://aist.fh-hagenberg.at/msbpmn/bpmn-extension/fhir">investigation_request</ns5:type>
-                    </extensionElements>
-                </dataObjectReference>
-                <dataObjectReference name="Anamnesis report" id="id_data_anamnesis_report_1">
-                    <extensionElements>
-                        <ns5:type xmlns:ns5="http://aist.fh-hagenberg.at/msbpmn/bpmn-extension/fhir">anamnesis_report</ns5:type>
-                    </extensionElements>
-                </dataObjectReference>
-                <userTask name="Take blood sample" id="id_task_take_blood_sample">
-                    <incoming>sf_par_investigation_request_take_blood_task_take_blood_sample</incoming>
-                    <outgoing>sf_task_take_blood_sample_join_of_par_investigation_request_take_blood</outgoing>
-                </userTask>
-                <sequenceFlow sourceRef="id_task_take_blood_sample" targetRef="id_join_of_par_investigation_request_take_blood" id="sf_task_take_blood_sample_join_of_par_investigation_request_take_blood"/>
-                <parallelGateway name="join" id="id_join_of_par_investigation_request_take_blood">
-                    <incoming>sf_dmn_investigation_request_lab_join_of_par_investigation_request_take_blood</incoming>
-                    <incoming>sf_task_take_blood_sample_join_of_par_investigation_request_take_blood</incoming>
-                    <outgoing>sf_join_of_par_investigation_request_take_blood_task_request_laboratory_results</outgoing>
-                </parallelGateway>
-                <sequenceFlow sourceRef="id_join_of_par_investigation_request_take_blood" targetRef="id_task_request_laboratory_results" id="sf_join_of_par_investigation_request_take_blood_task_request_laboratory_results"/>
-                <userTask name="Request laboratory results" id="id_task_request_laboratory_results">
-                    <incoming>sf_join_of_par_investigation_request_take_blood_task_request_laboratory_results</incoming>
-                    <outgoing>sf_task_request_laboratory_results_task_laboratory_results_transmitted</outgoing>
-                    <property name="prop_Investigation request" id="prop_task_request_laboratory_results_data_investigation_request_1"/>
-                    <dataInputAssociation id="df_id_task_request_laboratory_results_data_investigation_request_1">
-                        <sourceRef>id_data_investigation_request_1</sourceRef>
-                        <targetRef>prop_task_request_laboratory_results_data_investigation_request_1</targetRef>
-                    </dataInputAssociation>
-                </userTask>
-                <sequenceFlow sourceRef="id_task_request_laboratory_results" targetRef="id_task_laboratory_results_transmitted" id="sf_task_request_laboratory_results_task_laboratory_results_transmitted"/>
-                <intermediateCatchEvent name="Laboratory results transmitted" id="id_task_laboratory_results_transmitted">
-                    <incoming>sf_task_request_laboratory_results_task_laboratory_results_transmitted</incoming>
-                    <outgoing>sf_task_laboratory_results_transmitted_task_laboratory_results_transmitted_triggerAction</outgoing>
-                    <conditionalEventDefinition id="event_task_laboratory_results_transmitted">
-                        <condition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="tFormalExpression" language="text/cql">Laboratory results transmitted</condition>
-                    </conditionalEventDefinition>
-                </intermediateCatchEvent>
-                <sequenceFlow sourceRef="id_task_laboratory_results_transmitted" targetRef="id_task_laboratory_results_transmitted_triggerAction" id="sf_task_laboratory_results_transmitted_task_laboratory_results_transmitted_triggerAction"/>
-                <dataObjectReference name="Laboratory results" id="id_data_laboratory_results">
-                    <extensionElements>
-                        <ns5:type xmlns:ns5="http://aist.fh-hagenberg.at/msbpmn/bpmn-extension/fhir">laboratory_results</ns5:type>
-                    </extensionElements>
-                </dataObjectReference>
-                <userTask name="Laboratory results transmitted" id="id_task_laboratory_results_transmitted_triggerAction">
-                    <incoming>sf_task_laboratory_results_transmitted_task_laboratory_results_transmitted_triggerAction</incoming>
-                    <outgoing>sf_task_laboratory_results_transmitted_triggerAction_end79</outgoing>
-                    <dataOutputAssociation id="df_id_task_laboratory_results_transmitted_triggerAction_data_laboratory_results">
-                        <targetRef>id_data_laboratory_results</targetRef>
-                    </dataOutputAssociation>
-                </userTask>
-                <sequenceFlow sourceRef="id_task_laboratory_results_transmitted_triggerAction" targetRef="id_end79" id="sf_task_laboratory_results_transmitted_triggerAction_end79"/>
-                <endEvent name="end" id="id_end79">
-                    <incoming>sf_task_laboratory_results_transmitted_triggerAction_end79</incoming>
-                </endEvent>
-            </subProcess>
-            <sequenceFlow sourceRef="id_task_labor" targetRef="id_join_of_par_further_diagnosis" id="sf_task_labor_join_of_par_further_diagnosis"/>
-            <dataObjectReference name="Laboratory results" id="id_data_lab">
-                <extensionElements>
-                    <ns5:type xmlns:ns5="http://aist.fh-hagenberg.at/msbpmn/bpmn-extension/fhir">laboratory_results</ns5:type>
-                </extensionElements>
-            </dataObjectReference>
             <parallelGateway name="join" id="id_join_of_par_further_diagnosis">
                 <incoming>sf_task_labor_join_of_par_further_diagnosis</incoming>
                 <incoming>sf_task_cardio_join_of_par_further_diagnosis</incoming>
@@ -319,21 +319,15 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <sequenceFlow sourceRef="id_join_of_par_further_diagnosis" targetRef="id_xor_interdisciplinary_optimisation" id="sf_join_of_par_further_diagnosis_xor_interdisciplinary_optimisation"/>
             <exclusiveGateway name="interdisciplinary optimisation needed?" id="id_xor_interdisciplinary_optimisation">
                 <incoming>sf_join_of_par_further_diagnosis_xor_interdisciplinary_optimisation</incoming>
-                <outgoing>sf_xor_interdisciplinary_optimisation_join_of_xor_interdisciplinary_optimisation</outgoing>
                 <outgoing>sf_xor_interdisciplinary_optimisation_task_interdis_opt</outgoing>
+                <outgoing>sf_xor_interdisciplinary_optimisation_join_of_xor_interdisciplinary_optimisation</outgoing>
             </exclusiveGateway>
-            <sequenceFlow sourceRef="id_xor_interdisciplinary_optimisation" targetRef="id_join_of_xor_interdisciplinary_optimisation" name="else" id="sf_xor_interdisciplinary_optimisation_join_of_xor_interdisciplinary_optimisation">
-                <conditionExpression id="sf_xor_interdisciplinary_optimisation_join_of_xor_interdisciplinary_optimisation_condition">else</conditionExpression>
-            </sequenceFlow>
             <sequenceFlow sourceRef="id_xor_interdisciplinary_optimisation" targetRef="id_task_interdis_opt" name="Yes" id="sf_xor_interdisciplinary_optimisation_task_interdis_opt">
                 <conditionExpression id="sf_xor_interdisciplinary_optimisation_task_interdis_opt_condition">Yes</conditionExpression>
             </sequenceFlow>
-            <exclusiveGateway name="join" id="id_join_of_xor_interdisciplinary_optimisation">
-                <incoming>sf_xor_interdisciplinary_optimisation_join_of_xor_interdisciplinary_optimisation</incoming>
-                <incoming>sf_task_interdis_opt_join_of_xor_interdisciplinary_optimisation</incoming>
-                <outgoing>sf_join_of_xor_interdisciplinary_optimisation_end77</outgoing>
-            </exclusiveGateway>
-            <sequenceFlow sourceRef="id_join_of_xor_interdisciplinary_optimisation" targetRef="id_end77" id="sf_join_of_xor_interdisciplinary_optimisation_end77"/>
+            <sequenceFlow sourceRef="id_xor_interdisciplinary_optimisation" targetRef="id_join_of_xor_interdisciplinary_optimisation" name="else" id="sf_xor_interdisciplinary_optimisation_join_of_xor_interdisciplinary_optimisation">
+                <conditionExpression id="sf_xor_interdisciplinary_optimisation_join_of_xor_interdisciplinary_optimisation_condition">else</conditionExpression>
+            </sequenceFlow>
             <userTask name="Perform interdisciplinary optimisation" id="id_task_interdis_opt">
                 <incoming>sf_xor_interdisciplinary_optimisation_task_interdis_opt</incoming>
                 <outgoing>sf_task_interdis_opt_join_of_xor_interdisciplinary_optimisation</outgoing>
@@ -349,6 +343,12 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
                 </dataInputAssociation>
             </userTask>
             <sequenceFlow sourceRef="id_task_interdis_opt" targetRef="id_join_of_xor_interdisciplinary_optimisation" id="sf_task_interdis_opt_join_of_xor_interdisciplinary_optimisation"/>
+            <exclusiveGateway name="join" id="id_join_of_xor_interdisciplinary_optimisation">
+                <incoming>sf_task_interdis_opt_join_of_xor_interdisciplinary_optimisation</incoming>
+                <incoming>sf_xor_interdisciplinary_optimisation_join_of_xor_interdisciplinary_optimisation</incoming>
+                <outgoing>sf_join_of_xor_interdisciplinary_optimisation_end77</outgoing>
+            </exclusiveGateway>
+            <sequenceFlow sourceRef="id_join_of_xor_interdisciplinary_optimisation" targetRef="id_end77" id="sf_join_of_xor_interdisciplinary_optimisation_end77"/>
             <endEvent name="end" id="id_end77">
                 <incoming>sf_join_of_xor_interdisciplinary_optimisation_end77</incoming>
             </endEvent>
@@ -356,26 +356,26 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
         <sequenceFlow sourceRef="id_task_survey_medical_reports" targetRef="id_join_of_xor_anamnesis_unobtrusive" id="sf_task_survey_medical_reports_join_of_xor_anamnesis_unobtrusive"/>
         <exclusiveGateway id="id_xor_therapy_necessary">
             <incoming>sf_join_of_xor_anamnesis_unobtrusive_xor_therapy_necessary</incoming>
-            <outgoing>sf_xor_therapy_necessary_join_of_xor_therapy_necessary</outgoing>
             <outgoing>sf_xor_therapy_necessary_task_therapy</outgoing>
+            <outgoing>sf_xor_therapy_necessary_join_of_xor_therapy_necessary</outgoing>
         </exclusiveGateway>
-        <sequenceFlow sourceRef="id_xor_therapy_necessary" targetRef="id_join_of_xor_therapy_necessary" name="else" id="sf_xor_therapy_necessary_join_of_xor_therapy_necessary">
-            <conditionExpression id="sf_xor_therapy_necessary_join_of_xor_therapy_necessary_condition">else</conditionExpression>
-        </sequenceFlow>
         <sequenceFlow sourceRef="id_xor_therapy_necessary" targetRef="id_task_therapy" name="therapy and medical care needed" id="sf_xor_therapy_necessary_task_therapy">
             <conditionExpression id="sf_xor_therapy_necessary_task_therapy_condition">therapy and medical care needed</conditionExpression>
         </sequenceFlow>
+        <sequenceFlow sourceRef="id_xor_therapy_necessary" targetRef="id_join_of_xor_therapy_necessary" name="else" id="sf_xor_therapy_necessary_join_of_xor_therapy_necessary">
+            <conditionExpression id="sf_xor_therapy_necessary_join_of_xor_therapy_necessary_condition">else</conditionExpression>
+        </sequenceFlow>
+        <userTask name="Initiate therapy and medical care" id="id_task_therapy">
+            <incoming>sf_xor_therapy_necessary_task_therapy</incoming>
+            <outgoing>sf_task_therapy_join_of_xor_therapy_necessary</outgoing>
+        </userTask>
+        <sequenceFlow sourceRef="id_task_therapy" targetRef="id_join_of_xor_therapy_necessary" id="sf_task_therapy_join_of_xor_therapy_necessary"/>
         <exclusiveGateway name="join" id="id_join_of_xor_therapy_necessary">
             <incoming>sf_xor_therapy_necessary_join_of_xor_therapy_necessary</incoming>
             <incoming>sf_task_therapy_join_of_xor_therapy_necessary</incoming>
             <outgoing>sf_join_of_xor_therapy_necessary_xor_surgery_feasible</outgoing>
         </exclusiveGateway>
         <sequenceFlow sourceRef="id_join_of_xor_therapy_necessary" targetRef="id_xor_surgery_feasible" id="sf_join_of_xor_therapy_necessary_xor_surgery_feasible"/>
-        <userTask name="Initiate therapy and medical care" id="id_task_therapy">
-            <incoming>sf_xor_therapy_necessary_task_therapy</incoming>
-            <outgoing>sf_task_therapy_join_of_xor_therapy_necessary</outgoing>
-        </userTask>
-        <sequenceFlow sourceRef="id_task_therapy" targetRef="id_join_of_xor_therapy_necessary" id="sf_task_therapy_join_of_xor_therapy_necessary"/>
         <exclusiveGateway name="Surgery feasible?" id="id_xor_surgery_feasible">
             <incoming>sf_join_of_xor_therapy_necessary_xor_surgery_feasible</incoming>
             <outgoing>sf_xor_surgery_feasible_task_approve_surgery</outgoing>
@@ -446,8 +446,8 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
         </userTask>
         <sequenceFlow sourceRef="id_task_refuse_surgery" targetRef="id_join_of_xor_surgery_feasible" id="sf_task_refuse_surgery_join_of_xor_surgery_feasible"/>
         <exclusiveGateway name="join" id="id_join_of_xor_surgery_feasible">
-            <incoming>sf_task_refuse_surgery_join_of_xor_surgery_feasible</incoming>
             <incoming>sf_task_approve_surgery_join_of_xor_surgery_feasible</incoming>
+            <incoming>sf_task_refuse_surgery_join_of_xor_surgery_feasible</incoming>
             <outgoing>sf_join_of_xor_surgery_feasible_end71</outgoing>
         </exclusiveGateway>
         <sequenceFlow sourceRef="id_join_of_xor_surgery_feasible" targetRef="id_end71" id="sf_join_of_xor_surgery_feasible_end71"/>
@@ -604,11 +604,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_par_investigation_request_take_blood" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="1910.0" y="410.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_dmn_investigation_request_lab" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="2000.0" y="480.0" width="100.0" height="80.0"/>
-            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_task_take_blood_sample" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="2000.0" y="300.0" width="100.0" height="80.0"/>
+            </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_dmn_investigation_request_lab" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="2000.0" y="480.0" width="100.0" height="80.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_join_of_par_investigation_request_take_blood" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="2150.0" y="410.0" width="40.0" height="40.0"/>
@@ -697,14 +697,14 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_par_further_diagnosis" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="1650.0" y="878.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_task_labor" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="1740.0" y="150.0" width="970.0" height="610.0"/>
+            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_task_other_medical_reports" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="2175.0" y="860.0" width="100.0" height="80.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_task_cardio" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="1830.0" y="1040.0" width="790.0" height="430.0"/>
-            </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_task_labor" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="1740.0" y="150.0" width="970.0" height="610.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_join_of_par_further_diagnosis" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="2760.0" y="866.0" width="40.0" height="40.0"/>
@@ -712,11 +712,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_xor_interdisciplinary_optimisation" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="2850.0" y="828.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_join_of_xor_interdisciplinary_optimisation" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="3090.0" y="809.0" width="40.0" height="40.0"/>
-            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_task_interdis_opt" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="2940.0" y="720.0" width="100.0" height="80.0"/>
+            </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_join_of_xor_interdisciplinary_optimisation" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="3090.0" y="809.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_end77" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="3180.0" y="814.0" width="30.0" height="30.0"/>
@@ -854,11 +854,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_xor_anamnesis_feasible" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="460.0" y="341.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_anamnesis_not_feasible" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="780.0" y="183.0" width="100.0" height="80.0"/>
-            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_anamnesis_medical_check_group" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="550.0" y="363.0" width="560.0" height="270.0"/>
+            </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_anamnesis_not_feasible" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="780.0" y="183.0" width="100.0" height="80.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_join_of_xor_anamnesis_feasible" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="1160.0" y="341.0" width="40.0" height="40.0"/>
@@ -925,11 +925,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_xor_therapy_necessary" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="3410.0" y="666.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_join_of_xor_therapy_necessary" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="3650.0" y="791.0" width="40.0" height="40.0"/>
-            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_task_therapy" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="3500.0" y="675.0" width="100.0" height="80.0"/>
+            </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_join_of_xor_therapy_necessary" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="3650.0" y="791.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_xor_surgery_feasible" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="3740.0" y="845.0" width="40.0" height="40.0"/>

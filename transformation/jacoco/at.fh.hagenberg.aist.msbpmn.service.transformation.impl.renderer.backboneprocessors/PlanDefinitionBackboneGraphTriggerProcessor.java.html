@@ -39,26 +39,25 @@ import static at.fh.hagenberg.aist.msbpmn.service.transformation.TransformationC
 <span class="fc bfc" id="L39" title="All 2 branches covered.">                        TriggerDefinition.TriggerType.NAMEDEVENT == actionDefinition.getTriggerFirstRep().getType()</span>
 <span class="pc bpc" id="L40" title="1 of 2 branches missed.">                                || TriggerDefinition.TriggerType.PERIODIC == actionDefinition.getTriggerFirstRep().getType())</span>
 <span class="fc" id="L41">                .forEach(actionDefinition -&gt; {</span>
-                    // TODO (#43 https://aist.fh-hagenberg.at/git/Development/mspbmn/-/issues/43) there is a problem if
-                    //  the trigger has an in/output because it is added to both elements
-<span class="fc" id="L44">                    PlanDefinition.PlanDefinitionActionComponent trigger = actionDefinition.copy();</span>
-<span class="fc" id="L45">                    graphBuilder.getOrAddVertex(trigger).addMetaTag(new MetaTagImpl&lt;&gt;(EVENT_META_TAG, BpmnEventTypes.getByTriggerType(actionDefinition.getTriggerFirstRep().getType())));</span>
+                    // there is a problem if the trigger has an in/output because it is added to both elements
+<span class="fc" id="L43">                    PlanDefinition.PlanDefinitionActionComponent trigger = actionDefinition.copy();</span>
+<span class="fc" id="L44">                    graphBuilder.getOrAddVertex(trigger).addMetaTag(new MetaTagImpl&lt;&gt;(EVENT_META_TAG, BpmnEventTypes.getByTriggerType(actionDefinition.getTriggerFirstRep().getType())));</span>
 
                     // remove the trigger and the condition from the original element, as they are now in the trigger element
-<span class="fc" id="L48">                    actionDefinition.setTrigger(null);</span>
-<span class="fc" id="L49">                    actionDefinition.setCondition(null);</span>
-<span class="fc" id="L50">                    actionDefinition.setId(actionDefinition.getId() + &quot;_triggerAction&quot;);</span>
+<span class="fc" id="L47">                    actionDefinition.setTrigger(null);</span>
+<span class="fc" id="L48">                    actionDefinition.setCondition(null);</span>
+<span class="fc" id="L49">                    actionDefinition.setId(actionDefinition.getId() + &quot;_triggerAction&quot;);</span>
 
-<span class="fc" id="L52">                    trigger.getRelatedAction().clear();</span>
-<span class="fc" id="L53">                    addRelation(trigger, actionDefinition.getId());</span>
-<span class="fc" id="L54">                    list.add(trigger);</span>
-<span class="fc" id="L55">                });</span>
-<span class="fc" id="L56">    }</span>
+<span class="fc" id="L51">                    trigger.getRelatedAction().clear();</span>
+<span class="fc" id="L52">                    addRelation(trigger, actionDefinition.getId());</span>
+<span class="fc" id="L53">                    list.add(trigger);</span>
+<span class="fc" id="L54">                });</span>
+<span class="fc" id="L55">    }</span>
 
     private static void addRelation(PlanDefinition.PlanDefinitionActionComponent planDefinitionActionComponent, String relation) {
-<span class="fc" id="L59">        PlanDefinition.PlanDefinitionActionRelatedActionComponent planDefinitionActionRelatedActionComponent = new PlanDefinition.PlanDefinitionActionRelatedActionComponent();</span>
-<span class="fc" id="L60">        planDefinitionActionRelatedActionComponent.setActionId(relation);</span>
-<span class="fc" id="L61">        planDefinitionActionComponent.getRelatedAction().add(planDefinitionActionRelatedActionComponent);</span>
-<span class="fc" id="L62">    }</span>
+<span class="fc" id="L58">        PlanDefinition.PlanDefinitionActionRelatedActionComponent planDefinitionActionRelatedActionComponent = new PlanDefinition.PlanDefinitionActionRelatedActionComponent();</span>
+<span class="fc" id="L59">        planDefinitionActionRelatedActionComponent.setActionId(relation);</span>
+<span class="fc" id="L60">        planDefinitionActionComponent.getRelatedAction().add(planDefinitionActionRelatedActionComponent);</span>
+<span class="fc" id="L61">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

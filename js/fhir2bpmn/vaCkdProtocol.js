@@ -40,21 +40,15 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
         <sequenceFlow sourceRef="id_id_003" targetRef="id_xor_group" id="sf_id_003_xor_group"/>
         <exclusiveGateway name="Xor_group" id="id_xor_group">
             <incoming>sf_id_003_xor_group</incoming>
-            <outgoing>sf_xor_group_join_of_xor_group</outgoing>
             <outgoing>sf_xor_group_id_004</outgoing>
+            <outgoing>sf_xor_group_join_of_xor_group</outgoing>
         </exclusiveGateway>
-        <sequenceFlow sourceRef="id_xor_group" targetRef="id_join_of_xor_group" name="else" id="sf_xor_group_join_of_xor_group">
-            <conditionExpression id="sf_xor_group_join_of_xor_group_condition">else</conditionExpression>
-        </sequenceFlow>
         <sequenceFlow sourceRef="id_xor_group" targetRef="id_id_004" name="Has evidence of CKD?" id="sf_xor_group_id_004">
             <conditionExpression id="sf_xor_group_id_004_condition">Has evidence of CKD?</conditionExpression>
         </sequenceFlow>
-        <exclusiveGateway name="join" id="id_join_of_xor_group">
-            <incoming>sf_xor_group_join_of_xor_group</incoming>
-            <incoming>sf_id_004_join_of_xor_group</incoming>
-            <outgoing>sf_join_of_xor_group_end65</outgoing>
-        </exclusiveGateway>
-        <sequenceFlow sourceRef="id_join_of_xor_group" targetRef="id_end65" id="sf_join_of_xor_group_end65"/>
+        <sequenceFlow sourceRef="id_xor_group" targetRef="id_join_of_xor_group" name="else" id="sf_xor_group_join_of_xor_group">
+            <conditionExpression id="sf_xor_group_join_of_xor_group_condition">else</conditionExpression>
+        </sequenceFlow>
         <subProcess name="Criteria for Confirmed CKD" id="id_id_004">
             <incoming>sf_xor_group_id_004</incoming>
             <outgoing>sf_id_004_join_of_xor_group</outgoing>
@@ -77,6 +71,12 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             </endEvent>
         </subProcess>
         <sequenceFlow sourceRef="id_id_004" targetRef="id_join_of_xor_group" id="sf_id_004_join_of_xor_group"/>
+        <exclusiveGateway name="join" id="id_join_of_xor_group">
+            <incoming>sf_id_004_join_of_xor_group</incoming>
+            <incoming>sf_xor_group_join_of_xor_group</incoming>
+            <outgoing>sf_join_of_xor_group_end65</outgoing>
+        </exclusiveGateway>
+        <sequenceFlow sourceRef="id_join_of_xor_group" targetRef="id_end65" id="sf_join_of_xor_group_end65"/>
         <endEvent name="end" id="id_end65">
             <incoming>sf_join_of_xor_group_end65</incoming>
         </endEvent>
@@ -139,11 +139,11 @@ originalViewer.importXML(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?
             <ns4:BPMNShape bpmnElement="id_xor_group" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="900.0" y="257.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
-            <ns4:BPMNShape bpmnElement="id_join_of_xor_group" isHorizontal="true" isExpanded="true">
-                <ns3:Bounds x="1600.0" y="261.0" width="40.0" height="40.0"/>
-            </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_id_004" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="990.0" y="60.0" width="560.0" height="230.0"/>
+            </ns4:BPMNShape>
+            <ns4:BPMNShape bpmnElement="id_join_of_xor_group" isHorizontal="true" isExpanded="true">
+                <ns3:Bounds x="1600.0" y="261.0" width="40.0" height="40.0"/>
             </ns4:BPMNShape>
             <ns4:BPMNShape bpmnElement="id_end65" isHorizontal="true" isExpanded="true">
                 <ns3:Bounds x="1690.0" y="266.0" width="30.0" height="30.0"/>
