@@ -8,7 +8,7 @@ The implementation of the model transformation provides a reference how a transf
 two standards can look. It is closely coordinated with the HL7 Workflow Project. This project aims to
 make a significant contribution to the digitisation (of processes) of evidence-based medicine.
 
-Detailed Documentation can be found [here](https://fhooeaist.github.io/msbpmn).
+Detailed Documentation can be found [here](https://fhooeaist.github.io/MSBPMN).
 
 ## Known issues
 
