@@ -86,7 +86,7 @@ the BPMN representation as a result.
 
 ## FAQ
 
-If you have any questions, please check out our [FAQ](https://fhooeaist.github.io/msbpmn/faq.html) section.
+If you have any questions, please check out our [FAQ](https://fhooeaist.github.io/MSBPMN/faq.html) section.
 
 ## Contributing
 
