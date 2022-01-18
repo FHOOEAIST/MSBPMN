@@ -6,7 +6,7 @@ The goal is to define clinical guidelines and treatment plans in HL7® FHIR® an
 generate BPMN models, which are then used in the IT systems for process control and documentation.
 The implementation of the model transformation provides a reference how a transformation between the
 two standards can look. It is closely coordinated with the HL7 Workflow Project. This project aims to
-make a significant contribution to the digitisation (of processes) of evidence-based medicine.
+make a significant contribution to the digitization (of processes) of evidence-based medicine.
 
 Detailed Documentation can be found [here](https://fhooeaist.github.io/MSBPMN).
 
@@ -62,7 +62,7 @@ void doTransformation() {
 }
 ```
 
-In addition to that the transformation was included as an operation into a [hapi-fhir](https://hapifhir.io/) server.
+In addition, the transformation was included as an operation into a [hapi-fhir](https://hapifhir.io/) server.
 You are able to run the server inside a docker container using the fhooeaist/msbpmn-docker image 
 (https://hub.docker.com/r/fhooeaist/msbpmn) or building it yourself.
 
@@ -78,7 +78,7 @@ docker image build -t msbpmn .
 docker container run -p 8080:8080 msbpmn
 ```
 
-Then you are able to access the server under: `localhost:8080`. Next you are able to upload a PlanDefinition to the
+Then you are able to access the server under: `localhost:8080`. Next, you are able to upload a PlanDefinition to the
 server by executing a post http request to `localhost:8080/fhir/PlanDefinition`. In success this will return the id
 of the uploaded PlanDefinition which you can then use to execute an HTTP GET request and convert it into a BPMN. 
 `localhost:8080/fhir/PlanDefinition/<id>/$bpmn` where you replace `<id>` with your PlanDefinition id. This will return
@@ -92,7 +92,7 @@ If you have any questions, please check out our [FAQ](https://fhooeaist.github.i
 
 **First make sure to read our [general contribution guidelines](https://fhooeaist.github.io/CONTRIBUTING.html).**
    
-## Licence
+## License
 
 Copyright (c) 2020 the original author or authors.
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES.
@@ -103,7 +103,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 The following files and packages are licensed under different conditions:
 
-| Licence | Filepaths |
+| License | Filepaths |
 |-|-|
 | **Apache 2.0**<br>see hapi-fhir/LICENSE | module hapi-fhir (hapi-fhir/*)<br>package &ast;&ast;/org/hl7/fhir/r4/&ast;&ast;<br>package &ast;&ast;/ca/uhn/fhir/util/&ast;&ast; |
 
