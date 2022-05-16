@@ -65,7 +65,7 @@
         <hibernate-validator.version>6.1.0.Final</hibernate-validator.version>
         <javax.el-api.version>3.0.0</javax.el-api.version>
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
-        <bpmn-viz.version>1.0.1</bpmn-viz.version>
+        <bpmn-viz.version>1.0.2</bpmn-viz.version>
         <seshat-api.version>1.0.1</seshat-api.version>
         <gtf.version>1.0.0</gtf.version>
 
