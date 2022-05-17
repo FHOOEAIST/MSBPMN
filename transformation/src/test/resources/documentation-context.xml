@@ -15,7 +15,7 @@
 
     <context:annotation-config />
     <!-- Switching to Java Base configuration as it makes it easier with all the generic types -->
-    <bean class="at.fh.hagenberg.aist.msbpmn.service.configuration.TransformationConfiguration"/>
+    <bean class="science.aist.msbpmn.service.configuration.TransformationConfiguration"/>
 
     <import resource="classpath*:template-config.xml"/>
 

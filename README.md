@@ -20,7 +20,7 @@ method to transform it.
 
 ```xml
 <dependency>
-    <groupId>at.fh.hagenberg.aist.msbpmn</groupId>
+    <groupId>science.aist.msbpmn</groupId>
     <artifactId>transformation</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
