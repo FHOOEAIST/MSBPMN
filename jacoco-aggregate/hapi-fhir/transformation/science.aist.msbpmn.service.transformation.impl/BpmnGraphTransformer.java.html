@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.impl.traversal.FhirGraphTraversalStrategy;
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinition;
@@ -22,6 +20,8 @@ import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.transformation.GraphTransformer;
 import science.aist.gtf.transformation.renderer.TransformationRender;
 import science.aist.jack.general.util.CastUtils;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.impl.traversal.FhirGraphTraversalStrategy;
 
 import javax.xml.bind.JAXBElement;
 import java.util.Optional;

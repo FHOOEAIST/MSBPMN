@@ -21,19 +21,20 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * &lt;p&gt;Additional Abstraction which combines graph transformation renderer and abstract conditional transformation renderer&lt;/p&gt;
+ * &lt;p&gt;Additional Abstraction which combines graph transformation renderer and abstract conditional transformation
+ * renderer&lt;/p&gt;
  *
  * @author Andreas Pointner
  */
 @Getter
-<span class="fc" id="L29">@AllArgsConstructor</span>
-public abstract class AbstractConditionalGraphTransformationRenderer&lt;R, S, T&gt; implements TransformationRender&lt;Optional&lt;JAXBElement&lt;? extends R&gt;&gt;, R, Graph&lt;S, Void&gt;, Vertex&lt;T, Void&gt;&gt;{
+<span class="fc" id="L30">@AllArgsConstructor</span>
+public abstract class AbstractConditionalGraphTransformationRenderer&lt;R, S, T&gt; implements TransformationRender&lt;Optional&lt;JAXBElement&lt;? extends R&gt;&gt;, R, Graph&lt;S, Void&gt;, Vertex&lt;T, Void&gt;&gt; {
 
-<span class="nc" id="L32">    private final RendererCondition&lt;Vertex&lt;T, Void&gt;&gt; rendererCondition;</span>
+<span class="nc" id="L33">    private final RendererCondition&lt;Vertex&lt;T, Void&gt;&gt; rendererCondition;</span>
 
     public Optional&lt;JAXBElement&lt;? extends R&gt;&gt; renderElement(Graph&lt;S, Void&gt; container, Vertex&lt;T, Void&gt; currentElement) {
-<span class="fc bfc" id="L35" title="All 2 branches covered.">        return Optional.ofNullable(this.rendererCondition.createCondition().test(currentElement) ? this.mapProperties(this.createElement(), container, currentElement) : null)</span>
-<span class="fc" id="L36">                .map(constructJaxBElementMapping());</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        return Optional.ofNullable(this.rendererCondition.createCondition().test(currentElement) ? this.mapProperties(this.createElement(), container, currentElement) : null)</span>
+<span class="fc" id="L37">                .map(constructJaxBElementMapping());</span>
     }
 
     protected abstract Function&lt;R, JAXBElement&lt;? extends R&gt;&gt; constructJaxBElementMapping();

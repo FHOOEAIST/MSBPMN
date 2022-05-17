@@ -9,11 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.helper.IdProvider;
-import science.aist.msbpmn.service.transformation.helper.PlanDefinitionActionDataComponent;
-import science.aist.msbpmn.service.transformation.impl.EdgeType;
-import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnGraphTransformationRenderer;
 import lombok.CustomLog;
 import lombok.NonNull;
 import org.hl7.fhir.r4.model.BackboneElement;
@@ -27,6 +22,11 @@ import science.aist.gtf.graph.Edge;
 import science.aist.gtf.graph.Graph;
 import science.aist.gtf.graph.Vertex;
 import science.aist.jack.general.util.CastUtils;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.helper.IdProvider;
+import science.aist.msbpmn.service.transformation.helper.PlanDefinitionActionDataComponent;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
+import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnGraphTransformationRenderer;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -52,62 +52,62 @@ public class BpmnDataObjectReferenceTransformerRenderer extends AbstractBpmnGrap
 <span class="fc" id="L52">        super(() -&gt; x -&gt; true, objectFactory);</span>
 <span class="fc" id="L53">    }</span>
 
+    private static boolean isDataEdge(Edge&lt;?, Void&gt; edge) {
+        try {
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            return edge.getMetaTagValue(TransformationConstants.EDGE_TYPE_META_TAG, EdgeType.class) == EdgeType.DATA;</span>
+<span class="nc" id="L58">        } catch (Exception e) {</span>
+<span class="nc" id="L59">            log.debug(e);</span>
+<span class="nc" id="L60">            return false;</span>
+        }
+    }
+
+    private static List&lt;JAXBElement&lt;String&gt;&gt; fromMap(Map&lt;String, String&gt; map) {
+<span class="fc" id="L65">        List&lt;JAXBElement&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L66">        map.forEach((k, v) -&gt; result.add(new JAXBElement&lt;&gt;(new QName(FHIR_EXTENSION_NAMESPACE, k), String.class, v)));</span>
+<span class="fc" id="L67">        return result;</span>
+    }
+
     @Override
     protected Function&lt;TDataObjectReference, JAXBElement&lt;? extends TDataObjectReference&gt;&gt; constructJaxBElementMapping() {
-<span class="fc" id="L57">        return objectFactory::createDataObjectReference;</span>
+<span class="fc" id="L72">        return objectFactory::createDataObjectReference;</span>
     }
 
     @Override
     public boolean canRenderer(Vertex&lt;?, ?&gt; vertex) {
-<span class="pc bpc" id="L62" title="1 of 4 branches missed.">        return vertex != null &amp;&amp; vertex.getElement() instanceof PlanDefinitionActionIOComponent;</span>
+<span class="pc bpc" id="L77" title="1 of 4 branches missed.">        return vertex != null &amp;&amp; vertex.getElement() instanceof PlanDefinitionActionIOComponent;</span>
     }
 
     @Override
     public TDataObjectReference createElement() {
-<span class="fc" id="L67">        return objectFactory.createTDataObjectReference();</span>
+<span class="fc" id="L82">        return objectFactory.createTDataObjectReference();</span>
     }
 
     @Override
-<span class="pc bpc" id="L71" title="2 of 4 branches missed.">    public TDataObjectReference mapProperties(@NonNull TDataObjectReference element, Graph&lt;BackboneElement, Void&gt; container, @NonNull Vertex&lt;PlanDefinitionActionIOComponent, Void&gt; currentElement) {</span>
-<span class="fc" id="L72">        element = super.mapProperties(element, container, currentElement);</span>
-<span class="fc" id="L73">        element.setName(currentElement.getElement().getName());</span>
-<span class="fc" id="L74">        element.setExtensionElements(createExtensionElementForRequirement(currentElement.getElement().getDataRequirement()));</span>
+<span class="pc bpc" id="L86" title="2 of 4 branches missed.">    public TDataObjectReference mapProperties(@NonNull TDataObjectReference element, Graph&lt;BackboneElement, Void&gt; container, @NonNull Vertex&lt;PlanDefinitionActionIOComponent, Void&gt; currentElement) {</span>
+<span class="fc" id="L87">        element = super.mapProperties(element, container, currentElement);</span>
+<span class="fc" id="L88">        element.setName(currentElement.getElement().getName());</span>
+<span class="fc" id="L89">        element.setExtensionElements(createExtensionElementForRequirement(currentElement.getElement().getDataRequirement()));</span>
 
         // Set the data reference
-<span class="fc" id="L77">        CastUtils.&lt;Stream&lt;Edge&lt;PlanDefinitionActionIOComponent, Void&gt;&gt;, Stream&lt;Edge&lt;PlanDefinitionActionDataComponent, Void&gt;&gt;&gt;cast(currentElement.getEdges()</span>
-<span class="fc" id="L78">                .stream()</span>
-<span class="fc" id="L79">                .filter(BpmnDataObjectReferenceTransformerRenderer::isDataEdge))</span>
-<span class="fc" id="L80">                .findFirst()</span>
-<span class="fc" id="L81">                .map(Edge::getTarget)</span>
-<span class="fc" id="L82">                .map(Vertex::getElement)</span>
-<span class="fc" id="L83">                .map(BackboneElement::getId)</span>
-<span class="fc" id="L84">                .map(IdProvider::new)</span>
-<span class="fc" id="L85">                .ifPresent(element::setDataObjectRef);</span>
-<span class="fc" id="L86">        return element;</span>
-    }
-
-    private static boolean isDataEdge(Edge&lt;?, Void&gt; edge) {
-        try {
-<span class="fc bfc" id="L91" title="All 2 branches covered.">            return edge.getMetaTagValue(TransformationConstants.EDGE_TYPE_META_TAG, EdgeType.class) == EdgeType.DATA;</span>
-<span class="nc" id="L92">        } catch (Exception e) {</span>
-<span class="nc" id="L93">            log.debug(e);</span>
-<span class="nc" id="L94">            return false;</span>
-        }
+<span class="fc" id="L92">        CastUtils.&lt;Stream&lt;Edge&lt;PlanDefinitionActionIOComponent, Void&gt;&gt;, Stream&lt;Edge&lt;PlanDefinitionActionDataComponent, Void&gt;&gt;&gt;cast(currentElement.getEdges()</span>
+<span class="fc" id="L93">                        .stream()</span>
+<span class="fc" id="L94">                        .filter(BpmnDataObjectReferenceTransformerRenderer::isDataEdge))</span>
+<span class="fc" id="L95">                .findFirst()</span>
+<span class="fc" id="L96">                .map(Edge::getTarget)</span>
+<span class="fc" id="L97">                .map(Vertex::getElement)</span>
+<span class="fc" id="L98">                .map(BackboneElement::getId)</span>
+<span class="fc" id="L99">                .map(IdProvider::new)</span>
+<span class="fc" id="L100">                .ifPresent(element::setDataObjectRef);</span>
+<span class="fc" id="L101">        return element;</span>
     }
 
     private TExtensionElements createExtensionElementForRequirement(DataRequirement dr) {
-<span class="fc" id="L99">        TExtensionElements tee = objectFactory.createTExtensionElements();</span>
+<span class="fc" id="L105">        TExtensionElements tee = objectFactory.createTExtensionElements();</span>
         // check in the future what else is necessary to map to bpmn
-<span class="fc" id="L101">        tee.getAny().addAll(fromMap(Map.of(</span>
-<span class="fc" id="L102">                &quot;type&quot;, dr.getType()</span>
+<span class="fc" id="L107">        tee.getAny().addAll(fromMap(Map.of(</span>
+<span class="fc" id="L108">                &quot;type&quot;, dr.getType()</span>
         )));
-<span class="fc" id="L104">        return tee;</span>
-    }
-
-    private static List&lt;JAXBElement&lt;String&gt;&gt; fromMap(Map&lt;String, String&gt; map) {
-<span class="fc" id="L108">        List&lt;JAXBElement&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L109">        map.forEach((k, v) -&gt; result.add(new JAXBElement&lt;&gt;(new QName(FHIR_EXTENSION_NAMESPACE, k), String.class, v)));</span>
-<span class="fc" id="L110">        return result;</span>
+<span class="fc" id="L110">        return tee;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -30,13 +30,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * &lt;p&gt;Transforms a {@link PlanDefinition} into a {@link Graph} of {@link org.hl7.fhir.r4.model.PlanDefinition.PlanDefinitionActionComponent}s&lt;/p&gt;
+ * &lt;p&gt;Transforms a {@link PlanDefinition} into a {@link Graph} of
+ * {@link org.hl7.fhir.r4.model.PlanDefinition.PlanDefinitionActionComponent}s&lt;/p&gt;
  *
  * @author Andreas Pointner
  */
 @Component
-<span class="pc bpc" id="L38" title="1 of 2 branches missed.">@AllArgsConstructor</span>
-<span class="fc" id="L39">@CustomLog</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">@AllArgsConstructor</span>
+<span class="fc" id="L40">@CustomLog</span>
 public class PlanDefinitionToGraphTransformer implements Transformer&lt;PlanDefinition, Graph&lt;BackboneElement, Void&gt;&gt; {
 
     private final TransformationRender&lt;GraphBuilder&lt;BackboneElement, Void&gt;, GraphBuilder&lt;BackboneElement, Void&gt;, PlanDefinition, List&lt;PlanDefinition.PlanDefinitionActionComponent&gt;&gt; planDefinitionBackboneGraphRenderer;
@@ -46,23 +47,23 @@ public class PlanDefinitionToGraphTransformer implements Transformer&lt;PlanDefi
     private final GraphFactory graphFactory;
 
     @Override
-<span class="nc" id="L49">    @SneakyThrows</span>
+<span class="nc" id="L50">    @SneakyThrows</span>
     public Graph&lt;BackboneElement, Void&gt; applyTransformation(PlanDefinition planDefinition) {
-<span class="fc" id="L51">        GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder = planDefinitionBackboneGraphRenderer.renderElement(planDefinition, planDefinition.getAction());</span>
+<span class="fc" id="L52">        GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder = planDefinitionBackboneGraphRenderer.renderElement(planDefinition, planDefinition.getAction());</span>
         // This has to be it's own renderer, as it is only executed once for all processes (and hot for each subprocess
         // extra), which would be done if we move it to planDefinitionBackboneGraphRenderer (which is used in other
         // scopes as well).
-<span class="fc" id="L55">        graphBuilder = planDefinitionDataElementsRenderer.renderElement(graphBuilder, planDefinition);</span>
+<span class="fc" id="L56">        graphBuilder = planDefinitionDataElementsRenderer.renderElement(graphBuilder, planDefinition);</span>
 
-<span class="fc" id="L57">        Graph&lt;BackboneElement, Void&gt; graph = graphBuilder.toGraph();</span>
+<span class="fc" id="L58">        Graph&lt;BackboneElement, Void&gt; graph = graphBuilder.toGraph();</span>
 
-<span class="fc" id="L59">        String processname = planDefinition.getName();</span>
-<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (processname == null) {</span>
-<span class="fc" id="L61">            processname = &quot;Process_&quot; + RandomStringUtils.random(10, true, true);</span>
+<span class="fc" id="L60">        String processname = planDefinition.getName();</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (processname == null) {</span>
+<span class="fc" id="L62">            processname = &quot;Process_&quot; + RandomStringUtils.random(10, true, true);</span>
         }
-<span class="fc" id="L63">        graph.addMetaTag(graphFactory.createMetaTag(TransformationConstants.PROCESS_NAME_TAG, processname));</span>
+<span class="fc" id="L64">        graph.addMetaTag(graphFactory.createMetaTag(TransformationConstants.PROCESS_NAME_TAG, processname));</span>
 
-<span class="fc" id="L65">        return graph;</span>
+<span class="fc" id="L66">        return graph;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -9,15 +9,15 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors;
 
-import science.aist.msbpmn.service.transformation.BpmnEventTypes;
-import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.hl7.fhir.r4.model.TriggerDefinition;
 import org.springframework.stereotype.Component;
 import science.aist.gtf.graph.builder.GraphBuilder;
 import science.aist.gtf.graph.impl.MetaTagImpl;
+import science.aist.msbpmn.service.transformation.BpmnEventTypes;
 import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,34 +29,34 @@ import java.util.List;
  */
 @Component
 <span class="fc" id="L31">public class PlanDefinitionBackboneGraphTriggerProcessor implements PlanDefinitionBackboneGraphComponentProcessor {</span>
+    private static void addRelation(PlanDefinition.PlanDefinitionActionComponent planDefinitionActionComponent, String relation) {
+<span class="fc" id="L33">        PlanDefinition.PlanDefinitionActionRelatedActionComponent planDefinitionActionRelatedActionComponent = new PlanDefinition.PlanDefinitionActionRelatedActionComponent();</span>
+<span class="fc" id="L34">        planDefinitionActionRelatedActionComponent.setActionId(relation);</span>
+<span class="fc" id="L35">        planDefinitionActionComponent.getRelatedAction().add(planDefinitionActionRelatedActionComponent);</span>
+<span class="fc" id="L36">    }</span>
+
     @Override
     public void process(PlanDefinition planDefinition, List&lt;PlanDefinition.PlanDefinitionActionComponent&gt; list, GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder) {
         // copy list to avoid concurrent modification exception, because we add elements
-<span class="fc" id="L35">        new ArrayList&lt;&gt;(list).stream()</span>
-<span class="fc" id="L36">                .filter(PlanDefinition.PlanDefinitionActionComponent::hasTrigger)</span>
-<span class="fc" id="L37">                .filter(actionDefinition -&gt;</span>
-<span class="fc bfc" id="L38" title="All 2 branches covered.">                        TriggerDefinition.TriggerType.NAMEDEVENT == actionDefinition.getTriggerFirstRep().getType()</span>
-<span class="pc bpc" id="L39" title="1 of 2 branches missed.">                                || TriggerDefinition.TriggerType.PERIODIC == actionDefinition.getTriggerFirstRep().getType())</span>
-<span class="fc" id="L40">                .forEach(actionDefinition -&gt; {</span>
+<span class="fc" id="L41">        new ArrayList&lt;&gt;(list).stream()</span>
+<span class="fc" id="L42">                .filter(PlanDefinition.PlanDefinitionActionComponent::hasTrigger)</span>
+<span class="fc" id="L43">                .filter(actionDefinition -&gt;</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">                        TriggerDefinition.TriggerType.NAMEDEVENT == actionDefinition.getTriggerFirstRep().getType()</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">                                || TriggerDefinition.TriggerType.PERIODIC == actionDefinition.getTriggerFirstRep().getType())</span>
+<span class="fc" id="L46">                .forEach(actionDefinition -&gt; {</span>
                     // there is a problem if the trigger has an in/output because it is added to both elements
-<span class="fc" id="L42">                    PlanDefinition.PlanDefinitionActionComponent trigger = actionDefinition.copy();</span>
-<span class="fc" id="L43">                    graphBuilder.getOrAddVertex(trigger).addMetaTag(new MetaTagImpl&lt;&gt;(TransformationConstants.EVENT_META_TAG, BpmnEventTypes.getByTriggerType(actionDefinition.getTriggerFirstRep().getType())));</span>
+<span class="fc" id="L48">                    PlanDefinition.PlanDefinitionActionComponent trigger = actionDefinition.copy();</span>
+<span class="fc" id="L49">                    graphBuilder.getOrAddVertex(trigger).addMetaTag(new MetaTagImpl&lt;&gt;(TransformationConstants.EVENT_META_TAG, BpmnEventTypes.getByTriggerType(actionDefinition.getTriggerFirstRep().getType())));</span>
 
                     // remove the trigger and the condition from the original element, as they are now in the trigger element
-<span class="fc" id="L46">                    actionDefinition.setTrigger(null);</span>
-<span class="fc" id="L47">                    actionDefinition.setCondition(null);</span>
-<span class="fc" id="L48">                    actionDefinition.setId(actionDefinition.getId() + &quot;_triggerAction&quot;);</span>
+<span class="fc" id="L52">                    actionDefinition.setTrigger(null);</span>
+<span class="fc" id="L53">                    actionDefinition.setCondition(null);</span>
+<span class="fc" id="L54">                    actionDefinition.setId(actionDefinition.getId() + &quot;_triggerAction&quot;);</span>
 
-<span class="fc" id="L50">                    trigger.getRelatedAction().clear();</span>
-<span class="fc" id="L51">                    addRelation(trigger, actionDefinition.getId());</span>
-<span class="fc" id="L52">                    list.add(trigger);</span>
-<span class="fc" id="L53">                });</span>
-<span class="fc" id="L54">    }</span>
-
-    private static void addRelation(PlanDefinition.PlanDefinitionActionComponent planDefinitionActionComponent, String relation) {
-<span class="fc" id="L57">        PlanDefinition.PlanDefinitionActionRelatedActionComponent planDefinitionActionRelatedActionComponent = new PlanDefinition.PlanDefinitionActionRelatedActionComponent();</span>
-<span class="fc" id="L58">        planDefinitionActionRelatedActionComponent.setActionId(relation);</span>
-<span class="fc" id="L59">        planDefinitionActionComponent.getRelatedAction().add(planDefinitionActionRelatedActionComponent);</span>
+<span class="fc" id="L56">                    trigger.getRelatedAction().clear();</span>
+<span class="fc" id="L57">                    addRelation(trigger, actionDefinition.getId());</span>
+<span class="fc" id="L58">                    list.add(trigger);</span>
+<span class="fc" id="L59">                });</span>
 <span class="fc" id="L60">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

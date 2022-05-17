@@ -31,11 +31,11 @@ public final class TransformationConstants {
     public static final String START_META_TAG = &quot;start&quot;;
     public static final String END_META_TAG = &quot;end&quot;;
 
-    public static &lt;V extends IBaseElement&gt; Function&lt;V, Object&gt; KEY_MAPPER() {
-<span class="fc" id="L35">        return IBaseElement::getId;</span>
+    private TransformationConstants() {
     }
 
-    private TransformationConstants() {
+    public static &lt;V extends IBaseElement&gt; Function&lt;V, Object&gt; KEY_MAPPER() {
+<span class="fc" id="L38">        return IBaseElement::getId;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

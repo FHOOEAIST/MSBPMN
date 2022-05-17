@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors;
 
-import science.aist.msbpmn.service.transformation.helper.BackboneIdProvider;
-import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.hl7.fhir.r4.model.BackboneElement;
@@ -21,6 +19,8 @@ import org.springframework.stereotype.Component;
 import science.aist.gtf.graph.Edge;
 import science.aist.gtf.graph.builder.GraphBuilder;
 import science.aist.gtf.graph.factory.GraphFactory;
+import science.aist.msbpmn.service.transformation.helper.BackboneIdProvider;
+import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
 
 import java.util.*;
 import java.util.function.Consumer;

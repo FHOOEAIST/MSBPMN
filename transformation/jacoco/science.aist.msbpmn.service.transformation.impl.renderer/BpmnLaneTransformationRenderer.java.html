@@ -9,7 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.helper.IdProvider;
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinitionActorComponent;
@@ -21,43 +20,45 @@ import science.aist.gtf.graph.Graph;
 import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.transformation.renderer.TransformationRender;
 import science.aist.jack.general.util.CastUtils;
+import science.aist.msbpmn.service.transformation.helper.IdProvider;
 
 /**
- * &lt;p&gt;Renders a BPMN Lane based on a {@link org.hl7.fhir.r4.model.PlanDefinition.PlanDefinitionActionParticipantComponent}&lt;/p&gt;
+ * &lt;p&gt;Renders a BPMN Lane based on a
+ * {@link org.hl7.fhir.r4.model.PlanDefinition.PlanDefinitionActionParticipantComponent}&lt;/p&gt;
  *
  * @author Andreas Pointner
  */
 @Component
-<span class="fc" id="L31">@AllArgsConstructor</span>
+<span class="fc" id="L32">@AllArgsConstructor</span>
 public class BpmnLaneTransformationRenderer implements TransformationRender&lt;TLane, TLane, Graph&lt;BackboneElement, Void&gt;, Vertex&lt;PlanDefinitionActorComponent, Void&gt;&gt; {
 
     private final ObjectFactory objectFactory;
 
     @Override
     public TLane renderElement(Graph&lt;BackboneElement, Void&gt; vertices, Vertex&lt;PlanDefinitionActorComponent, Void&gt; currentElement) {
-<span class="fc" id="L38">        return mapProperties(createElement(), vertices, currentElement);</span>
+<span class="fc" id="L39">        return mapProperties(createElement(), vertices, currentElement);</span>
     }
 
     @Override
     public TLane createElement() {
-<span class="fc" id="L43">        return objectFactory.createTLane();</span>
+<span class="fc" id="L44">        return objectFactory.createTLane();</span>
     }
 
     @Override
     public TLane mapProperties(TLane tLane, Graph&lt;BackboneElement, Void&gt; vertices, Vertex&lt;PlanDefinitionActorComponent, Void&gt; currentElement) {
-<span class="fc" id="L48">        tLane.setId(new IdProvider(currentElement.getElement().getId()).getId());</span>
-<span class="fc" id="L49">        tLane.setName(currentElement.getElement().getLabel());</span>
-<span class="fc" id="L50">        currentElement</span>
-<span class="fc" id="L51">                .getOutgoingEdges()</span>
-<span class="fc" id="L52">                .stream()</span>
-<span class="fc" id="L53">                .map(CastUtils::&lt;Edge&lt;PlanDefinitionActorComponent, Void&gt;, Edge&lt;BackboneElement, Void&gt;&gt;cast)</span>
-<span class="fc" id="L54">                .map(Edge::getTarget)</span>
-<span class="fc" id="L55">                .map(Vertex::getElement)</span>
-<span class="fc" id="L56">                .map(BackboneElement::getId)</span>
-<span class="fc" id="L57">                .map(IdProvider::new)</span>
-<span class="fc" id="L58">                .map(objectFactory::createTLaneFlowNodeRef)</span>
-<span class="fc" id="L59">                .forEach(tLane.getFlowNodeRef()::add);</span>
-<span class="fc" id="L60">        return tLane;</span>
+<span class="fc" id="L49">        tLane.setId(new IdProvider(currentElement.getElement().getId()).getId());</span>
+<span class="fc" id="L50">        tLane.setName(currentElement.getElement().getLabel());</span>
+<span class="fc" id="L51">        currentElement</span>
+<span class="fc" id="L52">                .getOutgoingEdges()</span>
+<span class="fc" id="L53">                .stream()</span>
+<span class="fc" id="L54">                .map(CastUtils::&lt;Edge&lt;PlanDefinitionActorComponent, Void&gt;, Edge&lt;BackboneElement, Void&gt;&gt;cast)</span>
+<span class="fc" id="L55">                .map(Edge::getTarget)</span>
+<span class="fc" id="L56">                .map(Vertex::getElement)</span>
+<span class="fc" id="L57">                .map(BackboneElement::getId)</span>
+<span class="fc" id="L58">                .map(IdProvider::new)</span>
+<span class="fc" id="L59">                .map(objectFactory::createTLaneFlowNodeRef)</span>
+<span class="fc" id="L60">                .forEach(tLane.getFlowNodeRef()::add);</span>
+<span class="fc" id="L61">        return tLane;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
