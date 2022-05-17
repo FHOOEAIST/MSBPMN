@@ -9,12 +9,12 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.condition;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.impl.EdgeType;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.springframework.stereotype.Component;
 import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.transformation.renderer.condition.RendererCondition;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
 
 import java.util.function.Predicate;
 

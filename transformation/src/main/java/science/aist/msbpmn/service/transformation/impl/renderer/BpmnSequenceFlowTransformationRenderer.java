@@ -9,7 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.helper.IdProvider;
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinition;
@@ -21,13 +20,15 @@ import science.aist.gtf.graph.Edge;
 import science.aist.gtf.graph.Graph;
 import science.aist.gtf.transformation.renderer.TransformationRender;
 import science.aist.gtf.transformation.renderer.condition.RendererCondition;
+import science.aist.msbpmn.service.transformation.helper.IdProvider;
 
 import javax.xml.bind.JAXBElement;
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * <p>Renderer for the sequence flow element. So the connectors between the {@link org.omg.spec.bpmn.model.TFlowNode}s</p>
+ * <p>Renderer for the sequence flow element. So the connectors between the
+ * {@link org.omg.spec.bpmn.model.TFlowNode}s</p>
  *
  * @author Andreas Pointner
  */

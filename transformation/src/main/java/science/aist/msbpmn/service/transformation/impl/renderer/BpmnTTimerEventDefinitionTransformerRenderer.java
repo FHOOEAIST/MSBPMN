@@ -9,7 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnEventDefinitionTransformationRenderer;
 import lombok.CustomLog;
 import org.hl7.fhir.r4.model.*;
 import org.joda.time.DateTime;
@@ -21,6 +20,7 @@ import org.omg.spec.bpmn.model.TTimerEventDefinition;
 import org.springframework.stereotype.Component;
 import science.aist.gtf.graph.Graph;
 import science.aist.gtf.graph.Vertex;
+import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnEventDefinitionTransformationRenderer;
 
 import javax.xml.bind.JAXBElement;
 import java.util.Date;
@@ -37,7 +37,7 @@ import java.util.function.Function;
 @CustomLog
 public class BpmnTTimerEventDefinitionTransformerRenderer extends AbstractBpmnEventDefinitionTransformationRenderer<TTimerEventDefinition, BackboneElement, PlanDefinition.PlanDefinitionActionComponent> {
     public BpmnTTimerEventDefinitionTransformerRenderer(ObjectFactory objectFactory) {
-        super( objectFactory);
+        super(objectFactory);
     }
 
     private TExpression createTimeDateExpression(TTimerEventDefinition eventDefinition, Date timing) {

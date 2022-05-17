@@ -9,13 +9,13 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.condition;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.graph.impl.MetaTagImpl;
 import science.aist.gtf.graph.impl.VertexImpl;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
 
 /**
  * <p>Test class for {@link EndEventCondition}</p>
@@ -27,7 +27,7 @@ public class EndEventConditionTest {
     private final EndEventCondition condition = new EndEventCondition();
 
     @Test
-    public void testConditionPositive(){
+    public void testConditionPositive() {
         // given
         Vertex<PlanDefinition.PlanDefinitionActionComponent, Void> vertex = new VertexImpl<>(null);
         vertex.addMetaTag(new MetaTagImpl<>(TransformationConstants.END_META_TAG, true));
@@ -40,7 +40,7 @@ public class EndEventConditionTest {
     }
 
     @Test
-    public void testConditionNegative(){
+    public void testConditionNegative() {
         // given
         Vertex<PlanDefinition.PlanDefinitionActionComponent, Void> vertex = new VertexImpl<>(null);
 

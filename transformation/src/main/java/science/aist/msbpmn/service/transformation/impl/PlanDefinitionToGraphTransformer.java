@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>Transforms a {@link PlanDefinition} into a {@link Graph} of {@link org.hl7.fhir.r4.model.PlanDefinition.PlanDefinitionActionComponent}s</p>
+ * <p>Transforms a {@link PlanDefinition} into a {@link Graph} of
+ * {@link org.hl7.fhir.r4.model.PlanDefinition.PlanDefinitionActionComponent}s</p>
  *
  * @author Andreas Pointner
  */

@@ -13,8 +13,8 @@ import org.hl7.fhir.r4.model.BackboneElement;
 
 /**
  * <p>This is just a helper class, that is only created during transformation to make it easier to transform
- * into the BPMN structure having dataObjects and data references. We assume that a "normal" IOComponent is a
- * data reference. Thus this class create a temporary node representing a data object</p>
+ * into the BPMN structure having dataObjects and data references. We assume that a "normal" IOComponent is a data
+ * reference. Thus this class create a temporary node representing a data object</p>
  *
  * @author Andreas Pointner
  */

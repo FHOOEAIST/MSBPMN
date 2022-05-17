@@ -12,7 +12,8 @@ package science.aist.msbpmn.service.transformation.renderer.condition;
 import java.util.function.BiPredicate;
 
 /**
- * <p>A RendererCondition based on the concept of {@link science.aist.gtf.transformation.renderer.condition.RendererCondition}
+ * <p>A RendererCondition based on the concept of
+ * {@link science.aist.gtf.transformation.renderer.condition.RendererCondition}
  * but with a given context in which the condition should be checked</p>
  *
  * @param <T> the type of the element to be checked

@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.renderer.condition.ContextRendererCondition;
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinition;
@@ -20,6 +18,8 @@ import science.aist.gtf.graph.builder.GraphBuilder;
 import science.aist.gtf.graph.builder.impl.GraphBuilderImpl;
 import science.aist.gtf.graph.factory.GraphFactory;
 import science.aist.gtf.transformation.renderer.TransformationRender;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.renderer.condition.ContextRendererCondition;
 
 import java.util.List;
 import java.util.function.Function;

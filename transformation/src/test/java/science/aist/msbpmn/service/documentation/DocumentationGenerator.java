@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.documentation;
 
-import science.aist.msbpmn.service.ModelTransformationService;
-import science.aist.msbpmn.service.impl.DefaultGraphBasedModelTransformationServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.CustomLog;
@@ -23,6 +21,8 @@ import science.aist.gtf.template.GeneratorTemplate;
 import science.aist.gtf.template.GeneratorTemplateFactory;
 import science.aist.gtf.template.GeneratorTemplateRenderer;
 import science.aist.gtf.template.TemplateResource;
+import science.aist.msbpmn.service.ModelTransformationService;
+import science.aist.msbpmn.service.impl.DefaultGraphBasedModelTransformationServiceImpl;
 
 import java.io.Closeable;
 import java.nio.file.Files;
@@ -39,22 +39,12 @@ import java.util.Properties;
 @CustomLog
 public class DocumentationGenerator implements Closeable {
 
-    @SneakyThrows
-    public static void main(String[] args) {
-        try (DocumentationGenerator documentationGenerator = new DocumentationGenerator()) {
-            DocumentationSamples documentationSamples = new ObjectMapper(new YAMLFactory()).readValue(DocumentationGenerator.class.getResource("/documentation-sample.yaml"), DocumentationSamples.class);
-            documentationGenerator.setDocumentationSampleList(documentationSamples.getDocumentationSamples());
-            documentationGenerator.process();
-        }
-    }
-
     private final ClassPathXmlApplicationContext classPathXmlApplicationContext;
     private final TemplateResource documentationTemplate;
     private final GeneratorTemplateFactory generatorTemplateFactory;
     private final GeneratorTemplateRenderer<GeneratorTemplate, Void> generatorTemplateRenderer;
     private final ModelTransformationService service;
     private final TemplateResource documentationOverviewTemplate;
-
     @Setter
     private List<DocumentationSample> documentationSampleList;
 
@@ -68,6 +58,19 @@ public class DocumentationGenerator implements Closeable {
         service = classPathXmlApplicationContext.getBean(DefaultGraphBasedModelTransformationServiceImpl.class);
     }
 
+    @SneakyThrows
+    public static void main(String[] args) {
+        try (DocumentationGenerator documentationGenerator = new DocumentationGenerator()) {
+            DocumentationSamples documentationSamples = new ObjectMapper(new YAMLFactory()).readValue(DocumentationGenerator.class.getResource("/documentation-sample.yaml"), DocumentationSamples.class);
+            documentationGenerator.setDocumentationSampleList(documentationSamples.getDocumentationSamples());
+            documentationGenerator.process();
+        }
+    }
+
+    @SneakyThrows
+    private static String loadFile(String fileName) {
+        return Files.readString(Paths.get(new ClassPathResource(fileName).getURI()));
+    }
 
     public void process() {
         Objects.requireNonNull(documentationSampleList, "Please set documentation samples first.");
@@ -108,11 +111,6 @@ public class DocumentationGenerator implements Closeable {
 
         generatorTemplateRenderer.renderElement(template, null);
         log.info("Completed {}", ds.getName());
-    }
-
-    @SneakyThrows
-    private static String loadFile(String fileName) {
-        return Files.readString(Paths.get(new ClassPathResource(fileName).getURI()));
     }
 
     @Getter

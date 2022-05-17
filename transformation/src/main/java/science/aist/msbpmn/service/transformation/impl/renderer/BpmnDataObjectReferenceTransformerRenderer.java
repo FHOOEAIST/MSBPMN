@@ -9,11 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.helper.IdProvider;
-import science.aist.msbpmn.service.transformation.helper.PlanDefinitionActionDataComponent;
-import science.aist.msbpmn.service.transformation.impl.EdgeType;
-import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnGraphTransformationRenderer;
 import lombok.CustomLog;
 import lombok.NonNull;
 import org.hl7.fhir.r4.model.BackboneElement;
@@ -27,6 +22,11 @@ import science.aist.gtf.graph.Edge;
 import science.aist.gtf.graph.Graph;
 import science.aist.gtf.graph.Vertex;
 import science.aist.jack.general.util.CastUtils;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.helper.IdProvider;
+import science.aist.msbpmn.service.transformation.helper.PlanDefinitionActionDataComponent;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
+import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnGraphTransformationRenderer;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -52,6 +52,21 @@ public class BpmnDataObjectReferenceTransformerRenderer extends AbstractBpmnGrap
         super(() -> x -> true, objectFactory);
     }
 
+    private static boolean isDataEdge(Edge<?, Void> edge) {
+        try {
+            return edge.getMetaTagValue(TransformationConstants.EDGE_TYPE_META_TAG, EdgeType.class) == EdgeType.DATA;
+        } catch (Exception e) {
+            log.debug(e);
+            return false;
+        }
+    }
+
+    private static List<JAXBElement<String>> fromMap(Map<String, String> map) {
+        List<JAXBElement<String>> result = new ArrayList<>();
+        map.forEach((k, v) -> result.add(new JAXBElement<>(new QName(FHIR_EXTENSION_NAMESPACE, k), String.class, v)));
+        return result;
+    }
+
     @Override
     protected Function<TDataObjectReference, JAXBElement<? extends TDataObjectReference>> constructJaxBElementMapping() {
         return objectFactory::createDataObjectReference;
@@ -75,8 +90,8 @@ public class BpmnDataObjectReferenceTransformerRenderer extends AbstractBpmnGrap
 
         // Set the data reference
         CastUtils.<Stream<Edge<PlanDefinitionActionIOComponent, Void>>, Stream<Edge<PlanDefinitionActionDataComponent, Void>>>cast(currentElement.getEdges()
-                .stream()
-                .filter(BpmnDataObjectReferenceTransformerRenderer::isDataEdge))
+                        .stream()
+                        .filter(BpmnDataObjectReferenceTransformerRenderer::isDataEdge))
                 .findFirst()
                 .map(Edge::getTarget)
                 .map(Vertex::getElement)
@@ -86,15 +101,6 @@ public class BpmnDataObjectReferenceTransformerRenderer extends AbstractBpmnGrap
         return element;
     }
 
-    private static boolean isDataEdge(Edge<?, Void> edge) {
-        try {
-            return edge.getMetaTagValue(TransformationConstants.EDGE_TYPE_META_TAG, EdgeType.class) == EdgeType.DATA;
-        } catch (Exception e) {
-            log.debug(e);
-            return false;
-        }
-    }
-
     private TExtensionElements createExtensionElementForRequirement(DataRequirement dr) {
         TExtensionElements tee = objectFactory.createTExtensionElements();
         // check in the future what else is necessary to map to bpmn
@@ -102,11 +108,5 @@ public class BpmnDataObjectReferenceTransformerRenderer extends AbstractBpmnGrap
                 "type", dr.getType()
         )));
         return tee;
-    }
-
-    private static List<JAXBElement<String>> fromMap(Map<String, String> map) {
-        List<JAXBElement<String>> result = new ArrayList<>();
-        map.forEach((k, v) -> result.add(new JAXBElement<>(new QName(FHIR_EXTENSION_NAMESPACE, k), String.class, v)));
-        return result;
     }
 }

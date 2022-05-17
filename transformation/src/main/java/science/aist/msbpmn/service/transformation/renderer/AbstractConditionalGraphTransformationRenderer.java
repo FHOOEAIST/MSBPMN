@@ -21,13 +21,14 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * <p>Additional Abstraction which combines graph transformation renderer and abstract conditional transformation renderer</p>
+ * <p>Additional Abstraction which combines graph transformation renderer and abstract conditional transformation
+ * renderer</p>
  *
  * @author Andreas Pointner
  */
 @Getter
 @AllArgsConstructor
-public abstract class AbstractConditionalGraphTransformationRenderer<R, S, T> implements TransformationRender<Optional<JAXBElement<? extends R>>, R, Graph<S, Void>, Vertex<T, Void>>{
+public abstract class AbstractConditionalGraphTransformationRenderer<R, S, T> implements TransformationRender<Optional<JAXBElement<? extends R>>, R, Graph<S, Void>, Vertex<T, Void>> {
 
     private final RendererCondition<Vertex<T, Void>> rendererCondition;
 

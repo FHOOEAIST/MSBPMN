@@ -9,7 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnGraphTransformationRenderer;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.omg.spec.bpmn.model.ObjectFactory;
@@ -19,6 +18,7 @@ import org.testng.annotations.Test;
 import science.aist.gtf.graph.GraphState;
 import science.aist.gtf.graph.impl.GraphStateImpl;
 import science.aist.gtf.graph.impl.VertexImpl;
+import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnGraphTransformationRenderer;
 
 import javax.xml.bind.JAXBElement;
 import java.util.Optional;

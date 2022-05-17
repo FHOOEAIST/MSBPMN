@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.impl.EdgeType;
 import org.hl7.fhir.instance.model.api.IBaseElement;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.Element;
@@ -28,6 +26,8 @@ import science.aist.gtf.graph.factory.GraphFactory;
 import science.aist.gtf.graph.factory.GraphFactoryFactory;
 import science.aist.gtf.graph.impl.MetaTagImpl;
 import science.aist.gtf.transformation.renderer.TransformationRender;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
 
 import java.util.List;
 import java.util.Optional;

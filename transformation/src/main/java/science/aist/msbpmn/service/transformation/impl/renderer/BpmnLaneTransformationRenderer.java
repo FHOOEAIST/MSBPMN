@@ -9,7 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.helper.IdProvider;
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinitionActorComponent;
@@ -21,9 +20,11 @@ import science.aist.gtf.graph.Graph;
 import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.transformation.renderer.TransformationRender;
 import science.aist.jack.general.util.CastUtils;
+import science.aist.msbpmn.service.transformation.helper.IdProvider;
 
 /**
- * <p>Renders a BPMN Lane based on a {@link org.hl7.fhir.r4.model.PlanDefinition.PlanDefinitionActionParticipantComponent}</p>
+ * <p>Renders a BPMN Lane based on a
+ * {@link org.hl7.fhir.r4.model.PlanDefinition.PlanDefinitionActionParticipantComponent}</p>
  *
  * @author Andreas Pointner
  */

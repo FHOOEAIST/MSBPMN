@@ -9,15 +9,15 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors;
 
-import science.aist.msbpmn.service.transformation.BpmnEventTypes;
-import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.hl7.fhir.r4.model.TriggerDefinition;
 import org.springframework.stereotype.Component;
 import science.aist.gtf.graph.builder.GraphBuilder;
 import science.aist.gtf.graph.impl.MetaTagImpl;
+import science.aist.msbpmn.service.transformation.BpmnEventTypes;
 import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,12 @@ import java.util.List;
  */
 @Component
 public class PlanDefinitionBackboneGraphTriggerProcessor implements PlanDefinitionBackboneGraphComponentProcessor {
+    private static void addRelation(PlanDefinition.PlanDefinitionActionComponent planDefinitionActionComponent, String relation) {
+        PlanDefinition.PlanDefinitionActionRelatedActionComponent planDefinitionActionRelatedActionComponent = new PlanDefinition.PlanDefinitionActionRelatedActionComponent();
+        planDefinitionActionRelatedActionComponent.setActionId(relation);
+        planDefinitionActionComponent.getRelatedAction().add(planDefinitionActionRelatedActionComponent);
+    }
+
     @Override
     public void process(PlanDefinition planDefinition, List<PlanDefinition.PlanDefinitionActionComponent> list, GraphBuilder<BackboneElement, Void> graphBuilder) {
         // copy list to avoid concurrent modification exception, because we add elements
@@ -51,11 +57,5 @@ public class PlanDefinitionBackboneGraphTriggerProcessor implements PlanDefiniti
                     addRelation(trigger, actionDefinition.getId());
                     list.add(trigger);
                 });
-    }
-
-    private static void addRelation(PlanDefinition.PlanDefinitionActionComponent planDefinitionActionComponent, String relation) {
-        PlanDefinition.PlanDefinitionActionRelatedActionComponent planDefinitionActionRelatedActionComponent = new PlanDefinition.PlanDefinitionActionRelatedActionComponent();
-        planDefinitionActionRelatedActionComponent.setActionId(relation);
-        planDefinitionActionComponent.getRelatedAction().add(planDefinitionActionRelatedActionComponent);
     }
 }

@@ -9,13 +9,13 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.condition;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.graph.impl.MetaTagImpl;
 import science.aist.gtf.graph.impl.VertexImpl;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
 
 /**
  * <p>Test class for {@link StartEventCondition}</p>

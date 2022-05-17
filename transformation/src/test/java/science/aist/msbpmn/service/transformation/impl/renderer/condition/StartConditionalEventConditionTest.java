@@ -28,14 +28,6 @@ import java.util.function.Predicate;
 
 public class StartConditionalEventConditionTest {
 
-    static class TestPredicate implements Predicate<Vertex<PlanDefinition.PlanDefinitionActionComponent, Void>> {
-
-        @Override
-        public boolean test(Vertex<PlanDefinition.PlanDefinitionActionComponent, Void> planDefinitionActionComponentVertex) {
-            return true;
-        }
-    }
-
     @Test
     public void testCall() {
         // given
@@ -46,7 +38,7 @@ public class StartConditionalEventConditionTest {
         RendererCondition<Vertex<PlanDefinition.PlanDefinitionActionComponent, Void>> conditionalEventCondition = Mockito.mock(RendererCondition.class);
         Mockito.doReturn(conditionalEventConditionPredicate).when(conditionalEventCondition).createCondition();
 
-        Predicate<Vertex<PlanDefinition.PlanDefinitionActionComponent, Void>> startEventConditionPredicate =  new TestPredicate();
+        Predicate<Vertex<PlanDefinition.PlanDefinitionActionComponent, Void>> startEventConditionPredicate = new TestPredicate();
         startEventConditionPredicate = Mockito.spy(startEventConditionPredicate);
         RendererCondition<Vertex<PlanDefinition.PlanDefinitionActionComponent, Void>> startEventCondition = Mockito.mock(RendererCondition.class);
         Mockito.doReturn(startEventConditionPredicate).when(startEventCondition).createCondition();
@@ -63,5 +55,13 @@ public class StartConditionalEventConditionTest {
         Mockito.verify(conditionalEventConditionPredicate, Mockito.times(1)).test(ArgumentMatchers.eq(action));
         Mockito.verify(startEventConditionPredicate, Mockito.times(1)).test(ArgumentMatchers.eq(action));
         Mockito.verifyNoMoreInteractions(conditionalEventCondition, startEventCondition);
+    }
+
+    static class TestPredicate implements Predicate<Vertex<PlanDefinition.PlanDefinitionActionComponent, Void>> {
+
+        @Override
+        public boolean test(Vertex<PlanDefinition.PlanDefinitionActionComponent, Void> planDefinitionActionComponentVertex) {
+            return true;
+        }
     }
 }
