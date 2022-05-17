@@ -9,14 +9,14 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.condition;
 
-import science.aist.msbpmn.service.transformation.BpmnEventTypes;
-import science.aist.msbpmn.service.transformation.TransformationConstants;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.graph.impl.MetaTagImpl;
 import science.aist.gtf.graph.impl.VertexImpl;
+import science.aist.msbpmn.service.transformation.BpmnEventTypes;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
 
 /**
  * <p>Test class for {@link ConditionalEventCondition}</p>
@@ -29,7 +29,7 @@ public class ConditionalEventConditionTest {
     private final ConditionalEventCondition conditionalEventCondition = new ConditionalEventCondition();
 
     @Test
-    public void testConditionPositive(){
+    public void testConditionPositive() {
         // given
         Vertex<PlanDefinition.PlanDefinitionActionComponent, Void> vertex = new VertexImpl<>(null);
         vertex.addMetaTag(new MetaTagImpl<>(TransformationConstants.EVENT_META_TAG, BpmnEventTypes.EVENT_CONDITION));
@@ -42,7 +42,7 @@ public class ConditionalEventConditionTest {
     }
 
     @Test
-    public void testConditionNegative(){
+    public void testConditionNegative() {
         // given
         Vertex<PlanDefinition.PlanDefinitionActionComponent, Void> vertex = new VertexImpl<>(null);
 

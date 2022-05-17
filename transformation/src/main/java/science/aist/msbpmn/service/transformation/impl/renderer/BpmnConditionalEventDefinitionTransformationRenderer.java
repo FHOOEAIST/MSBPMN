@@ -9,7 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnEventDefinitionTransformationRenderer;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.Expression;
 import org.hl7.fhir.r4.model.PlanDefinition;
@@ -20,6 +19,7 @@ import org.omg.spec.bpmn.model.TFormalExpression;
 import org.springframework.stereotype.Component;
 import science.aist.gtf.graph.Graph;
 import science.aist.gtf.graph.Vertex;
+import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnEventDefinitionTransformationRenderer;
 
 import javax.xml.bind.JAXBElement;
 import java.util.function.Function;

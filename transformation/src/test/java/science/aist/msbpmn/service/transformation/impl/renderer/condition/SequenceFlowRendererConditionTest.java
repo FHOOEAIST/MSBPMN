@@ -9,14 +9,14 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.condition;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.impl.EdgeType;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import science.aist.gtf.graph.Edge;
 import science.aist.gtf.graph.impl.EdgeImpl;
 import science.aist.gtf.graph.impl.MetaTagImpl;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
 
 /**
  * <p>Test class for {@link SequenceFlowRendererCondition}</p>

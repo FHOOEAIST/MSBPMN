@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.helper.BackboneIdProvider;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.mockito.ArgumentMatchers;
@@ -24,6 +22,8 @@ import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.graph.builder.impl.GraphBuilderImpl;
 import science.aist.gtf.graph.impl.MetaTagImpl;
 import science.aist.gtf.transformation.renderer.TransformationRender;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.helper.BackboneIdProvider;
 
 import javax.xml.bind.JAXBElement;
 import java.util.List;
@@ -81,7 +81,7 @@ public class BpmnGraphTransformerTest {
         Assert.assertNotNull(tDefinitions);
         Assert.assertNotNull(tDefinitions.getRootElement());
         Assert.assertEquals(tDefinitions.getRootElement().size(), 1);
-        TProcess value = (TProcess)((JAXBElement<?>) tDefinitions.getRootElement().get(0)).getValue();
+        TProcess value = (TProcess) ((JAXBElement<?>) tDefinitions.getRootElement().get(0)).getValue();
         Assert.assertNotNull(value);
         Assert.assertEquals(value.getFlowElement().size(), 5);
         Assert.assertEquals(value.getLaneSet().size(), 1);

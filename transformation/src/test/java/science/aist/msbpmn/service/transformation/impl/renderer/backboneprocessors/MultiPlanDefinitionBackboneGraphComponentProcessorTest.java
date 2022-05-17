@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.mockito.ArgumentMatchers;
@@ -19,6 +17,8 @@ import org.mockito.Mockito;
 import org.testng.annotations.Test;
 import science.aist.gtf.graph.builder.GraphBuilder;
 import science.aist.gtf.graph.builder.impl.GraphBuilderImpl;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
 
 import java.util.ArrayList;
 import java.util.List;

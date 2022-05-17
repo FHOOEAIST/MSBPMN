@@ -38,7 +38,7 @@ public class BpmnDocumentRootToStringTransformer implements Transformer<JAXBElem
     public String applyTransformation(@NonNull JAXBElement<TDefinitions> documentRoot) {
         BpmnAutoLayout bpmnAutoLayout = new BpmnAutoLayout(documentRoot, true);
         bpmnAutoLayout.execute();
-        try(ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             repository.save(documentRoot, byteArrayOutputStream);
             return new String(byteArrayOutputStream.toByteArray(), Charset.defaultCharset());
         }

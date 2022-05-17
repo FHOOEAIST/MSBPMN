@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors;
 
-import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
-import science.aist.msbpmn.service.transformation.renderer.condition.ContextRendererCondition;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.hl7.fhir.instance.model.api.IBaseElement;
@@ -21,6 +19,8 @@ import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.graph.builder.GraphBuilder;
 import science.aist.gtf.graph.factory.GraphFactory;
 import science.aist.jack.general.util.CastUtils;
+import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
+import science.aist.msbpmn.service.transformation.renderer.condition.ContextRendererCondition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,19 +36,21 @@ import static science.aist.msbpmn.service.transformation.TransformationConstants
 @Component
 public class PlanDefinitionBackboneGraphStartAndEndProcessor implements PlanDefinitionBackboneGraphComponentProcessor {
 
-    @NonNull
-    private final GraphFactory graphFactory;
-
-    @NonNull
-    private final ContextRendererCondition<List<PlanDefinition.PlanDefinitionActionComponent>, PlanDefinition.PlanDefinitionActionComponent> planDefinitionActionStartEventCondition;
-
-    @NonNull
-    private final ContextRendererCondition<List<PlanDefinition.PlanDefinitionActionComponent>, PlanDefinition.PlanDefinitionActionComponent> planDefinitionActionEndEventCondition;
-
-    private int specialUniqueId = 1;
-
     private static final String START = "start";
     private static final String END = "end";
+    @NonNull
+    private final GraphFactory graphFactory;
+    @NonNull
+    private final ContextRendererCondition<List<PlanDefinition.PlanDefinitionActionComponent>, PlanDefinition.PlanDefinitionActionComponent> planDefinitionActionStartEventCondition;
+    @NonNull
+    private final ContextRendererCondition<List<PlanDefinition.PlanDefinitionActionComponent>, PlanDefinition.PlanDefinitionActionComponent> planDefinitionActionEndEventCondition;
+    private int specialUniqueId = 1;
+
+    private static void addRelation(PlanDefinition.PlanDefinitionActionComponent planDefinitionActionComponent, String relation) {
+        PlanDefinition.PlanDefinitionActionRelatedActionComponent planDefinitionActionRelatedActionComponent = new PlanDefinition.PlanDefinitionActionRelatedActionComponent();
+        planDefinitionActionRelatedActionComponent.setActionId(relation);
+        planDefinitionActionComponent.getRelatedAction().add(planDefinitionActionRelatedActionComponent);
+    }
 
     @Override
     public void process(PlanDefinition planDefinition, List<PlanDefinition.PlanDefinitionActionComponent> list, GraphBuilder<BackboneElement, Void> graphBuilder) {
@@ -82,7 +84,6 @@ public class PlanDefinitionBackboneGraphStartAndEndProcessor implements PlanDefi
         list.add(startAction);
     }
 
-
     private void handleEndAction(GraphBuilder<BackboneElement, Void> graphBuilder, List<PlanDefinition.PlanDefinitionActionComponent> list, PlanDefinition.PlanDefinitionActionComponent endDefinition) {
         PlanDefinition.PlanDefinitionActionComponent endAction = new PlanDefinition.PlanDefinitionActionComponent();
         endAction.setId(END + specialUniqueId);
@@ -93,11 +94,5 @@ public class PlanDefinitionBackboneGraphStartAndEndProcessor implements PlanDefi
         endAction.getParticipant().addAll(endDefinition.getParticipant());
         addRelation(endDefinition, endAction.getId());
         list.add(endAction);
-    }
-
-    private static void addRelation(PlanDefinition.PlanDefinitionActionComponent planDefinitionActionComponent, String relation) {
-        PlanDefinition.PlanDefinitionActionRelatedActionComponent planDefinitionActionRelatedActionComponent = new PlanDefinition.PlanDefinitionActionRelatedActionComponent();
-        planDefinitionActionRelatedActionComponent.setActionId(relation);
-        planDefinitionActionComponent.getRelatedAction().add(planDefinitionActionRelatedActionComponent);
     }
 }

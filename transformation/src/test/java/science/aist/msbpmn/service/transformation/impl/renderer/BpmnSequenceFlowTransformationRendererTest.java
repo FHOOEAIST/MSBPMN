@@ -9,7 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.helper.IdProvider;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -22,6 +21,7 @@ import science.aist.gtf.graph.GraphState;
 import science.aist.gtf.graph.impl.EdgeImpl;
 import science.aist.gtf.graph.impl.GraphStateImpl;
 import science.aist.gtf.graph.impl.VertexImpl;
+import science.aist.msbpmn.service.transformation.helper.IdProvider;
 
 import javax.xml.bind.JAXBElement;
 import java.util.Optional;
@@ -130,8 +130,8 @@ public class BpmnSequenceFlowTransformationRendererTest {
         Assert.assertNotNull(tSequenceFlow);
         Assert.assertNotNull(tSequenceFlow.getSourceRef());
         Assert.assertNotNull(tSequenceFlow.getTargetRef());
-        Assert.assertEquals(((TBaseElement)tSequenceFlow.getSourceRef()).getId(), new IdProvider(action1.getId()).getId());
-        Assert.assertEquals(((TBaseElement)tSequenceFlow.getTargetRef()).getId(), new IdProvider(action2.getId()).getId());
+        Assert.assertEquals(((TBaseElement) tSequenceFlow.getSourceRef()).getId(), new IdProvider(action1.getId()).getId());
+        Assert.assertEquals(((TBaseElement) tSequenceFlow.getTargetRef()).getId(), new IdProvider(action2.getId()).getId());
     }
 
     @Test

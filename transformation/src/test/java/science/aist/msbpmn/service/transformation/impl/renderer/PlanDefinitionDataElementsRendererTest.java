@@ -9,9 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.helper.PlanDefinitionActionDataComponent;
-import science.aist.msbpmn.service.transformation.impl.EdgeType;
 import org.hl7.fhir.r4.model.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -19,6 +16,9 @@ import science.aist.gtf.graph.Edge;
 import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.graph.builder.impl.GraphBuilderImpl;
 import science.aist.gtf.graph.impl.MetaTagImpl;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.helper.PlanDefinitionActionDataComponent;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -53,8 +53,8 @@ public class PlanDefinitionDataElementsRendererTest {
         action2.setId("action2");
         action2.setTitle("action2");
         PlanDefinitionActionIComponent planDefinitionActionIComponent = action2.addInput();
-                planDefinitionActionIComponent.addRelatedRequirement()
-                        .setRequirementId(output.getId());
+        planDefinitionActionIComponent.addRelatedRequirement()
+                .setRequirementId(output.getId());
         planDefinitionActionIComponent.setId("data_input_1");
 
         var graphBuilder = GraphBuilderImpl.<BackboneElement, Void>create(TransformationConstants.KEY_MAPPER())
@@ -66,7 +66,7 @@ public class PlanDefinitionDataElementsRendererTest {
         // then
         var graph = graphBuilder.toGraph();
         Assert.assertEquals(graph.getVertices().size(), 4);
-        Assert.assertTrue( graph.getVertices().stream().map(Vertex::getElement).anyMatch(e -> e instanceof PlanDefinitionActionDataComponent));
+        Assert.assertTrue(graph.getVertices().stream().map(Vertex::getElement).anyMatch(e -> e instanceof PlanDefinitionActionDataComponent));
         Optional<Vertex<BackboneElement, Void>> dataEdgeOpt = graph.getVertices().stream().filter(e -> e.getElement() instanceof PlanDefinitionActionOComponent).findAny();
         Assert.assertTrue(dataEdgeOpt.isPresent());
         Vertex<BackboneElement, Void> dataVertex = dataEdgeOpt.get();
@@ -100,7 +100,7 @@ public class PlanDefinitionDataElementsRendererTest {
         // then
         var graph = graphBuilder.toGraph();
         Assert.assertEquals(graph.getVertices().size(), 4);
-        Assert.assertTrue( graph.getVertices().stream().map(Vertex::getElement).anyMatch(e -> e instanceof PlanDefinitionActionDataComponent));
+        Assert.assertTrue(graph.getVertices().stream().map(Vertex::getElement).anyMatch(e -> e instanceof PlanDefinitionActionDataComponent));
         Optional<Vertex<BackboneElement, Void>> dataEdgeOpt = graph.getVertices().stream().filter(e -> e.getElement() instanceof PlanDefinitionActionIComponent).findAny();
         Assert.assertTrue(dataEdgeOpt.isPresent());
         Vertex<BackboneElement, Void> dataVertex = dataEdgeOpt.get();

@@ -31,10 +31,10 @@ public final class TransformationConstants {
     public static final String START_META_TAG = "start";
     public static final String END_META_TAG = "end";
 
-    public static <V extends IBaseElement> Function<V, Object> KEY_MAPPER() {
-        return IBaseElement::getId;
+    private TransformationConstants() {
     }
 
-    private TransformationConstants() {
+    public static <V extends IBaseElement> Function<V, Object> KEY_MAPPER() {
+        return IBaseElement::getId;
     }
 }

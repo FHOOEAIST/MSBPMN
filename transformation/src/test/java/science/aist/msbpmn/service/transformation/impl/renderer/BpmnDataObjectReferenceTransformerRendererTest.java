@@ -9,9 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.helper.PlanDefinitionActionDataComponent;
-import science.aist.msbpmn.service.transformation.impl.EdgeType;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.DataRequirement;
 import org.hl7.fhir.r4.model.PlanDefinitionActionIComponent;
@@ -27,6 +24,9 @@ import science.aist.gtf.graph.builder.GraphBuilder;
 import science.aist.gtf.graph.builder.impl.GraphBuilderImpl;
 import science.aist.gtf.graph.impl.MetaTagImpl;
 import science.aist.gtf.graph.impl.VertexImpl;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.helper.PlanDefinitionActionDataComponent;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
 
 import javax.xml.bind.JAXBElement;
 import java.util.function.Function;
@@ -64,11 +64,11 @@ public class BpmnDataObjectReferenceTransformerRendererTest {
         // then
         Assert.assertNotNull(tDataObjectReference);
         Assert.assertNotNull(tDataObjectReference.getDataObjectRef());
-        Assert.assertEquals(((TBaseElement)tDataObjectReference.getDataObjectRef()).getId(), "id_ref");
+        Assert.assertEquals(((TBaseElement) tDataObjectReference.getDataObjectRef()).getId(), "id_ref");
         Assert.assertNotNull(tDataObjectReference.getExtensionElements());
         Assert.assertNotNull(tDataObjectReference.getExtensionElements().getAny());
         Assert.assertEquals(tDataObjectReference.getExtensionElements().getAny().size(), 1);
-        Assert.assertEquals(((JAXBElement<?>)tDataObjectReference.getExtensionElements().getAny().get(0)).getValue(), "MyType");
+        Assert.assertEquals(((JAXBElement<?>) tDataObjectReference.getExtensionElements().getAny().get(0)).getValue(), "MyType");
     }
 
     @Test

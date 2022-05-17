@@ -10,8 +10,6 @@
 package science.aist.msbpmn.service.impl;
 
 
-import science.aist.msbpmn.service.ModelTransformationService;
-import science.aist.msbpmn.service.configuration.TransformationConfiguration;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -24,6 +22,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import science.aist.jack.exception.ExceptionUtils;
+import science.aist.msbpmn.service.ModelTransformationService;
+import science.aist.msbpmn.service.configuration.TransformationConfiguration;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;

@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors;
 
-import science.aist.msbpmn.service.transformation.impl.EdgeType;
-import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
 import lombok.RequiredArgsConstructor;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.PlanDefinition;
@@ -21,6 +19,8 @@ import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.graph.builder.GraphBuilder;
 import science.aist.gtf.graph.factory.GraphFactory;
 import science.aist.gtf.transformation.renderer.TransformationRender;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
+import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
 
 import java.util.List;
 import java.util.function.BiConsumer;

@@ -9,9 +9,9 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.condition;
 
-import science.aist.msbpmn.service.transformation.renderer.condition.ContextRendererCondition;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.springframework.stereotype.Component;
+import science.aist.msbpmn.service.transformation.renderer.condition.ContextRendererCondition;
 
 import java.util.Collection;
 import java.util.List;

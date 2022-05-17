@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.traversal;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.impl.EdgeType;
 import lombok.CustomLog;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +21,8 @@ import science.aist.gtf.graph.factory.GraphFactory;
 import science.aist.gtf.graph.factory.GraphFactoryFactory;
 import science.aist.gtf.graph.traversal.TraversalStrategy;
 import science.aist.jack.stream.FunctionUtil;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -48,6 +48,15 @@ public class FhirGraphTraversalStrategy<T extends BackboneElement> implements Tr
 
     @NonNull
     private final Graph<T, Void> graph;
+
+    private static boolean hasTraversedDataNode(Vertex<?, Void> v) {
+        try {
+            return v.getMetaTagValue(TRAVERSED_DATA_ELEMENT_MT);
+        } catch (Exception e) {
+            log.debug(e);
+            return false;
+        }
+    }
 
     @Override
     public void traverse(Visitor<Vertex<T, Void>> visitor) {
@@ -119,15 +128,6 @@ public class FhirGraphTraversalStrategy<T extends BackboneElement> implements Tr
                 .filter(e -> e.getSource().equals(vertex))
                 .filter(e -> e.getMetaTagValue(TransformationConstants.EDGE_TYPE_META_TAG, EdgeType.class) == type)
                 .collect(Collectors.toList());
-    }
-
-    private static boolean hasTraversedDataNode(Vertex<?, Void> v) {
-        try {
-            return v.getMetaTagValue(TRAVERSED_DATA_ELEMENT_MT);
-        } catch (Exception e) {
-            log.debug(e);
-            return false;
-        }
     }
 
 }

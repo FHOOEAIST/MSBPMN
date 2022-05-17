@@ -91,7 +91,7 @@
                                 </goals>
                                 <configuration>
                                     <mainClass>
-                                        DocumentationGenerator
+                                        science.aist.msbpmn.service.documentation.DocumentationGenerator
                                     </mainClass>
                                     <classpathScope>test</classpathScope>
                                 </configuration>

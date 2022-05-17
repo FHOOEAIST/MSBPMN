@@ -9,8 +9,6 @@
 
 package science.aist.msbpmn.service.transformation.impl.renderer.condition;
 
-import science.aist.msbpmn.service.transformation.TransformationConstants;
-import science.aist.msbpmn.service.transformation.impl.EdgeType;
 import org.hl7.fhir.r4.model.PlanDefinition;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -18,6 +16,8 @@ import science.aist.gtf.graph.Vertex;
 import science.aist.gtf.graph.builder.GraphBuilder;
 import science.aist.gtf.graph.builder.impl.GraphBuilderImpl;
 import science.aist.gtf.graph.impl.MetaTagImpl;
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
 
 import static science.aist.jack.general.util.CastUtils.cast;
 
