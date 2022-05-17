@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>msbpmn</artifactId>
-        <groupId>at.fh.hagenberg.aist.msbpmn</groupId>
+        <groupId>science.aist.msbpmn</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -36,7 +36,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>at.fh.hagenberg.aist.msbpmn</groupId>
+            <groupId>science.aist.msbpmn</groupId>
             <artifactId>transformation</artifactId>
             <version>1.0-SNAPSHOT</version>
             <exclusions>

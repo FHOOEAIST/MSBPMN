@@ -1,6 +1,6 @@
 package ca.uhn.fhir.jpa.starter;
 
-import at.fh.hagenberg.aist.msbpmn.service.configuration.TransformationConfiguration;
+import science.aist.msbpmn.service.configuration.TransformationConfiguration;
 import ca.uhn.fhir.context.ConfigurationException;
 import ca.uhn.fhir.jpa.config.BaseJavaConfigR4;
 import ca.uhn.fhir.jpa.msbpmn.BpmnProvider;

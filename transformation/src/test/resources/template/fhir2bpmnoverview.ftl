@@ -1,4 +1,4 @@
-<#-- @ftlvariable name="samples" type="java.util.List<at.fh.hagenberg.aist.msbpmn.service.documentation.DocumentationGenerator.DocumentationSample>" -->
+<#-- @ftlvariable name="samples" type="java.util.List<science.aist.msbpmn.service.documentation.DocumentationGenerator.DocumentationSample>" -->
 
 #Fhir2BPMN
 
