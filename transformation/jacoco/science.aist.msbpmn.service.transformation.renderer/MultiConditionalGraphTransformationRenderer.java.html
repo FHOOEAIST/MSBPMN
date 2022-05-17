@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MultiConditionalGraphTransformationRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">transformation</a> &gt; <a href="index.source.html" class="el_package">science.aist.msbpmn.service.transformation.renderer</a> &gt; <span class="el_source">MultiConditionalGraphTransformationRenderer.java</span></div><h1>MultiConditionalGraphTransformationRenderer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package science.aist.msbpmn.service.transformation.renderer;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import science.aist.gtf.graph.Graph;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.transformation.renderer.TransformationRender;
+import science.aist.jack.general.util.CastUtils;
+
+import javax.xml.bind.JAXBElement;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * &lt;p&gt;MultiRenderer to decide between a list of child renderers&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+<span class="fc" id="L28">@AllArgsConstructor</span>
+public class MultiConditionalGraphTransformationRenderer&lt;R, S, T, E&gt; implements TransformationRender&lt;JAXBElement&lt;? extends R&gt;, R, Graph&lt;S, E&gt;, Vertex&lt;T, E&gt;&gt; {
+
+<span class="fc" id="L31">    @Getter</span>
+    private final List&lt;AbstractConditionalGraphTransformationRenderer&lt;? extends R, ? extends S, ? extends T&gt;&gt; childRenderers;
+
+    public JAXBElement&lt;? extends R&gt; renderElement(Graph&lt;S, E&gt; container, Vertex&lt;T, E&gt; currentElement) {
+<span class="fc" id="L35">        return this.getChildRenderers()</span>
+<span class="fc" id="L36">                .stream()</span>
+<span class="fc" id="L37">                .filter(cr -&gt; cr.canRenderer(currentElement))</span>
+<span class="fc" id="L38">                .map(cr -&gt; cr.renderElement(CastUtils.cast(container), CastUtils.cast(currentElement)))</span>
+<span class="fc" id="L39">                .filter(Optional::isPresent).map(Optional::get)</span>
+<span class="fc" id="L40">                .findFirst()</span>
+<span class="pc" id="L41">                .orElseThrow(() -&gt; new IllegalStateException(&quot;No renderer matches!&quot;));</span>
+    }
+
+    @Override
+    public R createElement() {
+<span class="nc" id="L46">        throw new UnsupportedOperationException(&quot;MultiConditionalGraphTransformationRenderer does not support create element&quot;);</span>
+    }
+
+    @Override
+    public R mapProperties(R r, Graph&lt;S, E&gt; vertices, Vertex&lt;T, E&gt; sVertex) {
+<span class="nc" id="L51">        throw new UnsupportedOperationException(&quot;MultiConditionalGraphTransformationRenderer does not support map properties&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

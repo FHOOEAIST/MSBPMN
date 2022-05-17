@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractBpmnEventDefinitionTransformationRenderer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">hapi-fhir</a> &gt; <a href="../index.html" class="el_bundle">transformation</a> &gt; <a href="index.source.html" class="el_package">science.aist.msbpmn.service.transformation.renderer</a> &gt; <span class="el_source">AbstractBpmnEventDefinitionTransformationRenderer.java</span></div><h1>AbstractBpmnEventDefinitionTransformationRenderer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package science.aist.msbpmn.service.transformation.renderer;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.hl7.fhir.r4.model.BackboneElement;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.omg.spec.bpmn.model.ObjectFactory;
+import org.omg.spec.bpmn.model.TEventDefinition;
+import science.aist.gtf.graph.Graph;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.transformation.renderer.TransformationRender;
+
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.xml.bind.JAXBElement;
+import java.util.function.Function;
+
+/**
+ * &lt;p&gt;Abstract class to create event definitions&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+<span class="fc" id="L32">@AllArgsConstructor</span>
+public abstract class AbstractBpmnEventDefinitionTransformationRenderer&lt;R extends TEventDefinition, S extends BackboneElement, T extends PlanDefinition.PlanDefinitionActionComponent&gt; implements TransformationRender&lt;JAXBElement&lt;? extends R&gt;, R, Graph&lt;S, Void&gt;, Vertex&lt;T, Void&gt;&gt; {
+
+    private static final String ID_PREFIX = &quot;event_&quot;;
+
+<span class="fc" id="L37">    @Getter(AccessLevel.PROTECTED)</span>
+    private final ObjectFactory objectFactory;
+
+    protected abstract Function&lt;R, JAXBElement&lt;? extends R&gt;&gt; constructJaxBElementMapping();
+
+    public JAXBElement&lt;? extends R&gt; renderElement(Graph&lt;S, Void&gt; container, Vertex&lt;T, Void&gt; currentElement) {
+<span class="fc" id="L43">        return constructJaxBElementMapping().apply(mapProperties(createElement(), container, currentElement));</span>
+    }
+
+    @Override
+    @OverridingMethodsMustInvokeSuper
+    public R mapProperties(R r, Graph&lt;S, Void&gt; graph, Vertex&lt;T, Void&gt; vertex) {
+<span class="fc" id="L49">        r.setId(ID_PREFIX + vertex.getElement().getId());</span>
+<span class="fc" id="L50">        return r;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

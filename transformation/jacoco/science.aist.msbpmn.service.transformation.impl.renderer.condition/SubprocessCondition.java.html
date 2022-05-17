@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubprocessCondition.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">transformation</a> &gt; <a href="index.source.html" class="el_package">science.aist.msbpmn.service.transformation.impl.renderer.condition</a> &gt; <span class="el_source">SubprocessCondition.java</span></div><h1>SubprocessCondition.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package science.aist.msbpmn.service.transformation.impl.renderer.condition;
+
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.springframework.stereotype.Component;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.transformation.renderer.condition.RendererCondition;
+
+import java.util.function.Predicate;
+
+/**
+ * &lt;p&gt;Condition for a subprocess&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+@Component
+<span class="fc" id="L26">public class SubprocessCondition implements RendererCondition&lt;Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt; {</span>
+
+<span class="fc" id="L28">    private final Predicate&lt;Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt; condition =</span>
+<span class="fc" id="L29">            v -&gt; v.tryGetMetaTagValue(TransformationConstants.SUBPROCESS_META_TAG).isPresent();</span>
+
+    @Override
+    public Predicate&lt;Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt; createCondition() {
+<span class="fc" id="L33">        return condition;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ParallelGatewayCondition.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">hapi-fhir</a> &gt; <a href="../index.html" class="el_bundle">transformation</a> &gt; <a href="index.source.html" class="el_package">science.aist.msbpmn.service.transformation.impl.renderer.condition</a> &gt; <span class="el_source">ParallelGatewayCondition.java</span></div><h1>ParallelGatewayCondition.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package science.aist.msbpmn.service.transformation.impl.renderer.condition;
+
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.springframework.stereotype.Component;
+import science.aist.gtf.graph.MetaTag;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.transformation.renderer.condition.RendererCondition;
+
+import java.util.Optional;
+import java.util.function.Predicate;
+
+/**
+ * &lt;p&gt;The condition to check if an ActionComponent is an parallel gateway&lt;/p&gt;
+ *
+ * @author Andreas Schuler
+ * @author Andreas Pointner
+ */
+@Component
+<span class="fc" id="L29">public class ParallelGatewayCondition implements RendererCondition&lt;Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt; {</span>
+
+
+    /*
+     * Predicate matches if the the vertex tested qualifies as BPMN Parallel Gateway
+     * @see{http://www.omg.org/spec/BPMN/2.0.2/PDF/} section 10.6.4
+     *
+     */
+<span class="fc" id="L37">    private final Predicate&lt;Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt; condition = vertex -&gt; {</span>
+<span class="fc" id="L38">        Optional&lt;MetaTag&lt;PlanDefinition.PlanDefinitionActionComponent&gt;&gt; joinSource =</span>
+<span class="fc" id="L39">                vertex.&lt;PlanDefinition.PlanDefinitionActionComponent&gt;getMetaTags().stream().filter(meta -&gt; meta.getKey().equals(TransformationConstants.JOIN_META_TAG)).findFirst();</span>
+<span class="fc bfc" id="L40" title="All 4 branches covered.">        if (joinSource.isPresent() &amp;&amp; joinSource.get().getValue().getSelectionBehavior() == PlanDefinition.ActionSelectionBehavior.ALL)</span>
+<span class="fc" id="L41">            return true;</span>
+
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (vertex.getElement().getGroupingBehavior() == null</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">                || vertex.getElement().getSelectionBehavior() == null)</span>
+<span class="fc" id="L45">            return false;</span>
+
+        // element component has groupingBehavior=logical-group and selectionBehavior=all
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        return vertex.getElement().getSelectionBehavior() == PlanDefinition.ActionSelectionBehavior.ALL</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">                &amp;&amp; vertex.getElement().getGroupingBehavior() == PlanDefinition.ActionGroupingBehavior.LOGICALGROUP;</span>
+    };
+
+
+    @Override
+    public Predicate&lt;Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt; createCondition() {
+<span class="fc" id="L55">        return this.condition;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

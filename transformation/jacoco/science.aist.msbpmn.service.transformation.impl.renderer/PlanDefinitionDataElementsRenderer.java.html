@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanDefinitionDataElementsRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">transformation</a> &gt; <a href="index.source.html" class="el_package">science.aist.msbpmn.service.transformation.impl.renderer</a> &gt; <span class="el_source">PlanDefinitionDataElementsRenderer.java</span></div><h1>PlanDefinitionDataElementsRenderer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package science.aist.msbpmn.service.transformation.impl.renderer;
+
+import science.aist.msbpmn.service.transformation.helper.PlanDefinitionActionDataComponent;
+import lombok.AllArgsConstructor;
+import lombok.CustomLog;
+import org.hl7.fhir.r4.model.*;
+import org.springframework.stereotype.Component;
+import science.aist.gtf.graph.Edge;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.graph.builder.GraphBuilder;
+import science.aist.gtf.transformation.renderer.TransformationRender;
+import science.aist.jack.general.util.CastUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+/**
+ * &lt;p&gt;Processes a given graph of backbone elements and adds the data elements + its flow to the graph&lt;/p&gt;
+ * &lt;p&gt;
+ * Notes: - We assume that every output create a new dataobject + ref - Every input has a reference to an output and can
+ * thus lead to the correct ref or has no ref, that it creates a new dataobject + ref
+ * &lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+@Component
+<span class="fc" id="L39">@AllArgsConstructor</span>
+<span class="fc" id="L40">@CustomLog</span>
+public class PlanDefinitionDataElementsRenderer implements TransformationRender&lt;GraphBuilder&lt;BackboneElement, Void&gt;, Map&lt;String, Vertex&lt;PlanDefinitionActionIOComponent, Void&gt;&gt;, GraphBuilder&lt;BackboneElement, Void&gt;, PlanDefinition&gt; {
+    private final Consumer&lt;Edge&lt;BackboneElement, Void&gt;&gt; edgeDataRefConsumer;
+
+    @Override
+    public GraphBuilder&lt;BackboneElement, Void&gt; renderElement(GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder, PlanDefinition currentElement) {
+<span class="fc" id="L46">        mapProperties(createElement(), graphBuilder, currentElement);</span>
+<span class="fc" id="L47">        return graphBuilder;</span>
+    }
+
+    @Override
+    public Map&lt;String, Vertex&lt;PlanDefinitionActionIOComponent, Void&gt;&gt; createElement() {
+<span class="fc" id="L52">        return new HashMap&lt;&gt;();</span>
+    }
+
+
+    @Override
+    public Map&lt;String, Vertex&lt;PlanDefinitionActionIOComponent, Void&gt;&gt; mapProperties(Map&lt;String, Vertex&lt;PlanDefinitionActionIOComponent, Void&gt;&gt; dataObjectRefMap, GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder, PlanDefinition currentElement) {
+<span class="fc" id="L58">        Consumer&lt;PlanDefinitionActionIOComponent&gt; createDataElem =</span>
+<span class="fc" id="L59">                elem -&gt; graphBuilder.from(elem)</span>
+<span class="fc" id="L60">                        .toWith(new PlanDefinitionActionDataComponent(&quot;dataObj_&quot; + elem.getId()))</span>
+<span class="fc" id="L61">                        .with(edgeDataRefConsumer);</span>
+
+<span class="fc" id="L63">        List&lt;PlanDefinition.PlanDefinitionActionComponent&gt; actions = graphBuilder.getGraphState().getVertices().stream()</span>
+<span class="fc" id="L64">                .filter(v -&gt; v.getElement() instanceof PlanDefinition.PlanDefinitionActionComponent)</span>
+<span class="fc" id="L65">                .map(CastUtils::&lt;Vertex&lt;BackboneElement, Void&gt;, Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt;&gt;cast)</span>
+<span class="fc" id="L66">                .map(Vertex::getElement)</span>
+<span class="fc" id="L67">                .collect(Collectors.toList());</span>
+
+        // handle data output (new element for every data output)
+<span class="fc" id="L70">        handleDataOutput(graphBuilder, createDataElem, actions);</span>
+
+        // handle data input
+<span class="fc" id="L73">        handleDataInput(graphBuilder, createDataElem, actions);</span>
+
+<span class="fc" id="L75">        return dataObjectRefMap;</span>
+    }
+
+    private void handleDataInput(GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder, Consumer&lt;PlanDefinitionActionIOComponent&gt; createDataElem, List&lt;PlanDefinition.PlanDefinitionActionComponent&gt; actions) {
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        for (PlanDefinition.PlanDefinitionActionComponent elem : actions) {</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            for (PlanDefinitionActionIComponent inputComponent : elem.getInput()) {</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                if (inputComponent.hasRelatedRequirement()) {</span>
+                    // case 1: there are related requirements, that means an output element already exists-
+<span class="fc bfc" id="L83" title="All 2 branches covered.">                    for (PlanDefinitionActionIRelatedActionIOComponent planDefinitionActionIRelatedActionIOComponent : inputComponent.getRelatedRequirement()) {</span>
+<span class="fc" id="L84">                        graphBuilder.fromByKey(planDefinitionActionIRelatedActionIOComponent.getRequirementId()).toWith(elem).with(edgeDataRefConsumer);</span>
+<span class="fc" id="L85">                    }</span>
+                } else {
+                    // case 2: this means that there is no reference on an input element: -- create it new
+<span class="fc" id="L88">                    log.warn(&quot;Input &quot; + inputComponent.getId() + &quot; of action &quot; + elem.getId() + &quot; has no reference, and thus creates a new data element&quot;);</span>
+<span class="fc" id="L89">                    createDataElem.accept(inputComponent);</span>
+<span class="fc" id="L90">                    graphBuilder.from(inputComponent).toWith(elem).with(edgeDataRefConsumer);</span>
+                }
+<span class="fc" id="L92">            }</span>
+<span class="fc" id="L93">        }</span>
+<span class="fc" id="L94">    }</span>
+
+    private void handleDataOutput(GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder, Consumer&lt;PlanDefinitionActionIOComponent&gt; createDataElem, List&lt;PlanDefinition.PlanDefinitionActionComponent&gt; actions) {
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (PlanDefinition.PlanDefinitionActionComponent elem : actions) {</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">            for (PlanDefinitionActionOComponent outputComponent : elem.getOutput()) {</span>
+<span class="fc" id="L99">                createDataElem.accept(outputComponent);</span>
+<span class="fc" id="L100">                graphBuilder.from(elem).toWith(outputComponent).with(edgeDataRefConsumer);</span>
+<span class="fc" id="L101">            }</span>
+<span class="fc" id="L102">        }</span>
+<span class="fc" id="L103">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

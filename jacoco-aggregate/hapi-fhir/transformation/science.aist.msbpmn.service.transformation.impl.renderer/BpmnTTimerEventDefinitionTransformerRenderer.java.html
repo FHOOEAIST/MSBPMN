@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>BpmnTTimerEventDefinitionTransformerRenderer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">hapi-fhir</a> &gt; <a href="../index.html" class="el_bundle">transformation</a> &gt; <a href="index.source.html" class="el_package">science.aist.msbpmn.service.transformation.impl.renderer</a> &gt; <span class="el_source">BpmnTTimerEventDefinitionTransformerRenderer.java</span></div><h1>BpmnTTimerEventDefinitionTransformerRenderer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package science.aist.msbpmn.service.transformation.impl.renderer;
+
+import science.aist.msbpmn.service.transformation.renderer.AbstractBpmnEventDefinitionTransformationRenderer;
+import lombok.CustomLog;
+import org.hl7.fhir.r4.model.*;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.omg.spec.bpmn.model.ObjectFactory;
+import org.omg.spec.bpmn.model.TExpression;
+import org.omg.spec.bpmn.model.TTimerEventDefinition;
+import org.springframework.stereotype.Component;
+import science.aist.gtf.graph.Graph;
+import science.aist.gtf.graph.Vertex;
+
+import javax.xml.bind.JAXBElement;
+import java.util.Date;
+import java.util.Optional;
+import java.util.function.Function;
+
+/**
+ * &lt;p&gt;Renderer for a BPMN TimerEvent.&lt;/p&gt;
+ *
+ * @author Andreas Schuler
+ * @author Andreas Pointner
+ */
+@Component
+<span class="fc" id="L37">@CustomLog</span>
+public class BpmnTTimerEventDefinitionTransformerRenderer extends AbstractBpmnEventDefinitionTransformationRenderer&lt;TTimerEventDefinition, BackboneElement, PlanDefinition.PlanDefinitionActionComponent&gt; {
+    public BpmnTTimerEventDefinitionTransformerRenderer(ObjectFactory objectFactory) {
+<span class="fc" id="L40">        super( objectFactory);</span>
+<span class="fc" id="L41">    }</span>
+
+    private TExpression createTimeDateExpression(TTimerEventDefinition eventDefinition, Date timing) {
+<span class="fc" id="L44">        DateTimeFormatter format = ISODateTimeFormat.dateTimeNoMillis();</span>
+<span class="fc" id="L45">        DateTime time = new DateTime(timing);</span>
+<span class="fc" id="L46">        TExpression expression = createExpression(time.toString(format));</span>
+<span class="fc" id="L47">        expression.setId(eventDefinition.getId() + &quot;_timeDate&quot;);</span>
+<span class="fc" id="L48">        return expression;</span>
+    }
+
+    private TExpression createTimeDurationExpression(TTimerEventDefinition eventDefinition, Timing.TimingRepeatComponent timingRepeat) {
+<span class="fc" id="L52">        String duration = &quot;P&quot; + timingRepeat.getDuration().toString() + timingRepeat.getDurationUnit().toCode().toUpperCase();</span>
+<span class="fc" id="L53">        TExpression expression = createExpression(duration);</span>
+<span class="fc" id="L54">        expression.setId(eventDefinition.getId() + &quot;_timeDuration&quot;);</span>
+<span class="fc" id="L55">        return expression;</span>
+    }
+
+    private TExpression createTimeRepeatingExpression(TTimerEventDefinition eventDefinition, Timing.TimingRepeatComponent timingRepeat) {
+<span class="fc" id="L59">        String repeating = &quot;R&quot; + timingRepeat.getFrequency() + &quot;/P&quot; + timingRepeat.getPeriod() + timingRepeat.getPeriodUnit().toCode().toUpperCase();</span>
+<span class="fc" id="L60">        TExpression expression = createExpression(repeating);</span>
+<span class="fc" id="L61">        expression.setId(eventDefinition.getId() + &quot;_timeRepeating&quot;);</span>
+<span class="fc" id="L62">        return expression;</span>
+    }
+
+    private TExpression createTimeConditionalExpression(TTimerEventDefinition eventDefinition, Expression expression) {
+<span class="fc" id="L66">        TExpression res = createExpression(expression.getExpression());</span>
+<span class="fc" id="L67">        res.setId(eventDefinition.getId() + &quot;_timeExpression&quot;);</span>
+<span class="fc" id="L68">        return res;</span>
+    }
+
+    private TExpression createExpression(String textEntry) {
+<span class="fc" id="L72">        TExpression expression = getObjectFactory().createTExpression();</span>
+<span class="fc" id="L73">        expression.getContent().add(textEntry);</span>
+<span class="fc" id="L74">        return expression;</span>
+    }
+
+    @Override
+    public TTimerEventDefinition mapProperties(TTimerEventDefinition definition, Graph&lt;BackboneElement, Void&gt; container, Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt; currentElement) {
+<span class="fc" id="L79">        definition = super.mapProperties(definition, container, currentElement);</span>
+        // add timed event definition here
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        Optional&lt;TriggerDefinition&gt; triggerDefinition = currentElement.getElement().getTrigger().stream().filter(trigger -&gt; trigger.getType() == TriggerDefinition.TriggerType.PERIODIC).findFirst();</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (triggerDefinition.isPresent()) {</span>
+<span class="fc" id="L83">            TriggerDefinition triggerDefinitionElement = triggerDefinition.get();</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">            if (triggerDefinitionElement.hasName()) {</span>
+<span class="fc" id="L85">                definition.setId(triggerDefinitionElement.getName());</span>
+            }
+
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            if (triggerDefinitionElement.hasTimingTiming()) {</span>
+<span class="fc" id="L89">                Timing timing = triggerDefinitionElement.getTimingTiming();</span>
+                // a timer definition can have exactly one element
+<span class="fc bfc" id="L91" title="All 2 branches covered.">                if (!timing.getEvent().isEmpty()) {</span>
+                    // a Time Date Element in ISO 8601 Format (2011-03-11T12:13:14Z)
+<span class="fc" id="L93">                    definition.setTimeDate(createTimeDateExpression(definition, timing.getEvent().get(0).getValue()));</span>
+<span class="pc bpc" id="L94" title="1 of 4 branches missed.">                } else if (timing.getRepeat().getDuration() != null &amp;&amp; timing.getRepeat().getDurationUnit() != null) {</span>
+                    // a Time Duration in ISO 8601 Durations
+                    /*
+                    P is the duration designator (for period) placed at the start of the duration representation.
+                    Y is the year designator that follows the value for the number of years.
+                    M is the month designator that follows the value for the number of months.
+                    W is the week designator that follows the value for the number of weeks.
+                    D is the day designator that follows the value for the number of days.
+                    T is the time designator that precedes the time components of the representation.
+                        H is the hour designator that follows the value for the number of hours.
+                        M is the minute designator that follows the value for the number of minutes.
+                        S is the second designator that follows the value for the number of seconds.
+                     */
+                    // Duration starts with P
+<span class="fc" id="L108">                    definition.setTimeDuration(createTimeDurationExpression(definition, timing.getRepeat()));</span>
+
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                } else if ((timing.getRepeat().getFrequency() &gt;= 0)</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">                        &amp;&amp; timing.getRepeat().getPeriod() != null</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">                        &amp;&amp; timing.getRepeat().getPeriodUnit() != null) {</span>
+                    // a Time Cycle in ISO 8601 Repeating Intervals
+<span class="fc" id="L114">                    definition.setTimeCycle(createTimeRepeatingExpression(definition, timing.getRepeat()));</span>
+                }
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">            } else if (triggerDefinitionElement.hasCondition()) {</span>
+                // https://docs.camunda.org/manual/7.9/reference/bpmn20/events/timer-events/#expressions
+<span class="fc" id="L118">                definition.setTimeDuration(createTimeConditionalExpression(definition, triggerDefinitionElement.getCondition()));</span>
+            }
+        }  // If no periodic trigger definition can be found, we render it as a normal start event
+<span class="fc" id="L121">        return definition;</span>
+    }
+
+    @Override
+    protected Function&lt;TTimerEventDefinition, JAXBElement&lt;? extends TTimerEventDefinition&gt;&gt; constructJaxBElementMapping() {
+<span class="fc" id="L126">        return getObjectFactory()::createTimerEventDefinition;</span>
+    }
+
+    @Override
+    public TTimerEventDefinition createElement() {
+<span class="fc" id="L131">        return getObjectFactory().createTTimerEventDefinition();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

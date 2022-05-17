@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>PlanDefinitionBackboneGraphParticipantsProcessor.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">hapi-fhir</a> &gt; <a href="../index.html" class="el_bundle">transformation</a> &gt; <a href="index.source.html" class="el_package">science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors</a> &gt; <span class="el_source">PlanDefinitionBackboneGraphParticipantsProcessor.java</span></div><h1>PlanDefinitionBackboneGraphParticipantsProcessor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors;
+
+import science.aist.msbpmn.service.transformation.helper.BackboneIdProvider;
+import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import org.hl7.fhir.r4.model.BackboneElement;
+import org.hl7.fhir.r4.model.Element;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.hl7.fhir.r4.model.PlanDefinitionActorComponent;
+import org.springframework.stereotype.Component;
+import science.aist.gtf.graph.Edge;
+import science.aist.gtf.graph.builder.GraphBuilder;
+import science.aist.gtf.graph.factory.GraphFactory;
+
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static science.aist.msbpmn.service.transformation.TransformationConstants.PARTICIPANTS_COLL_META_TAG;
+
+/**
+ * &lt;p&gt;Processes the participants of a plan definition&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+@Component
+<span class="pc bpc" id="L38" title="2 of 4 branches missed.">@AllArgsConstructor</span>
+public class PlanDefinitionBackboneGraphParticipantsProcessor implements PlanDefinitionBackboneGraphComponentProcessor {
+
+    @NonNull
+    private final GraphFactory graphFactory;
+
+    @NonNull
+    private final Consumer&lt;Edge&lt;BackboneElement, Void&gt;&gt; edgeParticipantConsumer;
+
+    @SuppressWarnings(&quot;squid:S1698&quot;)
+    // we want an == comparison between actions and planDefinition.getAction() as we want to check if it is the same object
+    @Override
+    public void process(PlanDefinition planDefinition, List&lt;PlanDefinition.PlanDefinitionActionComponent&gt; actions, GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder) {
+<span class="fc bfc" id="L51" title="All 4 branches covered.">        if (!(planDefinition.getAction() == actions &amp;&amp; planDefinition.hasActor())) return;</span>
+
+<span class="fc" id="L53">        Map&lt;String, PlanDefinitionActorComponent&gt; actorCache = planDefinition.getActor().stream()</span>
+<span class="fc" id="L54">                .collect(Collectors.toMap(Element::getId, Function.identity()));</span>
+<span class="fc" id="L55">        Set&lt;String&gt; usedActors = new HashSet&lt;&gt;();</span>
+
+        // Collecting all actions:
+<span class="fc" id="L58">        List&lt;PlanDefinition.PlanDefinitionActionComponent&gt; allActions = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        for (PlanDefinition.PlanDefinitionActionComponent action : actions) {</span>
+<span class="fc" id="L60">            extractActions(allActions, action);</span>
+<span class="fc" id="L61">        }</span>
+
+<span class="fc" id="L63">        allActions.stream()</span>
+<span class="fc" id="L64">                .filter(PlanDefinition.PlanDefinitionActionComponent::hasParticipant)</span>
+<span class="fc" id="L65">                .forEach(planDefinitionActionComponent -&gt; planDefinitionActionComponent.getParticipant().forEach(</span>
+                        participant -&gt; {
+<span class="fc" id="L67">                            usedActors.add(participant.getActor());</span>
+<span class="fc" id="L68">                            graphBuilder</span>
+<span class="fc" id="L69">                                    .from(actorCache.get(participant.getActor()))</span>
+<span class="fc" id="L70">                                    .toWith(planDefinitionActionComponent)</span>
+<span class="fc" id="L71">                                    .with(edgeParticipantConsumer);</span>
+<span class="fc" id="L72">                        })</span>
+                );
+
+<span class="fc" id="L75">        graphBuilder.getOrAddVertex(new BackboneIdProvider(&quot;participantHelperElement&quot;))</span>
+<span class="fc" id="L76">                .addMetaTag(graphFactory.createMetaTag(PARTICIPANTS_COLL_META_TAG, true));</span>
+
+<span class="fc" id="L78">        actorCache.entrySet()</span>
+<span class="fc" id="L79">                .stream()</span>
+                // Ignore unused actors
+<span class="fc" id="L81">                .filter(es -&gt; usedActors.contains(es.getKey()))</span>
+<span class="fc" id="L82">                .map(Map.Entry::getValue)</span>
+<span class="fc" id="L83">                .forEach(p -&gt; graphBuilder.fromByKey(&quot;participantHelperElement&quot;).to(p));</span>
+<span class="fc" id="L84">    }</span>
+
+    /**
+     * This is used to extract the actions from the current process, because there are groups for xor / parallel split
+     * with actions in it, that would be missed otherwise.
+     *
+     * @param actionComponents All current collected action Components
+     * @param current          The current element to process
+     */
+    public void extractActions(List&lt;PlanDefinition.PlanDefinitionActionComponent&gt; actionComponents, PlanDefinition.PlanDefinitionActionComponent current) {
+<span class="fc" id="L94">        actionComponents.add(current);</span>
+<span class="pc bpc" id="L95" title="1 of 6 branches missed.">        if (current.hasAction() &amp;&amp; current.hasGroupingBehavior() &amp;&amp; current.getGroupingBehavior() == PlanDefinition.ActionGroupingBehavior.LOGICALGROUP) {</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            for (PlanDefinition.PlanDefinitionActionComponent planDefinitionActionComponent : current.getAction()) {</span>
+<span class="fc" id="L97">                extractActions(actionComponents, planDefinitionActionComponent);</span>
+<span class="fc" id="L98">            }</span>
+        }
+<span class="fc" id="L100">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

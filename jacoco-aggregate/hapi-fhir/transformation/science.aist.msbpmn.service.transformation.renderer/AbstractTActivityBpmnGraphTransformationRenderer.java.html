@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTActivityBpmnGraphTransformationRenderer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">hapi-fhir</a> &gt; <a href="../index.html" class="el_bundle">transformation</a> &gt; <a href="index.source.html" class="el_package">science.aist.msbpmn.service.transformation.renderer</a> &gt; <span class="el_source">AbstractTActivityBpmnGraphTransformationRenderer.java</span></div><h1>AbstractTActivityBpmnGraphTransformationRenderer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package science.aist.msbpmn.service.transformation.renderer;
+
+import science.aist.msbpmn.service.transformation.TransformationConstants;
+import science.aist.msbpmn.service.transformation.helper.IdProvider;
+import science.aist.msbpmn.service.transformation.impl.EdgeType;
+import lombok.NonNull;
+import org.hl7.fhir.r4.model.BackboneElement;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.hl7.fhir.r4.model.PlanDefinitionActionIOComponent;
+import org.omg.spec.bpmn.model.*;
+import science.aist.gtf.graph.Edge;
+import science.aist.gtf.graph.Graph;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.transformation.renderer.condition.RendererCondition;
+import science.aist.jack.general.util.CastUtils;
+
+/**
+ * &lt;p&gt;Created by Andreas Pointner on 14.05.2020&lt;/p&gt;
+ * &lt;p&gt;Abstraction for all renderer that are baesd on a TActivity&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+public abstract class AbstractTActivityBpmnGraphTransformationRenderer&lt;R extends TActivity, S extends BackboneElement, T extends PlanDefinition.PlanDefinitionActionComponent&gt; extends AbstractTFlowNodeBpmnGraphTransformationRenderer&lt;R, S, T&gt; {
+
+    private static final String BPMN_DATA_FLOW_PREFIX = &quot;df_&quot;;
+
+    private static final String BPMN_PROPERTY_PREFIX = &quot;prop_&quot;;
+
+    public AbstractTActivityBpmnGraphTransformationRenderer(RendererCondition&lt;Vertex&lt;T, Void&gt;&gt; rendererCondition, ObjectFactory objectFactory) {
+<span class="fc" id="L39">        super(rendererCondition, objectFactory);</span>
+<span class="fc" id="L40">    }</span>
+
+    @Override
+<span class="pc bpc" id="L43" title="2 of 4 branches missed.">    public R mapProperties(@NonNull R element, Graph&lt;S, Void&gt; container, @NonNull Vertex&lt;T, Void&gt; currentElement) {</span>
+<span class="fc" id="L44">        element = super.mapProperties(element, container, currentElement);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        for (Edge&lt;T, Void&gt; edge : currentElement.getEdges()) {</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">            if (edge.getMetaTagValue(TransformationConstants.EDGE_TYPE_META_TAG, EdgeType.class) == EdgeType.DATA_REF) {</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">                if (edge.getTarget().equals(currentElement)) {</span>
+                    // incoming edge
+<span class="fc" id="L49">                    PlanDefinitionActionIOComponent ioComponent = CastUtils.&lt;Object, PlanDefinitionActionIOComponent&gt;cast(edge.getSource().getElement());</span>
+
+<span class="fc" id="L51">                    TProperty property = objectFactory.createTProperty();</span>
+                    // ad the name of the current element to the id as well, to make sure it is unique over the whole process.
+<span class="fc" id="L53">                    property.setId(BPMN_PROPERTY_PREFIX + currentElement.getElement().getId() + &quot;_&quot; + ioComponent.getId());</span>
+<span class="fc" id="L54">                    property.setName(BPMN_PROPERTY_PREFIX + ioComponent.getName());</span>
+<span class="fc" id="L55">                    element.getProperty().add(property);</span>
+
+<span class="fc" id="L57">                    TDataInputAssociation tDataInputAssociation = objectFactory.createTDataInputAssociation();</span>
+<span class="fc" id="L58">                    tDataInputAssociation.setId(BPMN_DATA_FLOW_PREFIX + element.getId() + &quot;_&quot; + ioComponent.getId());</span>
+<span class="fc" id="L59">                    tDataInputAssociation.getSourceRef().add(objectFactory.createTDataAssociationSourceRef(new IdProvider(ioComponent.getId())));</span>
+<span class="fc" id="L60">                    tDataInputAssociation.setTargetRef(property);</span>
+<span class="fc" id="L61">                    element.getDataInputAssociation().add(tDataInputAssociation);</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">                } else if (edge.getSource().equals(currentElement)) {</span>
+                    // outgoing edge
+<span class="fc" id="L64">                    PlanDefinitionActionIOComponent ioComponent = CastUtils.&lt;Object, PlanDefinitionActionIOComponent&gt;cast(edge.getTarget().getElement());</span>
+<span class="fc" id="L65">                    TDataOutputAssociation tDataOutputAssociation = objectFactory.createTDataOutputAssociation();</span>
+<span class="fc" id="L66">                    tDataOutputAssociation.setId(BPMN_DATA_FLOW_PREFIX + element.getId() + &quot;_&quot; + ioComponent.getId());</span>
+<span class="fc" id="L67">                    tDataOutputAssociation.setTargetRef(new IdProvider(ioComponent.getId()));</span>
+<span class="fc" id="L68">                    element.getDataOutputAssociation().add(tDataOutputAssociation);</span>
+                }
+            }
+<span class="fc" id="L71">        }</span>
+
+<span class="fc" id="L73">        return element;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

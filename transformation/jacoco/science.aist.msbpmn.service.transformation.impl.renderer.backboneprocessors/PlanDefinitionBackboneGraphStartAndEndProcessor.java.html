@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlanDefinitionBackboneGraphStartAndEndProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">transformation</a> &gt; <a href="index.source.html" class="el_package">science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors</a> &gt; <span class="el_source">PlanDefinitionBackboneGraphStartAndEndProcessor.java</span></div><h1>PlanDefinitionBackboneGraphStartAndEndProcessor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2020 the original author or authors.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package science.aist.msbpmn.service.transformation.impl.renderer.backboneprocessors;
+
+import science.aist.msbpmn.service.transformation.impl.renderer.PlanDefinitionBackboneGraphComponentProcessor;
+import science.aist.msbpmn.service.transformation.renderer.condition.ContextRendererCondition;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.hl7.fhir.instance.model.api.IBaseElement;
+import org.hl7.fhir.r4.model.BackboneElement;
+import org.hl7.fhir.r4.model.PlanDefinition;
+import org.springframework.stereotype.Component;
+import science.aist.gtf.graph.Vertex;
+import science.aist.gtf.graph.builder.GraphBuilder;
+import science.aist.gtf.graph.factory.GraphFactory;
+import science.aist.jack.general.util.CastUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static science.aist.msbpmn.service.transformation.TransformationConstants.*;
+
+/**
+ * &lt;p&gt;Processes the start and end nodes of a plan definition&lt;/p&gt;
+ *
+ * @author Andreas Pointner
+ */
+<span class="pc bpc" id="L35" title="3 of 6 branches missed.">@RequiredArgsConstructor</span>
+@Component
+public class PlanDefinitionBackboneGraphStartAndEndProcessor implements PlanDefinitionBackboneGraphComponentProcessor {
+
+    @NonNull
+    private final GraphFactory graphFactory;
+
+    @NonNull
+    private final ContextRendererCondition&lt;List&lt;PlanDefinition.PlanDefinitionActionComponent&gt;, PlanDefinition.PlanDefinitionActionComponent&gt; planDefinitionActionStartEventCondition;
+
+    @NonNull
+    private final ContextRendererCondition&lt;List&lt;PlanDefinition.PlanDefinitionActionComponent&gt;, PlanDefinition.PlanDefinitionActionComponent&gt; planDefinitionActionEndEventCondition;
+
+<span class="fc" id="L48">    private int specialUniqueId = 1;</span>
+
+    private static final String START = &quot;start&quot;;
+    private static final String END = &quot;end&quot;;
+
+    @Override
+    public void process(PlanDefinition planDefinition, List&lt;PlanDefinition.PlanDefinitionActionComponent&gt; list, GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder) {
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (PlanDefinition.PlanDefinitionActionComponent planDefinitionActionComponent : new ArrayList&lt;&gt;(list)) {</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            if (planDefinitionActionStartEventCondition.createCondition().test(list, planDefinitionActionComponent)) {</span>
+<span class="fc" id="L57">                handleStartAction(graphBuilder, list, CastUtils.cast(graphBuilder.getOrAddVertex(planDefinitionActionComponent)));</span>
+            }
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            if (planDefinitionActionEndEventCondition.createCondition().test(list, planDefinitionActionComponent)) {</span>
+<span class="fc" id="L60">                handleEndAction(graphBuilder, list, planDefinitionActionComponent);</span>
+            }
+<span class="fc" id="L62">        }</span>
+<span class="fc" id="L63">    }</span>
+
+    private void handleStartAction(GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder, List&lt;PlanDefinition.PlanDefinitionActionComponent&gt; list, Vertex&lt;PlanDefinition.PlanDefinitionActionComponent, Void&gt; startElement) {
+
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (startElement.tryGetMetaTagValue(EVENT_META_TAG).isPresent()) {</span>
+<span class="fc" id="L68">            startElement.addMetaTag(graphFactory.createMetaTag(START_META_TAG, startElement.getElement()));</span>
+<span class="fc" id="L69">            graphBuilder.updateKey(startElement.getElement(), START + specialUniqueId, IBaseElement::setId);</span>
+<span class="fc" id="L70">            specialUniqueId++;</span>
+<span class="fc" id="L71">            return;</span>
+        }
+
+<span class="fc" id="L74">        PlanDefinition.PlanDefinitionActionComponent startAction = new PlanDefinition.PlanDefinitionActionComponent();</span>
+<span class="fc" id="L75">        startAction.setId(START + specialUniqueId);</span>
+<span class="fc" id="L76">        specialUniqueId++;</span>
+<span class="fc" id="L77">        startAction.setTitle(START);</span>
+        // #93 copy trigger definition to start element
+<span class="fc" id="L79">        startAction.getParticipant().addAll(startElement.getElement().getParticipant());</span>
+<span class="fc" id="L80">        graphBuilder.getOrAddVertex(startAction).addMetaTag(graphFactory.createMetaTag(START_META_TAG, startElement.getElement()));</span>
+<span class="fc" id="L81">        addRelation(startAction, startElement.getElement().getId());</span>
+<span class="fc" id="L82">        list.add(startAction);</span>
+<span class="fc" id="L83">    }</span>
+
+
+    private void handleEndAction(GraphBuilder&lt;BackboneElement, Void&gt; graphBuilder, List&lt;PlanDefinition.PlanDefinitionActionComponent&gt; list, PlanDefinition.PlanDefinitionActionComponent endDefinition) {
+<span class="fc" id="L87">        PlanDefinition.PlanDefinitionActionComponent endAction = new PlanDefinition.PlanDefinitionActionComponent();</span>
+<span class="fc" id="L88">        endAction.setId(END + specialUniqueId);</span>
+<span class="fc" id="L89">        specialUniqueId++;</span>
+<span class="fc" id="L90">        endAction.setTitle(END);</span>
+<span class="fc" id="L91">        graphBuilder.getOrAddVertex(endAction).addMetaTag(graphFactory.createMetaTag(END_META_TAG, endDefinition));</span>
+
+<span class="fc" id="L93">        endAction.getParticipant().addAll(endDefinition.getParticipant());</span>
+<span class="fc" id="L94">        addRelation(endDefinition, endAction.getId());</span>
+<span class="fc" id="L95">        list.add(endAction);</span>
+<span class="fc" id="L96">    }</span>
+
+    private static void addRelation(PlanDefinition.PlanDefinitionActionComponent planDefinitionActionComponent, String relation) {
+<span class="fc" id="L99">        PlanDefinition.PlanDefinitionActionRelatedActionComponent planDefinitionActionRelatedActionComponent = new PlanDefinition.PlanDefinitionActionRelatedActionComponent();</span>
+<span class="fc" id="L100">        planDefinitionActionRelatedActionComponent.setActionId(relation);</span>
+<span class="fc" id="L101">        planDefinitionActionComponent.getRelatedAction().add(planDefinitionActionRelatedActionComponent);</span>
+<span class="fc" id="L102">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
