@@ -66,8 +66,8 @@
         <javax.el-api.version>3.0.0</javax.el-api.version>
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <bpmn-viz.version>1.0.2</bpmn-viz.version>
-        <seshat-api.version>1.1.2</seshat-api.version>
-        <gtf.version>1.0.0</gtf.version>
+        <seshat-api.version>1.1.3</seshat-api.version>
+        <gtf.version>2.0.0</gtf.version>
 
         <!-- maven stuff -->
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
